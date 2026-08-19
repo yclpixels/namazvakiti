@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://www.namazvakiti.net/sitemap.xml
+Sitemap: https://namazvakiti.net/sitemap.xml

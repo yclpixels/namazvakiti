@@ -28,7 +28,7 @@ for (const p of dataset.provinces) {
     const dataCityM = html.match(/data-city="([^"]+)"/);
     const dataDistM = html.match(/data-district="([^"]+)"/);
     const h1Matches = [...html.matchAll(/<h1[^>]*>([^<]*)<\/h1>/g)];
-    const expectedUrl = `https://www.namazvakiti.net/${p.slug}/${d.slug}/`;
+    const expectedUrl = `https://namazvakiti.net/${p.slug}/${d.slug}/`;
 
     checks["canonical doğru"] = !!canonicalM && canonicalM[1] === expectedUrl;
     checks["title benzersiz metin içeriyor"] = !!titleM && titleM[1].includes(d.name);
