@@ -1,7 +1,15 @@
-# Force HTTPS + WWW
-http://namazvakiti.net/*   https://www.namazvakiti.net/:splat   301
-https://namazvakiti.net/*  https://www.namazvakiti.net/:splat   301
-http://www.namazvakiti.net/*    https://www.namazvakiti.net/:splat   301
+# FAZ 6.3 — Force HTTPS + WWW canonicalization NOT implemented here.
+# Cloudflare Pages _redirects only accepts relative-path sources; absolute-URL
+# sources (http://namazvakiti.net/*, https://namazvakiti.net/*, http://www...)
+# are rejected outright ("Only relative URLs are allowed" — verified via
+# `wrangler pages dev` against this exact file in FAZ 6.2/6.3). This must be
+# implemented via Cloudflare "Redirect Rules" (Bulk Redirects) at the
+# zone/dashboard level once the custom domain is connected (FAZ 7+), not here.
+# Netlify (current production) continues to enforce its own HTTPS/WWW
+# canonicalization independently of this file — verify Netlify's site-level
+# "Force HTTPS" / primary-domain setting before relying on it, since the
+# absolute-URL _redirects lines that used to (also) cover this on Netlify
+# were removed from this shared file as part of this fix.
 
 
 # Allow static files to bypass SPA fallback
@@ -10,95 +18,22 @@ http://www.namazvakiti.net/*    https://www.namazvakiti.net/:splat   301
 /sitemap.xml /sitemap.xml 200
 /google30951a8846720cf2.html /google30951a8846720cf2.html 200
 
+# Kök seviyesindeki gerçek proje klasörleri — asagidaki tek-segment
+# wildcard'in bunlari yanlislikla var olmayan bir .html'e yönlendirmesini
+# engeller (wildcard'dan ONCE gelmeli, ilk eslesen kural kazanir)
+/assets/    /assets/    200
+/docs/    /docs/    200
+/tools/    /tools/    200
 
-# Eski klasör-tipi il sayfalarindan duz URL'e yonlendirme (duplicate icerik temizligi)
-/adana/    /adana.html    301
-/adiyaman/    /adiyaman.html    301
-/afyonkarahisar/    /afyonkarahisar.html    301
-/agri/    /agri.html    301
-/aksaray/    /aksaray.html    301
-/amasya/    /amasya.html    301
-/ankara/    /ankara.html    301
-/antalya/    /antalya.html    301
-/ardahan/    /ardahan.html    301
-/artvin/    /artvin.html    301
-/aydin/    /aydin.html    301
-/balikesir/    /balikesir.html    301
-/bartin/    /bartin.html    301
-/batman/    /batman.html    301
-/bayburt/    /bayburt.html    301
-/bilecik/    /bilecik.html    301
-/bingol/    /bingol.html    301
-/bitlis/    /bitlis.html    301
-/bolu/    /bolu.html    301
-/burdur/    /burdur.html    301
-/bursa/    /bursa.html    301
-/canakkale/    /canakkale.html    301
-/cankiri/    /cankiri.html    301
-/corum/    /corum.html    301
-/denizli/    /denizli.html    301
-/diyarbakir/    /diyarbakir.html    301
-/duzce/    /duzce.html    301
-/edirne/    /edirne.html    301
-/elazig/    /elazig.html    301
-/erzincan/    /erzincan.html    301
-/erzurum/    /erzurum.html    301
-/eskisehir/    /eskisehir.html    301
-/gaziantep/    /gaziantep.html    301
-/giresun/    /giresun.html    301
-/gizlilik/    /gizlilik.html    301
-/gumushane/    /gumushane.html    301
-/hakkari/    /hakkari.html    301
-/hakkimizda/    /hakkimizda.html    301
-/hatay/    /hatay.html    301
-/igdir/    /igdir.html    301
-/iletisim/    /iletisim.html    301
-/isparta/    /isparta.html    301
-/istanbul/    /istanbul.html    301
-/izmir/    /izmir.html    301
-/kahramanmaras/    /kahramanmaras.html    301
-/karabuk/    /karabuk.html    301
-/karaman/    /karaman.html    301
-/kars/    /kars.html    301
-/kastamonu/    /kastamonu.html    301
-/kayseri/    /kayseri.html    301
-/kilis/    /kilis.html    301
-/kirikkale/    /kirikkale.html    301
-/kirklareli/    /kirklareli.html    301
-/kirsehir/    /kirsehir.html    301
-/kocaeli/    /kocaeli.html    301
-/konya/    /konya.html    301
-/kullanim/    /kullanim.html    301
-/kutahya/    /kutahya.html    301
-/malatya/    /malatya.html    301
-/manisa/    /manisa.html    301
-/mardin/    /mardin.html    301
-/mersin/    /mersin.html    301
-/mugla/    /mugla.html    301
-/mus/    /mus.html    301
-/namaz-vakitleri-nasil-hesaplanir/    /namaz-vakitleri-nasil-hesaplanir.html    301
-/nevsehir/    /nevsehir.html    301
-/nigde/    /nigde.html    301
-/ordu/    /ordu.html    301
-/osmaniye/    /osmaniye.html    301
-/rize/    /rize.html    301
-/sakarya/    /sakarya.html    301
-/samsun/    /samsun.html    301
-/sanliurfa/    /sanliurfa.html    301
-/sehirler/    /sehirler.html    301
-/siirt/    /siirt.html    301
-/sinop/    /sinop.html    301
-/sirnak/    /sirnak.html    301
-/sivas/    /sivas.html    301
-/tekirdag/    /tekirdag.html    301
-/tokat/    /tokat.html    301
-/trabzon/    /trabzon.html    301
-/tunceli/    /tunceli.html    301
-/usak/    /usak.html    301
-/van/    /van.html    301
-/yalova/    /yalova.html    301
-/yozgat/    /yozgat.html    301
-/zonguldak/    /zonguldak.html    301
+
+# Eski klasör-tipi il/statik-sayfa sayfalarindan duz URL'e yonlendirme
+# (duplicate icerik temizligi). Tek bir dinamik (placeholder) kural, önceki
+# 87 ayri statik kuralin yerine gecti — Cloudflare Pages _redirects icin
+# _redirects basina en fazla 100 dinamik kural destegi var; bu tek kural o
+# butceyi pratik olarak hic kullanmiyor. Sadece TEK segmentli yollari
+# eslestirir (/istanbul/ eslesir, /istanbul/sisli/ ESLESMEZ) — dogrulandi.
+/:slug/    /:slug.html    301
+
 
 # FAZ 1C — yanlis slug / bozuk encoding duzeltmeleri
 /afyonkarahisar/emirdagi/    /afyonkarahisar/emirdag/    301
@@ -120,5 +55,10 @@ http://www.namazvakiti.net/*    https://www.namazvakiti.net/:splat   301
 /kahramanmaras/merkez/    /kahramanmaras.html    301
 /van/merkez/    /van.html    301
 
-# Bilinmeyen URL'ler icin gercek 404 (soft-404 onlendi)
-/*    /404.html   404
+# Bilinmeyen URL'ler icin 404: Cloudflare Pages _redirects, status kodu
+# olarak 404'u KABUL ETMIYOR (yalnizca 200/301/302/303/307/308 gecerli —
+# "Valid status codes are 200, 301, 302 (default), 303, 307, or 308" —
+# wrangler pages dev ile dogrulandi, bu satir daima gecersiz/etkisizdi).
+# Bunun yerine kok dizindeki 404.html, Cloudflare Pages tarafindan hicbir
+# _redirects kurali gerekmeden otomatik olarak (gercek 404 durum koduyla)
+# sunuluyor — dogrulandi. Bu yuzden burada ayrica bir kural YOK.
