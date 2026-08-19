@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+
+# Environment / secrets (bu proje hiçbir secret içermez, ama olası gelecekteki
+# eklemelere karşı önlem)
+.env
+.env.*
+!.env.example
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log
+npm-debug.log*
+
+# Local temp / cache
+.cache/
+tmp/
+temp/
+
+# Yerel yedekler (proje kökünde asla tutulmamalı, ama önlem)
+*.backup/
+BACKUP_*/
+
+# Script çalışma çıktıları (üretilen dataset dışındaki loglar — dataset'in
+# kendisi, tools/data/turkey-il-ilce.json, TAKİP EDİLİYOR çünkü generate-pages.js
+# ve diğer script'lerin çalışması için gerekli kaynak veri)
+tools/data/faz2-quality-gate-results.json
+tools/data/faz2-created-pages.json
+
+# İç denetim/audit notları — proje geliştirme sürecinin kaydı, public
+# repository'nin parçası değil (bkz. internal-notes/README bilgilendirmesi)
+internal-notes/
+
+# Yerel geliştirme sunucusu proje dışı çalışma dosyaları
+*.local

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Namaz Vakitleri – Çevrimdışı</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    min-height:100vh;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    background:#070b18;color:#fff;
+    font-family:system-ui,-apple-system,sans-serif;
+    text-align:center;padding:24px;
+    gap:16px;
+  }
+  .logo{font-size:52px}
+  h1{font-size:22px;font-weight:700}
+  p{color:rgba(255,255,255,.65);font-size:15px;line-height:1.6;max-width:320px}
+  button{
+    margin-top:8px;padding:12px 28px;
+    border-radius:14px;border:none;cursor:pointer;
+    background:rgba(255,255,255,.12);color:#fff;
+    font-size:15px;backdrop-filter:blur(8px);
+    transition:background .2s;
+  }
+  button:hover{background:rgba(255,255,255,.2)}
+</style>
+</head>
+<body>
+  <div class="logo">🕌</div>
+  <h1>Çevrimdışısınız</h1>
+  <p>İnternet bağlantısı bulunamadı. Daha önce görüntülediğiniz vakitler önbellekte olabilir.</p>
+  <button onclick="location.reload()">Yeniden Dene</button>
+  <button onclick="history.back()">Geri Dön</button>
+</body>
+</html>

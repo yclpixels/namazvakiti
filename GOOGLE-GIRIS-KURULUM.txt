@@ -1,0 +1,55 @@
+================================================
+  GOOGLE GİRİŞİ - KURULUM (5 dakika, ücretsiz)
+================================================
+
+Site artık gerçek Google girişi kodunu içeriyor, ama
+çalışması için senin bir "Client ID" alman gerekiyor.
+Bu ücretsizdir ve Google hesabınla yapılır.
+
+------------------------------------------------
+ADIM ADIM
+------------------------------------------------
+
+1) Şu adrese git: https://console.cloud.google.com/
+
+2) Üstte "Proje Seç" > "Yeni Proje" > isim ver
+   (örn: "Namaz Vakti") > Oluştur
+
+3) Sol menü > "API'ler ve Hizmetler" > "OAuth onay ekranı"
+   - User Type: "External" seç > Oluştur
+   - Uygulama adı: "Namaz Vakti"
+   - Kullanıcı destek e-postası: kendi e-postan
+   - Diğer alanları boş geçebilirsin > Kaydet ve Devam Et
+   - "Kapsamlar" adımını atla > Kaydet ve Devam Et
+   - "Test Kullanıcıları" adımını atla > Kaydet ve Devam Et
+
+4) Sol menü > "Kimlik Bilgileri" > üstte
+   "+ KİMLİK BİLGİSİ OLUŞTUR" > "OAuth istemci kimliği"
+   - Uygulama türü: "Web uygulaması"
+   - Ad: "Namaz Vakti Web"
+   - "Yetkili JavaScript kaynakları" kısmına EKLE:
+       https://www.namazvakiti.net
+       https://namazvakiti.net
+   - "Oluştur" butonuna bas
+
+5) Açılan pencerede "Client ID" görünecek, şuna benzer:
+   123456789-abcdefgh.apps.googleusercontent.com
+   Bunu KOPYALA.
+
+6) app.js dosyasını aç, en üstlere yakın yerde şunu bul:
+
+   const GOOGLE_CLIENT_ID = "BURAYA_KENDI_CLIENT_ID...";
+
+   Tırnak içindeki metni kendi Client ID'in ile değiştir:
+
+   const GOOGLE_CLIENT_ID = "123456789-abcdefgh.apps.googleusercontent.com";
+
+7) Kaydet, siteyi tekrar deploy et. Artık "G" butonuna
+   basınca gerçek Google giriş penceresi açılacak.
+
+------------------------------------------------
+NOT: Bu, kullanıcının adını/fotoğrafını gösterir
+(tarayıcıda saklanır). Favori şehir kaydetme gibi
+cihazlar arası senkron özellikler için ileride
+Firebase eklenebilir - o ayrı bir adımdır.
+================================================

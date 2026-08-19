@@ -1,0 +1,25 @@
+{
+  "name": "Namaz Vakitleri – Türkiye",
+  "short_name": "Namaz",
+  "description": "81 il için güncel ezan vakitleri: imsak, güneş, öğle, ikindi, akşam ve yatsı.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#070b18",
+  "theme_color": "#0b1020",
+  "orientation": "portrait-primary",
+  "lang": "tr",
+  "categories": ["lifestyle", "utilities"],
+  "icons": [
+    { "src": "/assets/icons/icon-192-v2.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/assets/icons/icon-512-v2.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    { "name": "İstanbul Vakitleri", "url": "/istanbul/", "icons": [{"src": "/assets/icons/icon-192-v2.png", "sizes": "192x192"}] },
+    { "name": "Ankara Vakitleri",   "url": "/ankara/",   "icons": [{"src": "/assets/icons/icon-192-v2.png", "sizes": "192x192"}] },
+    { "name": "İzmir Vakitleri",    "url": "/izmir/",    "icons": [{"src": "/assets/icons/icon-192-v2.png", "sizes": "192x192"}] }
+  ],
+  "screenshots": [
+    { "src": "/assets/og-image-v2.png", "sizes": "1200x630", "type": "image/png", "form_factor": "wide" }
+  ]
+}
