@@ -30,7 +30,7 @@ for (const s of STATIC_PAGES) {
 
 for (const p of dataset.provinces) {
   if (!fs.existsSync(path.join(ROOT, `${p.slug}.html`))) { console.log("UYARI: il sayfası yok:", p.slug); continue; }
-  entries.push({ sortKey: p.slug, url: `${BASE}/${p.slug}.html`, isProvince: true, province: p });
+  entries.push({ sortKey: p.slug, url: `${BASE}/${p.slug}`, isProvince: true, province: p });
 }
 
 entries.sort((a, b) => a.sortKey.localeCompare(b.sortKey));
