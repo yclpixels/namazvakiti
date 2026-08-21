@@ -11,13 +11,14 @@
   const API = "https://ezanvakti.emushaf.net";
   const TURKEY_ID = "2";
 
+  const SVG = (d) => `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
   const PRAYERS = [
-    { key: "Imsak",  label: "İmsak",  ico: "🌙" },
-    { key: "Gunes",  label: "Güneş",  ico: "🌄" },
-    { key: "Ogle",   label: "Öğle",   ico: "☀️" },
-    { key: "Ikindi", label: "İkindi", ico: "🌤️" },
-    { key: "Aksam",  label: "Akşam",  ico: "🌆" },
-    { key: "Yatsi",  label: "Yatsı",  ico: "✨" },
+    { key: "Imsak",  label: "İmsak",  ico: SVG('<path d="M16 3.5A8.5 8.5 0 1 0 20.5 18 7 7 0 0 1 16 3.5Z"/>') },
+    { key: "Gunes",  label: "Güneş",  ico: SVG('<path d="M6 15a6 6 0 0 1 12 0"/><path d="M2 15h20M12 2v4M8.5 6.5 12 3l3.5 3.5"/>') },
+    { key: "Ogle",   label: "Öğle",   ico: SVG('<circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>') },
+    { key: "Ikindi", label: "İkindi", ico: SVG('<circle cx="9" cy="9" r="3.2"/><path d="M9 3.5v1.3M4.5 9H3M13.5 9H12M5.7 5.7l.9.9M12.3 5.7l-.9.9"/><path d="M6 20h11a3.2 3.2 0 0 0 .5-6.36A5 5 0 0 0 8 12.2 3.5 3.5 0 0 0 6 20Z"/>') },
+    { key: "Aksam",  label: "Akşam",  ico: SVG('<path d="M6 15a6 6 0 0 1 12 0"/><path d="M2 15h20M12 2v4M8.5 3.5 12 7l3.5-3.5"/>') },
+    { key: "Yatsi",  label: "Yatsı",  ico: SVG('<path d="M15 3.5A8 8 0 1 0 19.5 17 6.5 6.5 0 0 1 15 3.5Z"/><path d="M19.5 3.5l.6 1.6 1.6.6-1.6.6-.6 1.6-.6-1.6-1.6-.6 1.6-.6.6-1.6Z"/>') },
   ];
 
   const HIJRI_MONTHS = [
@@ -98,25 +99,10 @@
   }
 
 
-  /* ── Vakte göre arka plan teması ── */
-  const THEMES = {
-    imsak:  { g1:"#0a0e1f", g2:"#162447", g3:"#1f3a5f", g4:"#2c5364", name:"İMSAK" },
-    sabah:  { g1:"#1a2a4a", g2:"#2c5364", g3:"#4a7a9c", g4:"#7fa8c9", name:"SABAH" },
-    ogle:   { g1:"#1a3a5c", g2:"#2680c2", g3:"#4a9fd4", g4:"#7cb9e0", name:"ÖĞLE" },
-    ikindi: { g1:"#2d1b4e", g2:"#4a2c6d", g3:"#7d4a8c", g4:"#c77b6b", name:"İKİNDİ" },
-    aksam:  { g1:"#1a0e26", g2:"#3a1a3e", g3:"#7d2d52", g4:"#c75b4a", name:"AKŞAM" },
-    yatsi:  { g1:"#0a0a1a", g2:"#16162e", g3:"#2d2d4e", g4:"#4a3a6d", name:"YATSI" },
-  };
+  /* ── Vakit etiketi (görsel tema artık sabit; sadece metin güncellenir) ── */
+  const PRAYER_NAMES = { Imsak:"İMSAK", Gunes:"SABAH", Ogle:"ÖĞLE", Ikindi:"İKİNDİ", Aksam:"AKŞAM", Yatsi:"YATSI" };
   function applyTheme(prayerKey) {
-    const map = { Imsak:"imsak", Gunes:"sabah", Ogle:"ogle", Ikindi:"ikindi", Aksam:"aksam", Yatsi:"yatsi" };
-    const t = THEMES[map[prayerKey] || "ikindi"];
-    if (!t) return;
-    const r = document.documentElement.style;
-    r.setProperty("--g1", t.g1); r.setProperty("--g2", t.g2);
-    r.setProperty("--g3", t.g3); r.setProperty("--g4", t.g4);
-    if (els.heroVakit) els.heroVakit.textContent = t.name + " VAKTİ";
-    const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute("content", t.g1);
+    if (els.heroVakit) els.heroVakit.textContent = (PRAYER_NAMES[prayerKey] || "İKİNDİ") + " VAKTİ";
   }
 
   /* localStorage tercih ── */
