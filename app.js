@@ -44,7 +44,7 @@
     gAvatarWrap: $("gAvatarWrap"), gAvatar: $("gAvatar"), hiddenGoogleBtn: $("hiddenGoogleBtn"),
   };
 
-  // ⚠️ Google Cloud Console'dan alacağın kendi Client ID'ni buraya yapıştır
+  // Not: Google Cloud Console'dan alacağın kendi Client ID'ni buraya yapıştır
   const GOOGLE_CLIENT_ID = "BURAYA_KENDI_CLIENT_ID.apps.googleusercontent.com";
   const USER_KEY = "nv_user_v1";
 
@@ -81,7 +81,7 @@
     toast._t = setTimeout(() => els.toast.classList.remove("show"), ms);
   }
   function showErr(msg) {
-    els.err.innerHTML = msg ? `<div class="err">⚠️ ${escapeHtml(msg)}</div>` : "";
+    els.err.innerHTML = msg ? `<div class="err">${escapeHtml(msg)}</div>` : "";
   }
   /* Hata değil ama kullanıcının bilmesi gereken bir durum (örn. bu ilçe için
      Diyanet ayrı veri yayınlamıyor, il merkezi verisi gösteriliyor). */
@@ -362,7 +362,7 @@
       els.mosques.innerHTML = items.map((m) => {
         const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(m.lat)},${encodeURIComponent(m.lon)}`;
         return `<a class="mosque" href="${escapeHtml(url)}" target="_blank" rel="noopener">
-          <div class="mosque-ico">🕌</div>
+          <div class="mosque-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21h16M5 21v-6.5c0-1 .6-1.8 1.5-2.3L9 11v-2a3 3 0 0 1 6 0v2l2.5 1.2c.9.5 1.5 1.3 1.5 2.3V21M12 6V3M10.5 4.5h3"/></svg></div>
           <div class="mosque-info">
             <div class="mosque-name">${escapeHtml(m.name)}</div>
             <div class="mosque-area">Yol tarifi için dokun</div>
@@ -441,7 +441,7 @@
           els.qiblaHint.innerHTML = `Kıble yönü kuzeyden <b>${Math.round(qiblaAngle)}°</b> (${dirName}). Pusulayı canlı döndürmek için izin gerekir.`;
         }
         if (els.qiblaPermBtn) {
-          els.qiblaPermBtn.textContent = "🧭 Pusulayı Etkinleştir";
+          els.qiblaPermBtn.textContent = "Pusulayı Etkinleştir";
           els.qiblaPermBtn.onclick = async () => {
             try {
               const res = await DOE.requestPermission();

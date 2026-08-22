@@ -104,7 +104,7 @@ async function networkFirst(request) {
 
 /* ── Push Notifications ── */
 self.addEventListener("push", (e) => {
-  let data = { title: "🕌 Namaz Vakti", body: "Vakit girdi.", icon: "/assets/icons/icon-192-v2.png" };
+  let data = { title: "Namaz Vakti", body: "Vakit girdi.", icon: "/assets/icons/icon-192-v2.png" };
   try {
     data = { ...data, ...e.data.json() };
   } catch {}
