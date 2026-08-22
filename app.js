@@ -32,6 +32,7 @@
     cdLabel: $("cdLabel"), cdTime: $("cdTime"), cdSub: $("cdSub"), 
     grid: $("prayerGrid"), mosques: $("mosqueList"), mosqueLink: $("mosqueMapLink"),
     dayPrev: $("dayPrev"), dayNext: $("dayNext"), dayLabel: $("dayLabel"), dayReset: $("dayReset"),
+    favBtn: $("favToggleBtn"), favList: $("favList"),
     hero: $("hero"), heroLoc: $("heroLoc"), heroVakit: $("heroVakit"),
     cal: $("calBody"), calMonth: $("calMonth"),
     locBtn: $("locBtn"), loginBtn: $("loginBtn"), toast: $("toast"),
@@ -113,6 +114,80 @@
   }
   function loadPref() {
     try { return JSON.parse(localStorage.getItem(PREF)) || {}; } catch { return {}; }
+  }
+
+  /* ── Favori konumlar — nv_pref_v2'den (son seçilen tek konum) tamamen
+     ayrı, kendi versionlanabilir key'i olan bir liste. Giriş gerektirmez. ── */
+  const FAV_KEY = "nv_fav_v1";
+  function loadFavorites() {
+    try {
+      const v = JSON.parse(localStorage.getItem(FAV_KEY));
+      return Array.isArray(v) ? v : [];
+    } catch { return []; }
+  }
+  function saveFavorites(list) {
+    try { localStorage.setItem(FAV_KEY, JSON.stringify(list)); } catch {}
+  }
+  function isFavorited(cityId, distId) {
+    return loadFavorites().some((f) => f.cityId === cityId && f.distId === distId);
+  }
+  function toggleFavorite() {
+    if (!state.cityId || !state.distId) return;
+    const list = loadFavorites();
+    const idx = list.findIndex((f) => f.cityId === state.cityId && f.distId === state.distId);
+    if (idx >= 0) {
+      list.splice(idx, 1);
+      toast("Favorilerden kaldırıldı");
+    } else {
+      list.push({ cityId: state.cityId, cityName: state.cityName, distId: state.distId, distName: state.distName });
+      toast("Favorilere eklendi");
+    }
+    saveFavorites(list);
+    renderFavorites();
+  }
+  function removeFavorite(cityId, distId) {
+    saveFavorites(loadFavorites().filter((f) => !(f.cityId === cityId && f.distId === distId)));
+    renderFavorites();
+  }
+  /* Bir favoriye geçiş: mevcut il/ilçe seçim akışıyla birebir aynı yolu
+     kullanır (loadDistricts + savePref + loadTimes) — ayrı bir mantık
+     icat etmez. loadTimes() zaten state.dayOffset'i 0'a sıfırlıyor. */
+  async function selectFavorite(cityId, distId) {
+    const city = state.cities.find((c) => c.SehirID === cityId);
+    if (!city) { toast("Bu il artık bulunamadı."); return; }
+    state.cityId = cityId;
+    state.cityName = city.SehirAdi;
+    els.city.value = cityId;
+    await loadDistricts(cityId, distId);
+    state.districtFallbackNote = "";
+    showNote("");
+    savePref();
+    await loadTimes();
+    renderFavorites();
+  }
+  function renderFavorites() {
+    if (els.favBtn) {
+      const active = isFavorited(state.cityId, state.distId);
+      els.favBtn.classList.toggle("active", active);
+      const label = active ? "Favorilerden kaldır" : "Favorilere ekle";
+      els.favBtn.setAttribute("aria-label", label);
+      els.favBtn.title = label;
+    }
+    if (!els.favList) return;
+    const list = loadFavorites();
+    if (!list.length) {
+      els.favList.innerHTML = `<div class="fav-empty">Henüz favori konumunuz yok. Üstteki yıldıza dokunarak mevcut konumu favorileyebilirsiniz.</div>`;
+      return;
+    }
+    els.favList.innerHTML = list.map((f) => `
+      <div class="fav-item">
+        <button class="fav-select" data-city="${escapeHtml(f.cityId)}" data-dist="${escapeHtml(f.distId)}">
+          <span class="fav-name">${escapeHtml(f.cityName)} / ${escapeHtml(f.distName)}</span>
+        </button>
+        <button class="fav-remove" data-city="${escapeHtml(f.cityId)}" data-dist="${escapeHtml(f.distId)}" aria-label="Favoriden kaldır" title="Favoriden kaldır">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>`).join("");
   }
 
   /* ── Şehirler ── */
@@ -567,6 +642,7 @@
     showNote("");
     savePref();
     await loadTimes();
+    renderFavorites();
   }
 
   async function onDistChange(distId) {
@@ -578,6 +654,7 @@
     showNote("");
     savePref();
     await loadTimes();
+    renderFavorites();
   }
 
   /* ── Başlat ── */
@@ -726,6 +803,7 @@
     } catch (e) {
       showErr(e.message || "Veriler yüklenemedi. Bağlantınızı kontrol edin.");
     }
+    renderFavorites();
 
     els.city.addEventListener("change", (e) => onCityChange(e.target.value));
     els.dist.addEventListener("change", (e) => onDistChange(e.target.value));
@@ -733,6 +811,13 @@
     if (els.dayPrev) els.dayPrev.addEventListener("click", () => changeDay(-1));
     if (els.dayNext) els.dayNext.addEventListener("click", () => changeDay(1));
     if (els.dayReset) els.dayReset.addEventListener("click", () => changeDay(-state.dayOffset));
+    if (els.favBtn) els.favBtn.addEventListener("click", toggleFavorite);
+    if (els.favList) els.favList.addEventListener("click", (e) => {
+      const removeBtn = e.target.closest(".fav-remove");
+      if (removeBtn) { removeFavorite(removeBtn.dataset.city, removeBtn.dataset.dist); return; }
+      const selectBtn = e.target.closest(".fav-select");
+      if (selectBtn) selectFavorite(selectBtn.dataset.city, selectBtn.dataset.dist);
+    });
     if (els.qiblaCard) els.qiblaCard.addEventListener("click", openQiblaWidget);
     if (els.qiblaPermBtn) els.qiblaPermBtn.addEventListener("click", findQibla);
     initGoogleAuth();

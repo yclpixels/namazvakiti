@@ -46,6 +46,16 @@ body{background:var(--bg);color:var(--cream);font-family:system-ui,-apple-system
 .stat-clickable:hover{background:var(--accent-dim);border-color:rgba(199,123,107,.35);}
 .stat-clickable:hover .stat-ico{color:var(--accent-light);}
 
+/* Favori konumlar */
+.fav-list{display:grid;gap:8px;margin-bottom:20px;}
+.fav-item{display:flex;align-items:center;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:4px;box-shadow:var(--shadow);}
+.fav-select{flex:1;min-width:0;display:flex;align-items:center;background:none;border:none;color:var(--cream);padding:12px;min-height:44px;font-size:13px;font-weight:500;text-align:left;cursor:pointer;font-family:inherit;}
+.fav-select:hover{color:var(--accent-light);}
+.fav-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.fav-remove{width:40px;height:40px;flex-shrink:0;background:none;border:none;color:var(--muted2);cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:color .15s,background .15s;}
+.fav-remove:hover{color:#f1a;background:rgba(255,80,80,.08);}
+.fav-empty{padding:22px;text-align:center;color:var(--muted);font-size:13px;background:var(--card);border:1px dashed var(--line);border-radius:10px;margin-bottom:20px;}
+
 .ramadan-banner{display:flex;align-items:center;gap:12px;background:var(--accent-dim);border:1px solid rgba(199,123,107,.3);border-radius:10px;padding:13px 16px;margin-bottom:16px;}
 .ramadan-banner[hidden]{display:none;}
 .ram-ico{color:var(--accent-light);flex-shrink:0;}
@@ -90,6 +100,10 @@ select{width:100%;appearance:none;-webkit-appearance:none;background:var(--card)
 select:hover{border-color:rgba(199,123,107,.4);}
 select:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
 .sel-arrow{position:absolute;right:13px;top:50%;transform:translateY(-50%);color:var(--muted2);pointer-events:none;font-size:11px;}
+.fav-btn{width:44px;height:44px;flex-shrink:0;background:var(--card);border:1px solid var(--line);border-radius:8px;color:var(--muted2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .15s,background .15s,color .15s;box-shadow:var(--shadow);}
+.fav-btn:hover{border-color:rgba(199,123,107,.4);}
+.fav-btn.active{color:var(--accent-light);border-color:rgba(199,123,107,.4);background:var(--accent-dim);}
+.fav-btn.active svg{fill:currentColor;}
 
 .body-pad{padding:20px 22px 50px;}
 #errBox:not(:empty){margin:0 0 18px;}
