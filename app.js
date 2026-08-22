@@ -31,6 +31,7 @@
     city: $("citySel"), dist: $("distSel"), err: $("errBox"), note: $("noteBox"),
     cdLabel: $("cdLabel"), cdTime: $("cdTime"), cdSub: $("cdSub"), 
     grid: $("prayerGrid"), mosques: $("mosqueList"), mosqueLink: $("mosqueMapLink"),
+    dayPrev: $("dayPrev"), dayNext: $("dayNext"), dayLabel: $("dayLabel"), dayReset: $("dayReset"),
     hero: $("hero"), heroLoc: $("heroLoc"), heroVakit: $("heroVakit"),
     cal: $("calBody"), calMonth: $("calMonth"),
     locBtn: $("locBtn"), loginBtn: $("loginBtn"), toast: $("toast"),
@@ -53,7 +54,7 @@
   const state = {
     cities: [], districts: [], monthly: [],
     cityId: "", cityName: "", distId: "", distName: "",
-    coords: null, tick: null, districtFallbackNote: "",
+    coords: null, tick: null, districtFallbackNote: "", dayOffset: 0,
   };
 
   /* ── Helpers ── */
@@ -88,7 +89,7 @@
   function showNote(msg) {
     if (!els.note) return;
     els.note.innerHTML = msg
-      ? `<div style="color:rgba(255,255,255,.6);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px 14px;font-size:12px;text-align:center;line-height:1.5;">ℹ️ ${escapeHtml(msg)}</div>`
+      ? `<div class="note-box">${escapeHtml(msg)}</div>`
       : "";
   }
 
@@ -152,6 +153,7 @@
     try {
       const monthly = await jget(`/vakitler/${state.distId}`);
       state.monthly = monthly;
+      state.dayOffset = 0;
       renderCalendar();
       startCountdown();
     } catch (e) {
@@ -167,6 +169,24 @@
   function getTomorrow() {
     const idx = state.monthly.findIndex((r) => r.MiladiTarihKisa === todayKey());
     return idx >= 0 ? state.monthly[idx + 1] : null;
+  }
+  /* Günlük navigasyon: bugüne göre ±offset gündeki kaydı döndürür (0 = bugün).
+     Ek bir API çağrısı gerektirmez — zaten çekilmiş olan aylık veriden okur. */
+  function getDayRecord(offset) {
+    const idx = state.monthly.findIndex((r) => r.MiladiTarihKisa === todayKey());
+    if (idx < 0) return null;
+    return state.monthly[idx + offset] || null;
+  }
+  function dayLabelFor(offset, rec) {
+    if (offset === 0) return "Bugün";
+    if (offset === 1) return "Yarın";
+    if (offset === -1) return "Dün";
+    if (!rec) return "";
+    const dayName = rec.MiladiTarihUzunIso8601
+      ? new Date(rec.MiladiTarihUzunIso8601).toLocaleDateString("tr-TR", { weekday: "long" })
+      : "";
+    const dateShort = rec.MiladiTarihKisa ? rec.MiladiTarihKisa.slice(0, 5) : "";
+    return dayName ? `${dayName} · ${dateShort}` : dateShort;
   }
   function asDate(base, hhmm) {
     const [h, m] = hhmm.split(":").map(Number);
@@ -208,14 +228,7 @@
     }
     applyTheme(current ? current.key : "Imsak");
 
-    // grid
-    els.grid.innerHTML = list.map((p) =>
-      `<div class="p-card ${next && next.key === p.key ? "active" : ""}">
-        <div class="ico">${p.ico}</div>
-        <div class="lbl">${escapeHtml(p.label)}</div>
-        <div class="tm">${escapeHtml(p.time)}</div>
-      </div>`
-    ).join("");
+    renderPrayerGrid(next);
 
     // countdown
     if (next) {
@@ -256,6 +269,42 @@
     const isFriday = now.getDay() === 5;
     if (els.heroFriday) els.heroFriday.hidden = !isFriday;
     if (els.fridayCard) els.fridayCard.hidden = !isFriday;
+  }
+
+  /* ── Günlük vakit kartları (Bugün / ‹ Önceki Gün / Sonraki Gün ›) ──
+     "Sıradaki vakit" geri sayımı her zaman gerçek "şu an"a bağlı kalır
+     (yukarıda, değişmedi); bu fonksiyon sadece hangi GÜNÜN 6 vaktinin
+     kart olarak gösterildiğini seçer. `liveNext`, sadece bugün görüntülenirken
+     aktif-vakit vurgusu için kullanılır. */
+  function renderPrayerGrid(liveNext) {
+    const rec = getDayRecord(state.dayOffset);
+    if (!rec) {
+      els.grid.innerHTML = "";
+      updateDayNav(null);
+      return;
+    }
+    const isToday = state.dayOffset === 0;
+    els.grid.innerHTML = PRAYERS.map((p) =>
+      `<div class="p-card ${isToday && liveNext && liveNext.key === p.key ? "active" : ""}">
+        <div class="ico">${p.ico}</div>
+        <div class="lbl">${escapeHtml(p.label)}</div>
+        <div class="tm">${escapeHtml(rec[p.key])}</div>
+      </div>`
+    ).join("");
+    updateDayNav(rec);
+  }
+
+  function updateDayNav(rec) {
+    if (els.dayLabel) els.dayLabel.textContent = dayLabelFor(state.dayOffset, rec);
+    if (els.dayPrev) els.dayPrev.disabled = !getDayRecord(state.dayOffset - 1);
+    if (els.dayNext) els.dayNext.disabled = !getDayRecord(state.dayOffset + 1);
+    if (els.dayReset) els.dayReset.hidden = state.dayOffset === 0;
+  }
+
+  function changeDay(delta) {
+    if (!getDayRecord(state.dayOffset + delta)) return;
+    state.dayOffset += delta;
+    renderGridAndCountdown();
   }
 
   /* ── Aylık takvim (varsayılan 7 gün, "tümünü gör" ile genişler) ── */
@@ -681,6 +730,9 @@
     els.city.addEventListener("change", (e) => onCityChange(e.target.value));
     els.dist.addEventListener("change", (e) => onDistChange(e.target.value));
     els.locBtn.addEventListener("click", locateAndSelect);
+    if (els.dayPrev) els.dayPrev.addEventListener("click", () => changeDay(-1));
+    if (els.dayNext) els.dayNext.addEventListener("click", () => changeDay(1));
+    if (els.dayReset) els.dayReset.addEventListener("click", () => changeDay(-state.dayOffset));
     if (els.qiblaCard) els.qiblaCard.addEventListener("click", openQiblaWidget);
     if (els.qiblaPermBtn) els.qiblaPermBtn.addEventListener("click", findQibla);
     initGoogleAuth();
