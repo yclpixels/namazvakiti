@@ -33,6 +33,7 @@
     grid: $("prayerGrid"), mosques: $("mosqueList"), mosqueLink: $("mosqueMapLink"),
     dayPrev: $("dayPrev"), dayNext: $("dayNext"), dayLabel: $("dayLabel"), dayReset: $("dayReset"),
     favBtn: $("favToggleBtn"), favList: $("favList"),
+    shareBtn: $("shareBtn"),
     hero: $("hero"), heroLoc: $("heroLoc"), heroVakit: $("heroVakit"),
     cal: $("calBody"), calMonth: $("calMonth"),
     locBtn: $("locBtn"), loginBtn: $("loginBtn"), toast: $("toast"),
@@ -380,6 +381,66 @@
     if (!getDayRecord(state.dayOffset + delta)) return;
     state.dayOffset += delta;
     renderGridAndCountdown();
+  }
+
+  /* ── Paylaş — o an EKRANDA GÖRÜNEN günün (dayOffset) vakitlerini paylaşır,
+     kullanıcıyı zorla Bugün'e döndürmez. */
+  function buildShareText() {
+    const rec = getDayRecord(state.dayOffset);
+    if (!rec || !state.cityName || !state.distName) return null;
+    const dateLabel = rec.MiladiTarihUzun || rec.MiladiTarihKisa || "";
+    const canonical = document.querySelector('link[rel="canonical"]');
+    const url = (canonical && canonical.href) || location.href;
+    return [
+      `${state.cityName} / ${state.distName} namaz vakitleri — ${dateLabel}`,
+      "",
+      `İmsak: ${rec.Imsak}`,
+      `Güneş: ${rec.Gunes}`,
+      `Öğle: ${rec.Ogle}`,
+      `İkindi: ${rec.Ikindi}`,
+      `Akşam: ${rec.Aksam}`,
+      `Yatsı: ${rec.Yatsi}`,
+      "",
+      url,
+    ].join("\n");
+  }
+
+  function copyToClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise((resolve, reject) => {
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        const ok = document.execCommand("copy");
+        document.body.removeChild(ta);
+        ok ? resolve() : reject(new Error("copy failed"));
+      } catch (e) { reject(e); }
+    });
+  }
+
+  async function shareTimes() {
+    const text = buildShareText();
+    if (!text) { toast("Paylaşılacak vakit bulunamadı."); return; }
+    if (navigator.share) {
+      try {
+        await navigator.share({ text });
+      } catch (e) {
+        if (e && e.name !== "AbortError") toast("Paylaşım başarısız oldu.");
+      }
+      return;
+    }
+    try {
+      await copyToClipboard(text);
+      toast("Vakitler panoya kopyalandı");
+    } catch {
+      toast("Kopyalama desteklenmiyor.");
+    }
   }
 
   /* ── Aylık takvim (varsayılan 7 gün, "tümünü gör" ile genişler) ── */
@@ -812,6 +873,7 @@
     if (els.dayNext) els.dayNext.addEventListener("click", () => changeDay(1));
     if (els.dayReset) els.dayReset.addEventListener("click", () => changeDay(-state.dayOffset));
     if (els.favBtn) els.favBtn.addEventListener("click", toggleFavorite);
+    if (els.shareBtn) els.shareBtn.addEventListener("click", shareTimes);
     if (els.favList) els.favList.addEventListener("click", (e) => {
       const removeBtn = e.target.closest(".fav-remove");
       if (removeBtn) { removeFavorite(removeBtn.dataset.city, removeBtn.dataset.dist); return; }
