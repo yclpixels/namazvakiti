@@ -15,9 +15,9 @@
     { "src": "/assets/icons/icon-512-v2.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ],
   "shortcuts": [
-    { "name": "İstanbul Vakitleri", "url": "/istanbul/", "icons": [{"src": "/assets/icons/icon-192-v2.png", "sizes": "192x192"}] },
-    { "name": "Ankara Vakitleri",   "url": "/ankara/",   "icons": [{"src": "/assets/icons/icon-192-v2.png", "sizes": "192x192"}] },
-    { "name": "İzmir Vakitleri",    "url": "/izmir/",    "icons": [{"src": "/assets/icons/icon-192-v2.png", "sizes": "192x192"}] }
+    { "name": "İstanbul Vakitleri", "url": "/istanbul", "icons": [{"src": "/assets/icons/icon-192-v2.png", "sizes": "192x192"}] },
+    { "name": "Ankara Vakitleri",   "url": "/ankara",   "icons": [{"src": "/assets/icons/icon-192-v2.png", "sizes": "192x192"}] },
+    { "name": "İzmir Vakitleri",    "url": "/izmir",    "icons": [{"src": "/assets/icons/icon-192-v2.png", "sizes": "192x192"}] }
   ],
   "screenshots": [
     { "src": "/assets/og-image-v2.png", "sizes": "1200x630", "type": "image/png", "form_factor": "wide" }
