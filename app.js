@@ -279,7 +279,9 @@
     const today = getToday();
     if (!today) {
       els.grid.innerHTML = "";
+      renderPrayerGrid._sig = "";
       els.cdSub.textContent = "Bugün için vakit bulunamadı.";
+      tkrSync(null, "--:--:--");
       return;
     }
     const now = new Date();
@@ -302,16 +304,22 @@
     for (let i = list.length - 1; i >= 0; i--) {
       if (list[i].dt <= now) { current = list[i]; break; }
     }
-    applyTheme(current ? current.key : "Imsak");
+    /* Gece yarısı ile imsak arasında bugünün hiçbir vakti henüz girmemiştir
+       (current === null). Fiilen devam eden vakit, dün akşam giren yatsıdır —
+       imsak ise henüz GELMEMİŞ vakittir. Şeritteki "ŞU AN …" göstergesiyle
+       aynı kural. */
+    applyTheme(current ? current.key : "Yatsi");
 
     renderPrayerGrid(next);
 
     // countdown
+    let cdText = "--:--:--";
     if (next) {
       const diff = next.dt - now;
       const h = Math.floor(diff / 3600000);
       const m = Math.floor((diff % 3600000) / 60000);
       const s = Math.floor((diff % 60000) / 1000);
+      cdText = `${pad(h)}:${pad(m)}:${pad(s)}`;
       els.cdLabel.textContent = `Sıradaki · ${next.label}`;
       els.cdTime.innerHTML = `${pad(h)}<span class="sep">:</span>${pad(m)}<span class="sep">:</span>${pad(s)}`;
       els.cdSub.textContent = `${next.label} ezanına kalan süre · ${next.time}`;
@@ -345,6 +353,9 @@
     const isFriday = now.getDay() === 5;
     if (els.heroFriday) els.heroFriday.hidden = !isFriday;
     if (els.fridayCard) els.fridayCard.hidden = !isFriday;
+
+    // Bilgi şeridi — aynı tick, ayrı sayaç/interval yok
+    tkrSync(current, cdText);
   }
 
   /* ── Günlük vakit kartları (Bugün / ‹ Önceki Gün / Sonraki Gün ›) ──
@@ -356,12 +367,24 @@
     const rec = getDayRecord(state.dayOffset);
     if (!rec) {
       els.grid.innerHTML = "";
+      renderPrayerGrid._sig = "";
       updateDayNav(null);
       return;
     }
     const isToday = state.dayOffset === 0;
+    const activeKey = isToday && liveNext ? liveNext.key : "";
+    /* İçerik değişmediyse DOM'a hiç dokunma: saniyede bir gereksiz yeniden
+       render önlenir ve karta verilen odak/işaret korunur. Üretilen HTML
+       birebir aynıdır — davranış değişmez. */
+    const gridSig = [state.distId, state.dayOffset, rec.MiladiTarihKisa, activeKey,
+      PRAYERS.map((p) => rec[p.key]).join(",")].join("|");
+    if (gridSig === renderPrayerGrid._sig && els.grid.childElementCount) {
+      updateDayNav(rec);
+      return;
+    }
+    renderPrayerGrid._sig = gridSig;
     els.grid.innerHTML = PRAYERS.map((p) =>
-      `<div class="p-card ${isToday && liveNext && liveNext.key === p.key ? "active" : ""}">
+      `<div class="p-card ${activeKey === p.key ? "active" : ""}" data-prayer="${p.key}" tabindex="-1">
         <div class="ico">${p.ico}</div>
         <div class="lbl">${escapeHtml(p.label)}</div>
         <div class="tm">${escapeHtml(rec[p.key])}</div>
@@ -865,6 +888,7 @@
       showErr(e.message || "Veriler yüklenemedi. Bağlantınızı kontrol edin.");
     }
     renderFavorites();
+    tkrBuild();
 
     els.city.addEventListener("change", (e) => onCityChange(e.target.value));
     els.dist.addEventListener("change", (e) => onDistChange(e.target.value));
@@ -891,6 +915,191 @@
         locateAndSelect();
       }
     });
+  }
+
+  /* ══ Bilgi şeridi (hero altı ticker + compact sticky bar) ═════════════
+     - Markup burada üretilir; hiçbir HTML/SEO dosyası değişmez.
+     - Hareket tamamen CSS animasyonu; JS sadece içerik gerçekten
+       değiştiğinde (konum / gün / aktif vakit / motion tercihi) DOM'a dokunur.
+     - Geri sayım metni mevcut renderGridAndCountdown tick'inden gelir;
+       yeni bir sayaç veya interval kurulmaz. */
+  const TKR_SPEED = 26; // px/sn — yavaş, sakin akış
+  const tkrReduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const tkr = {
+    built: false, root: null, loc: null, day: null, rail: null, track: null,
+    sticky: null, sLoc: null, sNow: null, sCd: null, sig: "", hl: null,
+  };
+
+  /* Tek bir vakit dizisi. `primary` olmayan kopyalar yalnızca kesintisiz
+     loop için vardır: ekran okuyucudan ve tab sırasından çıkarılır. */
+  function tkrSeq(rec, activeKey, primary) {
+    const div = '<span class="tkr-div" aria-hidden="true">·</span>';
+    const out = [];
+    if (activeKey) {
+      out.push(`<span class="tkr-now"><i aria-hidden="true"></i>Şu an ${escapeHtml(PRAYER_NAMES[activeKey] || "")}</span>`, div);
+    }
+    for (const p of PRAYERS) {
+      const attrs = primary
+        ? `aria-label="${escapeHtml(p.label)} vakti ${escapeHtml(rec[p.key])} — vakit kartına git"`
+        : 'tabindex="-1" aria-hidden="true"';
+      /* Vakit isimlerinde accent kullanılmaz: grid'deki accent zaten
+         "sıradaki vakit" anlamına geliyor. Şu anki vakit yalnızca metinsel
+         "ŞU AN …" rozetiyle belirtilir; iki farklı anlam aynı renge binmez. */
+      out.push(
+        `<button type="button" class="tkr-item" data-goto="${p.key}" ${attrs}>` +
+        `<span class="tkr-lbl">${escapeHtml(p.label)}</span>` +
+        `<span class="tkr-tm">${escapeHtml(rec[p.key])}</span></button>`, div);
+    }
+    return `<div class="tkr-seq">${out.join("")}</div>`;
+  }
+
+  function tkrRender(rec, activeKey) {
+    if (tkrReduce.matches) {
+      tkr.track.style.removeProperty("--tkr-dur");
+      tkr.track.innerHTML = tkrSeq(rec, activeKey, true);
+      tkr.rail.scrollLeft = 0;
+      return;
+    }
+    // 1) Bir diziyi ölç
+    tkr.track.innerHTML = tkrSeq(rec, activeKey, true);
+    const seqW = tkr.track.firstElementChild ? tkr.track.firstElementChild.offsetWidth : 0;
+    /* Ölçüm alınamadıysa (henüz layout yok) tek dizi kalır ve loop dikişi
+       tutmaz → imzayı sıfırla ki bir sonraki tick tekrar denesin. */
+    if (!seqW) { tkr.sig = ""; return; }
+    // 2) Track'in yarısı rail'i doldurmalı, yoksa loop başında boşluk oluşur
+    const k = Math.max(1, Math.ceil((tkr.rail.clientWidth || seqW) / seqW) + 1);
+    let html = tkrSeq(rec, activeKey, true);
+    for (let i = 1; i < k * 2; i++) html += tkrSeq(rec, activeKey, false);
+    tkr.track.innerHTML = html;
+    // 3) Süre genişliğe göre → her ekranda aynı, sabit px/sn hız
+    tkr.track.style.setProperty("--tkr-dur", ((k * seqW) / TKR_SPEED).toFixed(1) + "s");
+  }
+
+  function tkrGoto(key) {
+    const card = els.grid && els.grid.querySelector('.p-card[data-prayer="' + key + '"]');
+    if (!card) return;
+    card.scrollIntoView({ behavior: tkrReduce.matches ? "auto" : "smooth", block: "center" });
+    try { card.focus({ preventScroll: true }); } catch { card.focus(); }
+    card.classList.add("p-card--target");
+    clearTimeout(tkr.hl);
+    tkr.hl = setTimeout(() => card.classList.remove("p-card--target"), 1800);
+  }
+
+  function tkrBuild() {
+    if (tkr.built || !els.hero || !els.hero.parentNode) return;
+    tkr.built = true;
+
+    const sec = document.createElement("section");
+    sec.className = "tkr";
+    sec.id = "tickerBar";
+    sec.hidden = true;
+    sec.setAttribute("aria-label", "Namaz vakitleri şeridi");
+    sec.innerHTML =
+      '<div class="tkr-inner">' +
+        '<div class="tkr-top">' +
+          '<span class="tkr-brand">Namaz Vakitleri</span>' +
+          '<span class="tkr-sep" aria-hidden="true">·</span>' +
+          '<span class="tkr-loc"></span>' +
+          '<span class="tkr-sep" aria-hidden="true">·</span>' +
+          '<span class="tkr-day"></span>' +
+        '</div>' +
+        '<div class="tkr-rail"><div class="tkr-track"></div></div>' +
+      '</div>';
+    els.hero.parentNode.insertBefore(sec, els.hero.nextSibling);
+
+    /* Compact sticky bar — sayfadaki bilgiyi tekrarladığı ve etkileşimli
+       öğe içermediği için ekran okuyucudan gizli. */
+    const bar = document.createElement("div");
+    bar.className = "tkr-sticky";
+    bar.setAttribute("aria-hidden", "true");
+    bar.innerHTML =
+      '<div class="tkr-sticky-inner">' +
+        '<span class="tkr-s-brand">Namaz Vakitleri</span>' +
+        '<span class="tkr-sep tkr-s-sep">·</span>' +
+        '<span class="tkr-s-loc"></span>' +
+        '<span class="tkr-s-now"><i></i><span class="tkr-s-now-lbl"></span></span>' +
+        '<span class="tkr-sep">·</span>' +
+        '<span class="tkr-s-cd">--:--:--</span>' +
+      '</div>';
+    document.body.appendChild(bar);
+
+    tkr.root = sec;
+    tkr.loc = sec.querySelector(".tkr-loc");
+    tkr.day = sec.querySelector(".tkr-day");
+    tkr.rail = sec.querySelector(".tkr-rail");
+    tkr.track = sec.querySelector(".tkr-track");
+    tkr.sticky = bar;
+    tkr.sLoc = bar.querySelector(".tkr-s-loc");
+    tkr.sNow = bar.querySelector(".tkr-s-now-lbl");
+    tkr.sCd = bar.querySelector(".tkr-s-cd");
+
+    tkr.rail.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-goto]");
+      if (btn) tkrGoto(btn.dataset.goto);
+    });
+
+    /* Klavyeyle gezinirken tarayıcı, odaklanan butonu görünür kılmak için
+       rail'i kaydırır (doğru davranış; animasyon focus-within ile duruyor).
+       Odak şeritten ayrılınca kaydırmayı sıfırla, yoksa loop kalıcı kayar.
+       Hareket azaltma modunda rail'i kullanıcı kaydırıyor → dokunma. */
+    tkr.rail.addEventListener("focusout", (e) => {
+      if (tkrReduce.matches) return;
+      if (!e.relatedTarget || !tkr.rail.contains(e.relatedTarget)) tkr.rail.scrollLeft = 0;
+    });
+
+    // Şerit ekranda değilken animasyonu durdur (pil/CPU)
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver((ents) => {
+        sec.classList.toggle("is-paused", !ents[0].isIntersecting);
+      }, { threshold: 0 }).observe(sec);
+    }
+
+    let queued = false;
+    const onScroll = () => {
+      queued = false;
+      bar.classList.toggle("is-on", !sec.hidden && sec.getBoundingClientRect().bottom < 0);
+    };
+    window.addEventListener("scroll", () => {
+      if (!queued) { queued = true; requestAnimationFrame(onScroll); }
+    }, { passive: true });
+
+    /* Genişlik veya motion tercihi değişince kopya sayısı ve süre yeniden
+       hesaplanmalı: imzayı sıfırla, bir sonraki tick yeniden kurar. */
+    const invalidate = () => { tkr.sig = ""; };
+    window.addEventListener("resize", invalidate, { passive: true });
+    if (tkrReduce.addEventListener) tkrReduce.addEventListener("change", invalidate);
+    else if (tkrReduce.addListener) tkrReduce.addListener(invalidate);
+  }
+
+  function tkrSync(current, cdText) {
+    if (!tkr.built) tkrBuild();
+    if (!tkr.root) return;
+    const rec = getDayRecord(state.dayOffset);
+    if (!rec || !state.cityName || !state.distName) {
+      tkr.root.hidden = true;
+      tkr.sticky.classList.remove("is-on");
+      tkr.sig = "";
+      return;
+    }
+    tkr.root.hidden = false;
+    /* Gece yarısı ile imsak arasında bugünün hiçbir vakti henüz girmemiştir;
+       fiilen devam eden vakit yatsıdır. */
+    const liveKey = current ? current.key : "Yatsi";
+    // Dün/yarın görüntülenirken "şu an" vurgusu yanıltıcı olur → kullanılmaz.
+    const activeKey = state.dayOffset === 0 ? liveKey : null;
+    const sig = [state.distId, state.cityName, state.distName, state.dayOffset,
+      rec.MiladiTarihKisa, activeKey, tkrReduce.matches ? 1 : 0].join("|");
+    if (sig !== tkr.sig) {
+      tkr.sig = sig;
+      const place = state.distName + " / " + state.cityName;
+      tkr.loc.textContent = place;
+      tkr.sLoc.textContent = place;
+      tkr.day.textContent = dayLabelFor(state.dayOffset, rec);
+      tkrRender(rec, activeKey);
+    }
+    const nowLbl = PRAYER_NAMES[liveKey] || "";
+    if (tkr.sNow.textContent !== nowLbl) tkr.sNow.textContent = nowLbl;
+    if (tkr.sCd.textContent !== cdText) tkr.sCd.textContent = cdText;
   }
 
   // Service worker
