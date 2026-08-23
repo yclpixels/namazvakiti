@@ -32,7 +32,7 @@
 # _redirects basina en fazla 100 dinamik kural destegi var; bu tek kural o
 # butceyi pratik olarak hic kullanmiyor. Sadece TEK segmentli yollari
 # eslestirir (/istanbul/ eslesir, /istanbul/sisli/ ESLESMEZ) — dogrulandi.
-/:slug/    /:slug.html    301
+/:slug/    /:slug    301
 
 
 # FAZ 1C — yanlis slug / bozuk encoding duzeltmeleri
@@ -48,12 +48,12 @@
 /mardin/merkez/    /mardin/artuklu/    301
 /mugla/merkez/    /mugla/mentese/    301
 /ordu/merkez/    /ordu/altinordu/    301
-/manisa/merkez/    /manisa.html    301
+/manisa/merkez/    /manisa    301
 /tekirdag/merkez/    /tekirdag/suleymanpasa/    301
 /trabzon/merkez/    /trabzon/ortahisar/    301
-/diyarbakir/merkez/    /diyarbakir.html    301
-/kahramanmaras/merkez/    /kahramanmaras.html    301
-/van/merkez/    /van.html    301
+/diyarbakir/merkez/    /diyarbakir    301
+/kahramanmaras/merkez/    /kahramanmaras    301
+/van/merkez/    /van    301
 
 # Bilinmeyen URL'ler icin 404: Cloudflare Pages _redirects, status kodu
 # olarak 404'u KABUL ETMIYOR (yalnizca 200/301/302/303/307/308 gecerli —

@@ -24,7 +24,7 @@ entries.push({ sortKey: "", url: `${BASE}/` });
 
 for (const s of STATIC_PAGES) {
   const slug = s.replace(/\.html$/, "");
-  if (fs.existsSync(path.join(ROOT, s))) entries.push({ sortKey: slug, url: `${BASE}/${s}` });
+  if (fs.existsSync(path.join(ROOT, s))) entries.push({ sortKey: slug, url: `${BASE}/${slug}` });
   else console.log("UYARI: statik sayfa yok, sitemap'e eklenmedi:", s);
 }
 
