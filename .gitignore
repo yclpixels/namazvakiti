@@ -23,6 +23,9 @@ npm-debug.log*
 tmp/
 temp/
 
+# Wrangler (Cloudflare) yerel emulator cache/state — makineye ozel, repoya girmez
+.wrangler/
+
 # Yerel yedekler (proje kökünde asla tutulmamalı, ama önlem)
 *.backup/
 BACKUP_*/
