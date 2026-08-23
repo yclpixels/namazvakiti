@@ -32,7 +32,7 @@ body{background:var(--bg);color:var(--cream);font-family:system-ui,-apple-system
 .cd-card{margin-top:12px;padding-top:12px;border-top:1px solid var(--line);}
 .cd-row{display:flex;align-items:baseline;justify-content:space-between;gap:12px;}
 .hc-label{color:var(--muted);font-size:12.5px;}
-.hc-time{color:var(--cream);font-size:26px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:.3px;}
+.hc-time{color:var(--cream);font-size:24px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:.3px;}
 .hc-time .sep{opacity:.45;}
 .hc-sub{color:var(--muted2);font-size:11px;margin-top:3px;}
 
@@ -51,7 +51,7 @@ body{background:var(--bg);color:var(--cream);font-family:system-ui,-apple-system
 .stat-clickable:hover .stat-ico{color:var(--accent-light);}
 
 /* Favori konumlar */
-.fav-list{display:grid;gap:8px;margin-bottom:20px;}
+.fav-list{display:grid;gap:8px;margin-bottom:22px;}
 .fav-item{display:flex;align-items:center;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:4px;}
 .fav-select{flex:1;min-width:0;display:flex;align-items:center;background:none;border:none;color:var(--cream);padding:12px;min-height:44px;font-size:13px;font-weight:500;text-align:left;cursor:pointer;font-family:inherit;}
 .fav-select:hover{color:var(--accent-light);}
@@ -60,7 +60,7 @@ body{background:var(--bg);color:var(--cream);font-family:system-ui,-apple-system
 .fav-remove:hover{color:#f1a;background:rgba(255,80,80,.08);}
 .fav-empty{padding:22px;text-align:center;color:var(--muted);font-size:13px;background:var(--card);border:1px dashed var(--line);border-radius:10px;margin-bottom:20px;}
 
-.ramadan-banner{display:flex;align-items:center;gap:12px;background:var(--accent-dim);border:1px solid rgba(199,123,107,.3);border-radius:10px;padding:13px 16px;margin-bottom:16px;}
+.ramadan-banner{display:flex;align-items:center;gap:12px;background:var(--accent-dim);border:1px solid rgba(199,123,107,.3);border-radius:10px;padding:13px 16px;margin-bottom:22px;}
 .ramadan-banner[hidden]{display:none;}
 .ram-ico{color:var(--accent-light);flex-shrink:0;}
 .ram-title{color:var(--accent-light);font-size:13px;font-weight:600;}
@@ -78,20 +78,20 @@ body{background:var(--bg);color:var(--cream);font-family:system-ui,-apple-system
 .qibla-btn{background:var(--accent-dim);border:1px solid var(--accent);color:var(--accent-light);padding:9px 14px;border-radius:8px;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
 .qibla-btn:active{transform:scale(.97);}
 
-.dua-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px;margin-bottom:24px;}
+.dua-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px;margin-bottom:30px;}
 .dua-card{border-top:1px solid var(--line);padding:14px 0;}
 .dua-ico{font-size:18px;margin-bottom:6px;color:var(--muted2);}
-.dua-name{color:var(--cream);font-size:12px;font-weight:600;margin-bottom:4px;}
-.dua-desc{color:var(--muted);font-size:11px;line-height:1.5;}
+.dua-name{color:var(--cream);font-size:12.5px;font-weight:600;margin-bottom:4px;}
+.dua-desc{color:var(--muted);font-size:12px;line-height:1.6;}
 
-.faq-wrap{margin-bottom:10px;}
-.city-links{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px;}
+.faq-wrap{margin-bottom:16px;}
+.city-links{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:30px;}
 .city-links a{color:var(--cream);text-decoration:none;background:var(--card);border:1px solid var(--line);padding:8px 14px;border-radius:8px;font-size:13px;transition:border-color .15s,background .15s;}
 .city-links a:hover{border-color:rgba(255,255,255,.22);background:rgba(255,255,255,.05);}
 .faq-item{border-bottom:1px solid var(--line);padding:14px 0;margin-bottom:0;}
 .faq-wrap .faq-item:last-child{border-bottom:none;}
-.faq-item summary{color:var(--cream);font-size:13px;font-weight:500;cursor:pointer;}
-.faq-item p{color:var(--muted);font-size:12px;line-height:1.6;margin-top:8px;}
+.faq-item summary{color:var(--cream);font-size:13.5px;font-weight:500;line-height:1.4;cursor:pointer;}
+.faq-item p{color:var(--muted);font-size:12.5px;line-height:1.65;margin-top:8px;}
 
 @media(max-width:480px){
   .qibla-widget{flex-direction:column;text-align:center;}
@@ -132,7 +132,7 @@ select:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
 .p-card.active{background:var(--accent-dim);border-color:var(--accent);}
 .p-card.active .ico{color:var(--accent-light);}
 .p-card.active .lbl,.p-card.active .tm{color:var(--accent-light);}
-.p-card.active .tm{font-size:15px;font-weight:800;}
+.p-card.active .tm{font-size:16px;font-weight:800;}
 
 .share-row{display:flex;justify-content:flex-end;margin-bottom:16px;}
 .share-btn{display:inline-flex;align-items:center;gap:7px;background:transparent;border:1px solid var(--line);border-radius:8px;color:var(--muted);padding:0 14px;height:44px;font-size:12.5px;font-weight:500;cursor:pointer;font-family:inherit;transition:border-color .15s,background .15s,color .15s;}
@@ -145,6 +145,10 @@ select:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
 .sec-title{font-size:16px;font-weight:700;flex:1;}
 .sec-link{color:var(--accent-light);font-size:12px;cursor:pointer;text-decoration:none;}
 .sec-meta{color:var(--muted2);font-size:12px;}
+
+/* Camiler+Takvim iki kolonu: hangi kolon daha uzunsa ona göre değil, blok
+   olarak sabit bir alt boşluk bıraksın. */
+.two-col{margin-bottom:22px;}
 
 /* Mosques */
 .mosques{display:grid;gap:8px;margin-bottom:30px;}
@@ -179,11 +183,11 @@ footer a{color:var(--accent-light);text-decoration:none;}
 .toast.show{transform:translateX(-50%) translateY(0);}
 
 @media(max-width:480px){
-  .hc-time{font-size:22px;}
+  .hc-time{font-size:20px;}
   .prayers{gap:4px;}
   .p-card{padding:10px 1px;}
   .p-card .tm{font-size:13px;}
-  .p-card.active .tm{font-size:14px;}
+  .p-card.active .tm{font-size:15px;}
   .cal-row,.cal-head{font-size:11px;}
   .cal-cell{font-size:11px;}
 }
@@ -192,7 +196,7 @@ footer a{color:var(--accent-light);text-decoration:none;}
 @media(min-width:900px){
   .wrap{max-width:1100px;}
   .hero-inner{padding:22px 40px;}
-  .hc-time{font-size:34px;}
+  .hc-time{font-size:32px;}
   .selectors{padding:14px 40px 18px;}
   .body-pad{padding:24px 40px 60px;}
   .day-nav{max-width:820px;margin:0 auto 12px;}
@@ -200,7 +204,7 @@ footer a{color:var(--accent-light);text-decoration:none;}
   .prayers{max-width:820px;margin:16px auto 22px;gap:10px;}
   .p-card{padding:16px 4px;}
   .p-card .tm{font-size:18px;}
-  .p-card.active .tm{font-size:19px;}
+  .p-card.active .tm{font-size:20px;}
   .stat-row{max-width:820px;margin:0 auto 20px;gap:12px;}
   .fav-list{max-width:820px;margin-left:auto;margin-right:auto;}
   .two-col{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start;max-width:820px;margin-left:auto;margin-right:auto;}
@@ -209,7 +213,7 @@ footer a{color:var(--accent-light);text-decoration:none;}
   .city-links a{font-size:14px;padding:10px 18px;}
   .faq-wrap{max-width:820px;margin-left:auto;margin-right:auto;}
   .qibla-widget{max-width:640px;margin:0 auto 26px;}
-  .ramadan-banner{max-width:820px;margin:0 auto 16px;}
+  .ramadan-banner{max-width:820px;margin:0 auto 22px;}
 }
 
 /* ══ Bilgi şeridi (hero altı) ═══════════════════════════════════════
