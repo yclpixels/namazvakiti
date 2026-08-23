@@ -95,6 +95,7 @@ body{background:var(--bg);color:var(--cream);font-family:system-ui,-apple-system
 
 @media(max-width:480px){
   .qibla-widget{flex-direction:column;text-align:center;}
+  .qibla-deg{font-size:20px;}
   .dua-grid{grid-template-columns:1fr;}
 }
 
@@ -146,6 +147,15 @@ select:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
 .sec-link{color:var(--accent-light);font-size:12px;cursor:pointer;text-decoration:none;}
 .sec-meta{color:var(--muted2);font-size:12px;}
 
+/* Editorial bölümler (Dua Vakitleri, SSS) — araç/veri bölümlerinden
+   (Favoriler, Kıble, Camiler, Takvim) farklı, ikon rozeti olmayan, biraz
+   daha büyük bir başlık dili kullanır. :has() desteklemeyen tarayıcılarda
+   bu kural hiç uygulanmaz, sec-head mevcut (tek tip) haliyle kalır. */
+.sec-head:has(+ .dua-grid) .sh-ico,
+.sec-head:has(+ .faq-wrap) .sh-ico{display:none;}
+.sec-head:has(+ .dua-grid) .sec-title,
+.sec-head:has(+ .faq-wrap) .sec-title{font-size:18px;}
+
 /* Camiler+Takvim iki kolonu: hangi kolon daha uzunsa ona göre değil, blok
    olarak sabit bir alt boşluk bıraksın. */
 .two-col{margin-bottom:22px;}
@@ -164,8 +174,9 @@ select:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
 /* Calendar */
 .cal-head{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr 1fr 1fr 1fr;padding:0 14px 10px;color:var(--muted2);font-size:10px;}
 .cal-head span:not(:first-child){text-align:center;}
-.cal-row{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr 1fr 1fr 1fr;padding:14px;border-radius:10px;margin-bottom:6px;align-items:center;background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);}
-.cal-row.today{background:var(--accent-dim);border-color:rgba(199,123,107,.4);}
+.cal-row{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr 1fr 1fr 1fr;padding:11px 14px;align-items:center;border-bottom:1px solid var(--line);}
+.cal-row:last-of-type{border-bottom:none;}
+.cal-row.today{background:var(--accent-dim);}
 .cal-day{font-size:12px;font-weight:500;}
 .cal-date{color:var(--muted2);font-size:10px;}
 .cal-row.today .cal-day{color:var(--accent-light);font-weight:600;}
