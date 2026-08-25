@@ -926,50 +926,55 @@
   const TKR_SPEED = 26; // px/sn — yavaş, sakin akış
   const tkrReduce = window.matchMedia("(prefers-reduced-motion: reduce)");
   const tkr = {
-    built: false, root: null, loc: null, day: null, rail: null, track: null,
+    built: false, root: null, rail: null, track: null,
     sticky: null, sLoc: null, sNow: null, sCd: null, sig: "", hl: null,
   };
 
   /* Tek bir vakit dizisi. `primary` olmayan kopyalar yalnızca kesintisiz
      loop için vardır: ekran okuyucudan ve tab sırasından çıkarılır. */
-  function tkrSeq(rec, activeKey, primary) {
+  function tkrSeq(rec, activeKey, place, dayLabel, primary) {
     const div = '<span class="tkr-div" aria-hidden="true">·</span>';
     const out = [];
+    /* Konum ve gün artık sabit satırda değil, akışın içinde: şerit tek
+       satır olduğu için bu bilgiler de kullanıcıya akarak ulaşıyor. */
+    out.push(`<span class="tkr-place">${escapeHtml(place)}</span>`, div);
+    if (dayLabel) out.push(`<span class="tkr-day">${escapeHtml(dayLabel)}</span>`, div);
     if (activeKey) {
       out.push(`<span class="tkr-now"><i aria-hidden="true"></i>Şu an ${escapeHtml(PRAYER_NAMES[activeKey] || "")}</span>`, div);
     }
     for (const p of PRAYERS) {
       const attrs = primary
         ? `aria-label="${escapeHtml(p.label)} vakti ${escapeHtml(rec[p.key])} — vakit kartına git"`
-        : 'tabindex="-1" aria-hidden="true"';
-      /* Vakit isimlerinde accent kullanılmaz: grid'deki accent zaten
-         "sıradaki vakit" anlamına geliyor. Şu anki vakit yalnızca metinsel
-         "ŞU AN …" rozetiyle belirtilir; iki farklı anlam aynı renge binmez. */
+        : 'tabindex="-1"';
+      /* Şeritte bakır = "şu an devam eden vakit". Şeridin kendi metni
+         ("ŞU AN …") bu anlamı açıkça yazdığı için renk tek başına
+         bilgi taşımıyor. */
       out.push(
-        `<button type="button" class="tkr-item" data-goto="${p.key}" ${attrs}>` +
+        `<button type="button" class="tkr-item${activeKey === p.key ? " is-now" : ""}" data-goto="${p.key}" ${attrs}>` +
         `<span class="tkr-lbl">${escapeHtml(p.label)}</span>` +
         `<span class="tkr-tm">${escapeHtml(rec[p.key])}</span></button>`, div);
     }
-    return `<div class="tkr-seq">${out.join("")}</div>`;
+    /* Kopya diziler tamamen ekran okuyucudan çıkarılır (loop artefaktı). */
+    return `<div class="tkr-seq"${primary ? "" : ' aria-hidden="true"'}>${out.join("")}</div>`;
   }
 
-  function tkrRender(rec, activeKey) {
+  function tkrRender(rec, activeKey, place, dayLabel) {
     if (tkrReduce.matches) {
       tkr.track.style.removeProperty("--tkr-dur");
-      tkr.track.innerHTML = tkrSeq(rec, activeKey, true);
+      tkr.track.innerHTML = tkrSeq(rec, activeKey, place, dayLabel, true);
       tkr.rail.scrollLeft = 0;
       return;
     }
     // 1) Bir diziyi ölç
-    tkr.track.innerHTML = tkrSeq(rec, activeKey, true);
+    tkr.track.innerHTML = tkrSeq(rec, activeKey, place, dayLabel, true);
     const seqW = tkr.track.firstElementChild ? tkr.track.firstElementChild.offsetWidth : 0;
     /* Ölçüm alınamadıysa (henüz layout yok) tek dizi kalır ve loop dikişi
        tutmaz → imzayı sıfırla ki bir sonraki tick tekrar denesin. */
     if (!seqW) { tkr.sig = ""; return; }
     // 2) Track'in yarısı rail'i doldurmalı, yoksa loop başında boşluk oluşur
     const k = Math.max(1, Math.ceil((tkr.rail.clientWidth || seqW) / seqW) + 1);
-    let html = tkrSeq(rec, activeKey, true);
-    for (let i = 1; i < k * 2; i++) html += tkrSeq(rec, activeKey, false);
+    let html = tkrSeq(rec, activeKey, place, dayLabel, true);
+    for (let i = 1; i < k * 2; i++) html += tkrSeq(rec, activeKey, place, dayLabel, false);
     tkr.track.innerHTML = html;
     // 3) Süre genişliğe göre → her ekranda aynı, sabit px/sn hız
     tkr.track.style.setProperty("--tkr-dur", ((k * seqW) / TKR_SPEED).toFixed(1) + "s");
@@ -994,17 +999,11 @@
     sec.id = "tickerBar";
     sec.hidden = true;
     sec.setAttribute("aria-label", "Namaz vakitleri şeridi");
+    /* Tek satır: solda sabit CANLI göstergesi, sağda tam genişlikte akış.
+       .tkr-inner kaldırıldı — şerit artık --container'a takılmıyor. */
     sec.innerHTML =
-      '<div class="tkr-inner">' +
-        '<div class="tkr-top">' +
-          '<span class="tkr-brand">Namaz Vakitleri</span>' +
-          '<span class="tkr-sep" aria-hidden="true">·</span>' +
-          '<span class="tkr-loc"></span>' +
-          '<span class="tkr-sep" aria-hidden="true">·</span>' +
-          '<span class="tkr-day"></span>' +
-        '</div>' +
-        '<div class="tkr-rail"><div class="tkr-track"></div></div>' +
-      '</div>';
+      '<div class="tkr-live"><i aria-hidden="true"></i>Canlı</div>' +
+      '<div class="tkr-rail"><div class="tkr-track"></div></div>';
     els.hero.parentNode.insertBefore(sec, els.hero.nextSibling);
 
     /* Compact sticky bar — sayfadaki bilgiyi tekrarladığı ve etkileşimli
@@ -1024,8 +1023,6 @@
     document.body.appendChild(bar);
 
     tkr.root = sec;
-    tkr.loc = sec.querySelector(".tkr-loc");
-    tkr.day = sec.querySelector(".tkr-day");
     tkr.rail = sec.querySelector(".tkr-rail");
     tkr.track = sec.querySelector(".tkr-track");
     tkr.sticky = bar;
@@ -1092,10 +1089,8 @@
     if (sig !== tkr.sig) {
       tkr.sig = sig;
       const place = state.distName + " / " + state.cityName;
-      tkr.loc.textContent = place;
       tkr.sLoc.textContent = place;
-      tkr.day.textContent = dayLabelFor(state.dayOffset, rec);
-      tkrRender(rec, activeKey);
+      tkrRender(rec, activeKey, place, dayLabelFor(state.dayOffset, rec));
     }
     const nowLbl = PRAYER_NAMES[liveKey] || "";
     if (tkr.sNow.textContent !== nowLbl) tkr.sNow.textContent = nowLbl;
