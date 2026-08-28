@@ -705,12 +705,13 @@
     return Math.floor((d - start) / 86400000);
   }
   async function renderDailyVerse() {
-    const host = document.getElementById("nvVerse");
-    if (!host) return;
+    const panel = document.getElementById("nvVerse");
+    const strip = document.getElementById("nvVerseStrip");
+    if (!panel && !strip) return;
     const todayIso = todayKey();
     try {
       const cached = JSON.parse(localStorage.getItem(VERSE_KEY) || "null");
-      if (cached && cached.date === todayIso && cached.text) { paintVerse(host, cached); return; }
+      if (cached && cached.date === todayIso && cached.text) { paintVerse(cached); return; }
     } catch {}
 
     const pick = DAILY_VERSES[dayOfYear(new Date()) % DAILY_VERSES.length];
@@ -722,17 +723,33 @@
       if (!text) throw new Error("Ayet metni alınamadı");
       const data = { date: todayIso, text, sura: pick.name, suraNo: pick.s, ayahNo: pick.a };
       try { localStorage.setItem(VERSE_KEY, JSON.stringify(data)); } catch {}
-      paintVerse(host, data);
+      paintVerse(data);
     } catch {
-      host.innerHTML = "";
+      if (panel) panel.innerHTML = "";
+      if (strip) strip.hidden = true;
     }
   }
-  function paintVerse(host, d) {
-    host.innerHTML =
-      '<p style="font-family:Georgia,\'Times New Roman\',serif;font-size:clamp(16px,3.4vw,19px);line-height:1.6;color:var(--cream);margin-bottom:10px;">"' +
-      escapeHtml(d.text) + '"</p>' +
-      '<p style="color:var(--muted2);font-size:12px;">' + escapeHtml(d.sura) + " Suresi, " + d.ayahNo +
-      ". Ayet — Diyanet İşleri Başkanlığı Meali</p>";
+  /* Panel (aşağıdaki "Günün Ayeti" bölümü) — tam metin + kaynak.
+     Şerit (hero'da, geri sayımın altında) — kısaltılmış tek satır teaser;
+     tam metni okumak isteyen aşağıdaki panele bakar. İkisi de AYNI
+     çekilmiş veriden beslenir, ikinci bir istek atılmaz. */
+  function paintVerse(d) {
+    const panel = document.getElementById("nvVerse");
+    if (panel) {
+      panel.innerHTML =
+        '<p style="font-family:Georgia,\'Times New Roman\',serif;font-size:clamp(16px,3.4vw,19px);line-height:1.6;color:var(--cream);margin-bottom:10px;">"' +
+        escapeHtml(d.text) + '"</p>' +
+        '<p style="color:var(--muted2);font-size:12px;">' + escapeHtml(d.sura) + " Suresi, " + d.ayahNo +
+        ". Ayet — Diyanet İşleri Başkanlığı Meali</p>";
+    }
+    const strip = document.getElementById("nvVerseStrip");
+    if (strip) {
+      const teaser = d.text.length > 100 ? d.text.slice(0, 100).trim() + "…" : d.text;
+      strip.innerHTML =
+        '<span class="nv-verse-strip-lbl">Günün Ayeti</span>' +
+        '<span class="nv-verse-strip-txt">' + escapeHtml(teaser) + "</span>";
+      strip.hidden = false;
+    }
   }
 
   /* ── Yakındaki camiler (Overpass / OpenStreetMap) ── */
@@ -1298,13 +1315,48 @@
      grid'in orta sütununa TAŞIR. Düğümler yeniden üretilmez, sadece yer
      değiştirir; bu yüzden mevcut event listener'lar ve element
      referansları (els.*) aynen çalışmaya devam eder.
-     Reklamlar yalnızca ≥1400px'de görünür (CSS), placeholder'dır.      */
-  const AD_SVG = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m21 15-4.5-4.5L7 20"/></svg>';
+     Reklamlar yalnızca ≥1400px'de görünür (CSS, yan sütunlar); alt bar
+     her genişlikte. ads.txt ve legacy statik sayfalarda (hakkimizda vb.)
+     zaten kullanılan gerçek AdSense yayıncı kimliği burada da kullanılır —
+     yeni bir hesap/onay gerekmez. Doldurulamayan (onay bekleyen/envanter
+     yok) slotlar kırık kutu göstermek yerine tamamen gizlenir. */
+  const AD_CLIENT = "ca-pub-4283080394775837";
+  const AD_SLOT = "7676950354";
+  let adsenseScriptRequested = false;
+  function ensureAdSenseScript() {
+    if (adsenseScriptRequested) return;
+    adsenseScriptRequested = true;
+    const s = document.createElement("script");
+    s.async = true;
+    s.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=" + AD_CLIENT;
+    s.crossOrigin = "anonymous";
+    document.head.appendChild(s);
+  }
   function nvAdSlot(kind, label) {
     const d = document.createElement("div");
     d.className = "nv-ad nv-ad--" + kind;
-    d.setAttribute("aria-hidden", "true");
-    d.innerHTML = AD_SVG + '<span class="nv-ad-t">Reklam Alanı</span><span class="nv-ad-s">' + label + "</span>";
+    ensureAdSenseScript();
+    const ins = document.createElement("ins");
+    ins.className = "adsbygoogle";
+    /* Yükseklik/genişlik ZORLANMAZ — bunu yaparsak dolmasa bile kutu
+       "dolu" gibi ölçülür ve boş bir kutu görünür kalır. Boyut dış
+       .nv-ad--side/--bar kabından gelir, ins sadece o alanı doldurur. */
+    ins.style.display = "block";
+    ins.style.width = "100%";
+    ins.setAttribute("data-ad-client", AD_CLIENT);
+    ins.setAttribute("data-ad-slot", AD_SLOT);
+    ins.setAttribute("data-ad-format", "auto");
+    if (kind === "bar") ins.setAttribute("data-full-width-responsive", "true");
+    d.appendChild(ins);
+    try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch {}
+    setTimeout(() => {
+      /* AdSense çözüldüğünde data-ad-status="filled"/"unfilled" YAZAR —
+         bu birincil sinyal. offsetHeight sadece o öznitelik hiç
+         gelmediyse (nadir) yedek olarak kullanılır. */
+      const status = ins.getAttribute("data-ad-status");
+      const filled = status ? status === "filled" : ins.offsetHeight > 40;
+      if (!filled) d.hidden = true;
+    }, 3500);
     return d;
   }
   /* Header: marka (sol) · konum seçici (orta) · aksiyonlar (sağ).
@@ -1380,7 +1432,12 @@
       try { if (typeof s.showPicker === "function") s.showPicker(); } catch {}
     });
 
-    inner.append(left, cd, right);
+    const verseStrip = document.createElement("div");
+    verseStrip.id = "nvVerseStrip";
+    verseStrip.className = "nv-verse-strip";
+    verseStrip.hidden = true;
+
+    inner.append(left, cd, right, verseStrip);
     nvHeroNext = name;
   }
   let nvHeroNext = null;
