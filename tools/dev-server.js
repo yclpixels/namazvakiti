@@ -12,10 +12,13 @@ const MIME = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".
 http.createServer((req, res) => {
   let p = decodeURIComponent(req.url.split("?")[0]);
   let full = path.join(ROOT, p);
-  if (p.endsWith("/")) full = path.join(full, "index.html");
-  if (!fs.existsSync(full) && !path.extname(full)) {
-    // "/il.html" gibi uzantısız istekleri dene (Netlify pretty-url davranışı)
-    if (fs.existsSync(full + ".html")) full = full + ".html";
+  if (p.endsWith("/")) {
+    full = path.join(full, "index.html");
+  } else if (!path.extname(full) && fs.existsSync(full + ".html")) {
+    // "/il" gibi uzantısız istekleri dene (Cloudflare Pages pretty-url davranışı).
+    // Aynı adı taşıyan bir KLASÖR de olabilir (ör. istanbul/ ilçe klasörlerini
+    // barındırır) — üretimdeki gibi .html dosyası her zaman önceliklidir.
+    full = full + ".html";
   }
   fs.readFile(full, (err, data) => {
     if (err) { res.writeHead(404); res.end("404"); return; }

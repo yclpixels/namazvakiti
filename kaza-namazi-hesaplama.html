@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8"/>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-5BNZXVHQ6Z"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-5BNZXVHQ6Z');
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5"/>
+<title>Kaza Namazı Hesaplama | Namaz Vakitleri</title>
+<meta name="description" content="Kılınmayan namazların sayısını tarih aralığına göre hesaplayın ve kaza namazlarınızı vakit vakit takip edin."/>
+<link rel="canonical" href="https://namazvakiti.net/kaza-namazi-hesaplama"/>
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="Kaza Namazı Hesaplama | Namaz Vakitleri"/>
+<meta property="og:description" content="Kılınmayan namazların sayısını tarih aralığına göre hesaplayın ve kaza namazlarınızı vakit vakit takip edin."/>
+<meta property="og:url" content="https://namazvakiti.net/kaza-namazi-hesaplama"/>
+<meta property="og:image" content="https://namazvakiti.net/assets/og-image-v2.png"/>
+<meta property="og:site_name" content="namazvakiti.net"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="Kaza Namazı Hesaplama | Namaz Vakitleri"/>
+<meta name="twitter:description" content="Kılınmayan namazların sayısını tarih aralığına göre hesaplayın ve kaza namazlarınızı vakit vakit takip edin."/>
+<meta name="twitter:image" content="https://namazvakiti.net/assets/og-image-v2.png"/>
+<meta name="theme-color" content="#1a1426"/>
+<link rel="manifest" href="/manifest.webmanifest"/>
+<link rel="icon" href="/favicon.ico"/>
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32-v2.png"/>
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16-v2.png"/>
+<link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon-v2.png"/>
+<link rel="stylesheet" href="/assets/style.css?v=10"/>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Kaza namazı nedir?","acceptedAnswer":{"@type":"Answer","text":"Vaktinde kılınamayan farz namazın, vakti çıktıktan sonra kılınmasına kaza namazı denir. Kaza namazları, vakit namazlarına ek olarak kılınır."}},{"@type":"Question","name":"Kaza namazları hangi vakitleri kapsar?","acceptedAnswer":{"@type":"Answer","text":"Sabah, öğle, ikindi, akşam ve yatsı olmak üzere beş vakit namaz kaza edilir. Bu araç, seçtiğiniz tarih aralığındaki gün sayısını beşle çarparak her vakit için ayrı ayrı kaç kaza namazı olduğunu hesaplar."}},{"@type":"Question","name":"Bu hesap aracı dini bir hüküm mü veriyor?","acceptedAnswer":{"@type":"Answer","text":"Hayır. Bu araç yalnızca gün sayısına göre basit bir çarpım işlemi yapar; hangi günlerin hariç tutulması gerektiğine (örn. mazeretli günler) siz karar verip \"hariç tutulacak gün\" alanına kendiniz girersiniz. Dini sorularınız için bir din görevlisine danışmanız önerilir."}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Ana Sayfa","item":"https://namazvakiti.net/"},{"@type":"ListItem","position":2,"name":"Kaza Namazı Hesaplama","item":"https://namazvakiti.net/kaza-namazi-hesaplama"}]}</script>
+<style>
+  .kb-wrap{max-width:680px;margin:0 auto;padding:20px 22px 60px;}
+  .kb-crumb{font-size:13px;color:var(--muted2);margin-bottom:18px;}
+  .kb-crumb a{color:var(--muted);text-decoration:none;}
+  .kb-crumb a:hover{color:var(--cream);}
+  .kb-h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(28px,6vw,40px);font-weight:700;letter-spacing:-.5px;margin-bottom:10px;}
+  .kb-intro{color:var(--muted);font-size:14px;line-height:1.75;margin-bottom:28px;}
+  .kb-intro b{color:var(--cream);}
+  .kb-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;margin-bottom:30px;}
+  .kb-links a{display:inline-flex;align-items:center;color:var(--muted);text-decoration:none;border:1px solid var(--line-soft);padding:8px 16px;border-radius:999px;font-size:13.5px;transition:.15s;}
+  .kb-links a:hover{border-color:var(--brand-line);background:var(--brand-tint);color:var(--cream);}
+
+  .kz-card{background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:20px;margin-bottom:22px;}
+  .kz-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+  .kz-field{display:flex;flex-direction:column;gap:6px;}
+  .kz-field label{font-size:11.5px;color:var(--muted2);font-weight:600;letter-spacing:.5px;}
+  .kz-field input{background:var(--card);border:1px solid var(--line);color:var(--cream);border-radius:7px;padding:11px 12px;font-size:14px;font-family:inherit;min-height:44px;}
+  .kz-field input:focus-visible{outline:2px solid var(--brand-soft);outline-offset:1px;}
+  .kz-btn{width:100%;background:var(--brand-tint);border:1px solid var(--brand-line);color:var(--brand-soft);padding:12px;border-radius:7px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;min-height:44px;margin-top:4px;transition:.15s;}
+  .kz-btn:hover{background:var(--brand-deep);color:var(--cream);}
+
+  .kz-result{display:none;}
+  .kz-result.is-on{display:block;}
+  .kz-total{text-align:center;padding:18px 0;border-bottom:1px solid var(--line);margin-bottom:16px;}
+  .kz-total-n{font-family:Georgia,serif;font-size:clamp(30px,7vw,42px);font-weight:700;color:var(--accent-light);line-height:1;}
+  .kz-total-l{color:var(--muted2);font-size:12px;margin-top:6px;}
+  .kz-vakit{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--line-soft);}
+  .kz-vakit:last-child{border-bottom:0;}
+  .kz-vakit-n{font-size:13.5px;font-weight:500;}
+  .kz-vakit-c{font-size:15px;font-weight:700;color:var(--cream);font-variant-numeric:tabular-nums;min-width:34px;text-align:right;}
+  .kz-vakit-btns{display:flex;gap:4px;}
+  .kz-vakit-btns button{width:30px;height:30px;border-radius:999px;background:var(--card);border:1px solid var(--line);color:var(--cream);cursor:pointer;font-size:15px;line-height:1;display:flex;align-items:center;justify-content:center;}
+  .kz-vakit-btns button:hover{border-color:var(--brand-line);background:var(--brand-tint);}
+  .kz-progress{margin-top:4px;height:6px;border-radius:999px;background:var(--surface);overflow:hidden;}
+  .kz-progress-bar{height:100%;background:var(--brand-soft);border-radius:999px;transition:width .2s;}
+  .kz-note{color:var(--muted2);font-size:12px;line-height:1.6;margin-top:16px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="nv-header" style="max-width:680px;">
+    <div class="brand">
+      <div class="brand-logo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 21V11C5 11 7 8 12 8C17 8 19 11 19 11V21M9 21V16C9 14.34 10.34 13 12 13C13.66 13 15 14.34 15 16V21M12 8V4M10 6H14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></div>
+      <div><div class="brand-name serif">Namaz Vakti</div><div class="brand-sub">Kaza Namazı</div></div>
+    </div>
+    <div class="top-actions"><a href="/" class="btn-round" aria-label="Ana Sayfa" style="text-decoration:none;display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></a></div>
+  </header>
+
+  <div class="kb-wrap">
+    <nav class="kb-crumb" aria-label="breadcrumb"><a href="/">Ana Sayfa</a> › <span style="color:var(--cream);">Kaza Namazı Hesaplama</span></nav>
+    <h1 class="kb-h1">Kaza Namazı Hesaplama</h1>
+    <p class="kb-intro">Vaktinde kılınamayan farz namazlar daha sonra <b>kaza</b> olarak kılınır. Aşağıya namaz kılmadığınız tarih aralığını girin; araç, o aralıktaki gün sayısını beş vakitle (sabah, öğle, ikindi, akşam, yatsı) çarparak toplam kaza namazı sayısını hesaplar. Mazeretli günleriniz varsa (örn. adet günleri) bunları <b>"hariç tutulacak gün"</b> alanına kendiniz girebilirsiniz — araç bu konuda bir hüküm vermez, sadece aritmetik hesaplama yapar. Hesapladıktan sonra her vakit için ayrı ayrı sayaç tutabilir, kıldıkça azaltabilirsiniz; ilerlemeniz yalnızca kendi tarayıcınızda saklanır.</p>
+
+    <div class="kz-card">
+      <div class="kz-row">
+        <div class="kz-field">
+          <label for="kzStart">Başlangıç tarihi</label>
+          <input type="date" id="kzStart"/>
+        </div>
+        <div class="kz-field">
+          <label for="kzEnd">Bitiş tarihi</label>
+          <input type="date" id="kzEnd"/>
+        </div>
+      </div>
+      <div class="kz-field" style="margin-bottom:6px;">
+        <label for="kzExclude">Hariç tutulacak gün sayısı (opsiyonel)</label>
+        <input type="number" id="kzExclude" min="0" value="0" inputmode="numeric"/>
+      </div>
+      <button class="kz-btn" id="kzCalcBtn" type="button">Hesapla</button>
+    </div>
+
+    <div class="kz-result" id="kzResult">
+      <div class="kz-card">
+        <div class="kz-total">
+          <div class="kz-total-n" id="kzTotalN">0</div>
+          <div class="kz-total-l">toplam kaza namazı</div>
+        </div>
+        <div id="kzVakitList"></div>
+        <div class="kz-progress"><div class="kz-progress-bar" id="kzProgressBar" style="width:0%;"></div></div>
+        <div class="kz-note">Sayaçlar bu tarayıcıda saklanır; başka bir cihazda görünmez. + ile kıldığınızı işaretleyin, - ile geri alın.</div>
+      </div>
+    </div>
+
+    <div class="kb-links">
+      <a href="/">← Namaz Vakitleri</a>
+      <a href="/kible-yonu-bulma">Kıble Yönü Bulma</a>
+      <a href="/hicri-takvim">Hicri Takvim</a>
+      <a href="/namaz-vakitleri-nasil-hesaplanir">Vakitler Nasıl Hesaplanır?</a>
+    </div>
+
+    <div class="sec-head">
+      <span class="sh-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.3 9.2a2.7 2.7 0 1 1 3.8 2.4c-.8.4-1.1.9-1.1 1.7v.4"/><path d="M12 17h.01"/></svg></span>
+      <h2 class="sec-title serif">Sık Sorulan Sorular</h2>
+    </div>
+    <div class="faq-wrap">
+      <details class="faq-item">
+        <summary>Kaza namazı nedir?</summary>
+        <p>Vaktinde kılınamayan farz namazın, vakti çıktıktan sonra kılınmasına kaza namazı denir.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Kaza namazları hangi vakitleri kapsar?</summary>
+        <p>Sabah, öğle, ikindi, akşam ve yatsı olmak üzere beş vakit namaz kaza edilir.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Bu hesap aracı dini bir hüküm mü veriyor?</summary>
+        <p>Hayır. Yalnızca gün sayısına göre aritmetik hesaplama yapar; mazeretli günleri siz kendiniz hariç tutarsınız. Dini sorularınız için bir din görevlisine danışmanız önerilir.</p>
+      </details>
+    </div>
+  </div>
+
+  <footer>
+    Veriler Diyanet İşleri Başkanlığı kaynaklıdır.<br/>
+    <a href="/sehirler">Tüm Şehirler</a> · <a href="/kible-yonu-bulma">Kıble Yönü Bulma</a> · <a href="/hicri-takvim">Hicri Takvim</a><br/>
+    <a href="/gizlilik">Gizlilik</a> · <a href="/hakkimizda">Hakkımızda</a> · <a href="/iletisim">İletişim</a>
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  const VAKITLER = [
+    { key: "sabah", label: "Sabah" },
+    { key: "ogle", label: "Öğle" },
+    { key: "ikindi", label: "İkindi" },
+    { key: "aksam", label: "Akşam" },
+    { key: "yatsi", label: "Yatsı" },
+  ];
+  const STORE_KEY = "nv_kaza_v1";
+  function loadCounts() {
+    try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch { return {}; }
+  }
+  function saveCounts(c) {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(c)); } catch {}
+  }
+
+  const els = {
+    start: document.getElementById("kzStart"),
+    end: document.getElementById("kzEnd"),
+    exclude: document.getElementById("kzExclude"),
+    calcBtn: document.getElementById("kzCalcBtn"),
+    result: document.getElementById("kzResult"),
+    totalN: document.getElementById("kzTotalN"),
+    list: document.getElementById("kzVakitList"),
+    bar: document.getElementById("kzProgressBar"),
+  };
+
+  let totals = {}; // vakit -> hedef sayı
+
+  function renderList() {
+    const counts = loadCounts();
+    let doneSum = 0, totalSum = 0;
+    els.list.innerHTML = VAKITLER.map(function(v){
+      const target = totals[v.key] || 0;
+      const done = Math.min(counts[v.key] || 0, target);
+      doneSum += done; totalSum += target;
+      return '<div class="kz-vakit">' +
+        '<span class="kz-vakit-n">' + v.label + '</span>' +
+        '<span class="kz-vakit-c">' + done + ' / ' + target + '</span>' +
+        '<span class="kz-vakit-btns">' +
+          '<button type="button" data-act="dec" data-v="' + v.key + '" aria-label="Azalt">−</button>' +
+          '<button type="button" data-act="inc" data-v="' + v.key + '" aria-label="Artır">+</button>' +
+        '</span></div>';
+    }).join("");
+    els.bar.style.width = (totalSum > 0 ? (doneSum / totalSum) * 100 : 0) + "%";
+  }
+
+  els.list.addEventListener("click", function(e){
+    const btn = e.target.closest("button[data-act]");
+    if (!btn) return;
+    const key = btn.dataset.v;
+    const counts = loadCounts();
+    const cur = counts[key] || 0;
+    const target = totals[key] || 0;
+    if (btn.dataset.act === "inc") counts[key] = Math.min(cur + 1, target);
+    else counts[key] = Math.max(cur - 1, 0);
+    saveCounts(counts);
+    renderList();
+  });
+
+  els.calcBtn.addEventListener("click", function(){
+    const s = els.start.value ? new Date(els.start.value) : null;
+    const e = els.end.value ? new Date(els.end.value) : null;
+    if (!s || !e || e < s) { els.result.classList.remove("is-on"); return; }
+    const dayMs = 86400000;
+    let days = Math.round((e - s) / dayMs) + 1;
+    const excl = Math.max(0, parseInt(els.exclude.value, 10) || 0);
+    days = Math.max(0, days - excl);
+
+    totals = {};
+    VAKITLER.forEach(function(v){ totals[v.key] = days; });
+    els.totalN.textContent = (days * VAKITLER.length).toLocaleString("tr-TR");
+    renderList();
+    els.result.classList.add("is-on");
+    els.result.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  });
+})();
+</script>
+</body>
+</html>

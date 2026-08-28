@@ -135,6 +135,56 @@
 
   /* ── Vakit etiketi (görsel tema artık sabit; sadece metin güncellenir) ── */
   const PRAYER_NAMES = { Imsak:"İMSAK", Gunes:"SABAH", Ogle:"ÖĞLE", Ikindi:"İKİNDİ", Aksam:"AKŞAM", Yatsi:"YATSI" };
+
+  /* ── Ezan bildirimi ────────────────────────────────────────────────
+     Tarayıcının yerleşik Notification API'si — kullanıcı açıkça izin
+     verirse, seçili il/ilçe için bir vakit girdiğinde sistem bildirimi
+     gösterilir. Ses/ezan kaydı bilinçli olarak YOK (telif ve saygınlık
+     nedeniyle); yalnızca metin bildirimi. */
+  const NOTIF_KEY = "nv_notif_v1";
+  function loadNotifPref() {
+    try { return localStorage.getItem(NOTIF_KEY) === "1"; } catch { return false; }
+  }
+  function saveNotifPref(on) {
+    try { localStorage.setItem(NOTIF_KEY, on ? "1" : "0"); } catch {}
+  }
+  let notifLastKey = null; // bu oturumda son bildirilen vakit — ilk tick sessiz başlar
+  function notifCheck(activeKey) {
+    if (!loadNotifPref() || typeof Notification === "undefined" || Notification.permission !== "granted") {
+      notifLastKey = activeKey;
+      return;
+    }
+    if (notifLastKey !== null && activeKey && activeKey !== notifLastKey) {
+      const label = PRAYER_NAMES[activeKey] || activeKey;
+      try {
+        new Notification(`${label} vakti girdi`, {
+          body: [state.cityName, state.distName].filter(Boolean).join(" · "),
+          icon: "/assets/icons/favicon-32-v2.png",
+          tag: "nv-ezan",
+        });
+      } catch {}
+    }
+    notifLastKey = activeKey;
+  }
+  async function toggleNotifications(btn) {
+    if (typeof Notification === "undefined") { toast("Tarayıcınız bildirimleri desteklemiyor."); return; }
+    if (loadNotifPref()) {
+      saveNotifPref(false);
+      notifLastKey = null;
+      if (btn) btn.classList.remove("is-on");
+      toast("Ezan bildirimleri kapatıldı.");
+      return;
+    }
+    let perm = Notification.permission;
+    if (perm === "default") {
+      try { perm = await Notification.requestPermission(); } catch { perm = "denied"; }
+    }
+    if (perm !== "granted") { toast("Bildirim izni verilmedi."); return; }
+    saveNotifPref(true);
+    notifLastKey = null;
+    if (btn) btn.classList.add("is-on");
+    toast("Ezan bildirimleri açık — vakit girince haber verilecek.");
+  }
   function applyTheme(prayerKey) {
     if (els.heroVakit) els.heroVakit.textContent = (PRAYER_NAMES[prayerKey] || "İKİNDİ") + " VAKTİ";
   }
@@ -268,6 +318,7 @@
       state.monthly = monthly;
       state.dayOffset = 0;
       renderCalendar();
+      renderTrendChart();
       startCountdown();
     } catch (e) {
       showErr(e.message || "Vakitler alınamadı.");
@@ -345,7 +396,9 @@
        (current === null). Fiilen devam eden vakit, dün akşam giren yatsıdır —
        imsak ise henüz GELMEMİŞ vakittir. Şeritteki "ŞU AN …" göstergesiyle
        aynı kural. */
-    applyTheme(current ? current.key : "Yatsi");
+    const activeKey = current ? current.key : "Yatsi";
+    applyTheme(activeKey);
+    notifCheck(activeKey);
 
     renderPrayerGrid(next, current, now);
 
@@ -363,7 +416,7 @@
       els.cdSub.textContent = `${next.label} ezanına kalan süre · ${next.time}`;
     }
     if (els.heroLoc) els.heroLoc.textContent = `${state.cityName} · ${state.distName}`;
-    if (nvBandsBuilt) renderWeatherBand();
+    if (nvBandsBuilt) renderWeatherTile();
 
     // Hicri tarih — API'nin uzun alanını (ay adı yazılı) doğrudan göster, format tahmini yok
     const hijriLong = today.HicriTarihUzun || today.HijriTarihUzun || "";
@@ -581,6 +634,105 @@
         if (!calExpanded) els.cal.scrollIntoView({ behavior: "smooth", block: "nearest" });
       });
     }
+  }
+
+  /* ── Mevsimsel trend — zaten çekilmiş aylık veriden türetilir, ek istek
+     atılmaz. İmsak-Yatsı aralığının ay içinde nasıl uzayıp kısaldığını
+     gösterir (astronomik gün uzunluğu değil — imsak güneşten önce, yatsı
+     akşam ezanından sonra olduğu için bu aralık gerçek gün ışığından
+     daha geniştir; etiket bunu netleştirir). */
+  function timeToMin(hhmm) {
+    const p = String(hhmm || "").split(":");
+    const h = parseInt(p[0], 10), m = parseInt(p[1], 10);
+    return Number.isFinite(h) && Number.isFinite(m) ? h * 60 + m : null;
+  }
+  function renderTrendChart() {
+    const host = document.getElementById("nvTrend");
+    if (!host) return;
+    const rows = state.monthly.filter((r) => r.Imsak && r.Yatsi);
+    const spans = rows.map((r) => timeToMin(r.Yatsi) - timeToMin(r.Imsak));
+    if (rows.length < 6 || spans.some((v) => !Number.isFinite(v))) { host.innerHTML = ""; return; }
+
+    const min = Math.min(...spans), max = Math.max(...spans);
+    const W = 600, H = 90, EDGE = 6;
+    const n = spans.length;
+    const pts = spans.map((v, i) => {
+      const x = EDGE + (i / (n - 1)) * (W - EDGE * 2);
+      const y = max === min ? H / 2 : H - EDGE - ((v - min) / (max - min)) * (H - EDGE * 2);
+      return [x, y];
+    });
+    const line = pts.map((p) => p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" ");
+    const areaPath = "M" + pts[0][0].toFixed(1) + "," + H + " L" + line.split(" ").join(" L") +
+      " L" + pts[n - 1][0].toFixed(1) + "," + H + " Z";
+    const todayIdx = rows.findIndex((r) => r.MiladiTarihKisa === todayKey());
+    const todayPt = todayIdx >= 0 ? pts[todayIdx] : null;
+    const fmtSpan = (mins) => Math.floor(mins / 60) + "sa " + pad(mins % 60) + "dk";
+    const trend = spans[n - 1] - spans[0];
+    const trendTxt = trend > 2 ? "uzuyor" : trend < -2 ? "kısalıyor" : "sabit";
+
+    host.innerHTML =
+      '<svg viewBox="0 0 ' + W + " " + H + '" preserveAspectRatio="none" style="width:100%;height:74px;display:block;" aria-hidden="true">' +
+        '<path d="' + areaPath + '" fill="var(--brand-tint)"/>' +
+        '<polyline points="' + line + '" fill="none" stroke="var(--brand-soft)" stroke-width="2"/>' +
+        (todayPt ? '<circle cx="' + todayPt[0].toFixed(1) + '" cy="' + todayPt[1].toFixed(1) + '" r="3.5" fill="var(--accent)"/>' : "") +
+      "</svg>" +
+      '<div style="display:flex;justify-content:space-between;gap:10px;margin-top:8px;font-size:11px;color:var(--muted2);">' +
+        "<span>Bugün: " + escapeHtml(fmtSpan(spans[todayIdx >= 0 ? todayIdx : 0])) + "</span>" +
+        "<span>Bu ay " + trendTxt + "</span>" +
+      "</div>";
+  }
+
+  /* ── Günün Ayeti ──────────────────────────────────────────────────
+     Metin ASLA ezberden yazılmaz: api.alquran.cloud'un Diyanet İşleri
+     Başkanlığı meali baskısından (tr.diyanet) canlı çekilir. Referans
+     listesi sadece sure:ayet numaralarını içerir — çeviri metni her
+     zaman kaynaktan gelir. Gün-bazlı sabit seçim: herkes aynı gün aynı
+     ayeti görür, günde bir kez değişir. Sonuç o günün tarihiyle birlikte
+     localStorage'da tutulur, sayfa/vakit değişse de tekrar istek atılmaz. */
+  const DAILY_VERSES = [
+    { s: 94, a: 5, name: "İnşirah" }, { s: 94, a: 6, name: "İnşirah" },
+    { s: 2, a: 286, name: "Bakara" }, { s: 65, a: 3, name: "Talak" },
+    { s: 13, a: 28, name: "Ra'd" }, { s: 39, a: 53, name: "Zümer" },
+    { s: 2, a: 153, name: "Bakara" }, { s: 16, a: 97, name: "Nahl" },
+    { s: 55, a: 60, name: "Rahman" }, { s: 3, a: 159, name: "Al-i İmran" },
+    { s: 9, a: 40, name: "Tevbe" }, { s: 20, a: 25, name: "Taha" },
+    { s: 3, a: 139, name: "Al-i İmran" }, { s: 29, a: 69, name: "Ankebut" },
+    { s: 2, a: 152, name: "Bakara" }, { s: 49, a: 13, name: "Hucurat" },
+  ];
+  const VERSE_KEY = "nv_verse_v1";
+  function dayOfYear(d) {
+    const start = new Date(d.getFullYear(), 0, 0);
+    return Math.floor((d - start) / 86400000);
+  }
+  async function renderDailyVerse() {
+    const host = document.getElementById("nvVerse");
+    if (!host) return;
+    const todayIso = todayKey();
+    try {
+      const cached = JSON.parse(localStorage.getItem(VERSE_KEY) || "null");
+      if (cached && cached.date === todayIso && cached.text) { paintVerse(host, cached); return; }
+    } catch {}
+
+    const pick = DAILY_VERSES[dayOfYear(new Date()) % DAILY_VERSES.length];
+    try {
+      const res = await fetch(`https://api.alquran.cloud/v1/ayah/${pick.s}:${pick.a}/tr.diyanet`, { cache: "no-store" });
+      if (!res.ok) throw new Error("Sunucu hatası");
+      const j = await res.json();
+      const text = j && j.data && j.data.text;
+      if (!text) throw new Error("Ayet metni alınamadı");
+      const data = { date: todayIso, text, sura: pick.name, suraNo: pick.s, ayahNo: pick.a };
+      try { localStorage.setItem(VERSE_KEY, JSON.stringify(data)); } catch {}
+      paintVerse(host, data);
+    } catch {
+      host.innerHTML = "";
+    }
+  }
+  function paintVerse(host, d) {
+    host.innerHTML =
+      '<p style="font-family:Georgia,\'Times New Roman\',serif;font-size:clamp(16px,3.4vw,19px);line-height:1.6;color:var(--cream);margin-bottom:10px;">"' +
+      escapeHtml(d.text) + '"</p>' +
+      '<p style="color:var(--muted2);font-size:12px;">' + escapeHtml(d.sura) + " Suresi, " + d.ayahNo +
+      ". Ayet — Diyanet İşleri Başkanlığı Meali</p>";
   }
 
   /* ── Yakındaki camiler (Overpass / OpenStreetMap) ── */
@@ -1073,7 +1225,11 @@
     sec.innerHTML =
       '<div class="tkr-live"><i aria-hidden="true"></i>Canlı</div>' +
       '<div class="tkr-rail"><div class="tkr-track"></div></div>';
-    els.hero.parentNode.insertBefore(sec, els.hero.nextSibling);
+    /* Şerit sayfanın EN ÜSTÜNDE olmalı — header/hero'nun bile önünde.
+       .wrap'in ilk elemanı olarak eklenir (nvHeader() bu noktada zaten
+       çalışmış olabilir; firstElementChild o zaman header'dır). */
+    const wrap = els.hero.parentNode;
+    wrap.insertBefore(sec, wrap.firstElementChild);
 
     /* Compact sticky bar — sayfadaki bilgiyi tekrarladığı ve etkileşimli
        öğe içermediği için ekran okuyucudan gizli. */
@@ -1205,12 +1361,19 @@
         "<span>Şehri Değiştir</span></button>" +
       '<button type="button" class="nv-hbtn" data-nv="fav">' +
         '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.8L12 3.5Z"/></svg>' +
-        "<span>Favorilere Ekle</span></button>";
+        "<span>Favorilere Ekle</span></button>" +
+      '<button type="button" class="nv-hbtn" data-nv="notif">' +
+        '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 4.5 1.5 6 2 7H4c.5-1 2-2.5 2-7Z"/><path d="M9.5 18a2.5 2.5 0 0 0 5 0"/></svg>' +
+        '<span class="nv-notif-lbl">Ezan Bildirimi</span></button>';
+    if (loadNotifPref() && typeof Notification !== "undefined" && Notification.permission === "granted") {
+      right.querySelector('[data-nv="notif"]').classList.add("is-on");
+    }
     /* Mevcut kontrollere delege eder — ikinci bir mantık yazılmaz */
     right.addEventListener("click", (e) => {
       const b = e.target.closest("[data-nv]");
       if (!b) return;
       if (b.dataset.nv === "fav") { els.favBtn && els.favBtn.click(); return; }
+      if (b.dataset.nv === "notif") { toggleNotifications(b); return; }
       const s = els.city;
       if (!s) return;
       s.focus();
@@ -1256,13 +1419,109 @@
                            change: sayı (yüzde) | null
        weatherProvider(city, dist) → null
                          | { temp:Number, desc:String, updated:String }
-     İkisi de şu an BİLİNÇLİ olarak null döner: bağlı bir veri kaynağı
-     yok ve uydurma değer gösterilmeyecek. Bant o zaman hiç çizilmez. */
+     financeProvider hâlâ BİLİNÇLİ olarak null döner: bağlı bir finans veri
+     kaynağı yok ve uydurma değer gösterilmeyecek — bant o zaman hiç
+     çizilmez. weatherProvider ise Open-Meteo'ya (anahtarsız, ücretsiz)
+     bağlıdır; kaynağa ulaşılamazsa yine null döner, sahte değer basılmaz. */
   async function financeProvider() {
     return null;
   }
-  async function weatherProvider(_cityName, _distName) {
-    return null;
+
+  /* Open-Meteo: anahtar gerektirmeyen, ücretsiz, CORS destekli geocoding +
+     hava durumu servisi. Seçili il/ilçe ADINA göre konum bulunur (cihaz
+     konumu değil — kullanıcı Ankara sayfasındayken fizik olarak başka
+     şehirde olabilir, banttaki etiketle veri eşleşmeli). Cihaz konumu
+     (varsa) sadece geocoding tamamen başarısız olursa son çare olarak
+     kullanılır. Sonuçlar şehir başına önbelleklenir — renderWeatherTile()
+     her saniye çağrıldığı için önbellek olmadan her tick'te ağ isteği
+     atılırdı. */
+  const WMO_TR = {
+    0: "Açık", 1: "Az bulutlu", 2: "Parçalı bulutlu", 3: "Kapalı",
+    45: "Sisli", 48: "Kırağı sisi",
+    51: "Hafif çise", 53: "Çise", 55: "Yoğun çise", 56: "Donan çise", 57: "Yoğun donan çise",
+    61: "Hafif yağmur", 63: "Yağmur", 65: "Kuvvetli yağmur", 66: "Donan yağmur", 67: "Kuvvetli donan yağmur",
+    71: "Hafif kar", 73: "Kar", 75: "Kuvvetli kar", 77: "Kar taneleri",
+    80: "Hafif sağanak", 81: "Sağanak", 82: "Kuvvetli sağanak",
+    85: "Hafif kar sağanağı", 86: "Kuvvetli kar sağanağı",
+    95: "Gök gürültülü sağanak", 96: "Dolulu fırtına", 99: "Kuvvetli dolulu fırtına",
+  };
+  /* WMO kodu → küçük çizgi ikon (sitenin diğer ikonlarıyla aynı stil:
+     stroke=currentColor, stroke-width 1.6). Sadece 7 kategori yeterli —
+     her kod tek tek ayırt edilebilir bir ikonu hak etmiyor. */
+  const WX_ICON_PATHS = {
+    sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>',
+    "cloud-sun": '<circle cx="7.5" cy="7" r="2"/><path d="M7.5 2.7v1.1M3.2 7h1.1M4.4 4.4l.8.8"/><path d="M9.2 19a4 4 0 0 1-.4-7.97A5.3 5.3 0 0 1 18.7 12a3.6 3.6 0 0 1-.4 7H9.2Z"/>',
+    cloud: '<path d="M6.5 19a4.5 4.5 0 0 1-.4-8.98A6 6 0 0 1 18 9.06 4 4 0 0 1 17.5 17H6.5Z"/>',
+    fog: '<path d="M3 8.5h13M3 12.5h18M6 16.5h13"/>',
+    rain: '<path d="M6.5 15a4.5 4.5 0 0 1-.4-8.98A6 6 0 0 1 18 5.06 4 4 0 0 1 17.5 13H6.5Z"/><path d="M8 17l-1 3M12 17l-1 3M16 17l-1 3"/>',
+    snow: '<path d="M6.5 14a4.5 4.5 0 0 1-.4-8.98A6 6 0 0 1 18 4.06 4 4 0 0 1 17.5 12H6.5Z"/><path d="M8 17v.01M12 18v.01M16 17v.01M8 15v.01M16 15v.01"/>',
+    storm: '<path d="M6.5 13a4.5 4.5 0 0 1-.4-8.98A6 6 0 0 1 18 3.06 4 4 0 0 1 17.5 11H6.5Z"/><path d="M12.5 12l-2 4h3l-2 4"/>',
+  };
+  function wxIconKey(code) {
+    if (code === 0) return "sun";
+    if (code === 1 || code === 2) return "cloud-sun";
+    if (code === 3) return "cloud";
+    if (code === 45 || code === 48) return "fog";
+    if (code >= 51 && code <= 67) return "rain";
+    if (code >= 80 && code <= 82) return "rain";
+    if ((code >= 71 && code <= 77) || code === 85 || code === 86) return "snow";
+    if (code >= 95) return "storm";
+    return "cloud";
+  }
+  function wxIconSvg(code) {
+    const key = wxIconKey(code);
+    return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + WX_ICON_PATHS[key] + "</svg>";
+  }
+  const wxGeoCache = new Map();
+  async function wxGeocode(q) {
+    if (wxGeoCache.has(q)) return wxGeoCache.get(q);
+    let result = null;
+    try {
+      const res = await fetch(
+        "https://geocoding-api.open-meteo.com/v1/search?count=1&language=tr&country=TR&name=" + encodeURIComponent(q),
+        { cache: "no-store" }
+      );
+      if (res.ok) {
+        const j = await res.json();
+        const r = j && Array.isArray(j.results) && j.results[0];
+        if (r && Number.isFinite(r.latitude) && Number.isFinite(r.longitude)) {
+          result = { lat: r.latitude, lon: r.longitude };
+        }
+      }
+    } catch { result = null; }
+    wxGeoCache.set(q, result);
+    return result;
+  }
+  const WX_TTL_MS = 20 * 60 * 1000; // 20 dk — hava durumu bu sıklıkta yeterince taze
+  const wxDataCache = new Map();
+  async function weatherProvider(cityName, distName) {
+    if (!cityName) return null;
+    const cacheKey = cityName + "|" + (distName || "");
+    const cached = wxDataCache.get(cacheKey);
+    if (cached && Date.now() - cached.at < WX_TTL_MS) return cached.data;
+    try {
+      let coords = (distName && distName !== cityName) ? await wxGeocode(distName + ", " + cityName) : null;
+      if (!coords) coords = await wxGeocode(cityName + ", Türkiye");
+      if (!coords) coords = state.coords || null;
+      if (!coords) return null;
+      const res = await fetch(
+        `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&current=temperature_2m,weather_code&timezone=auto`,
+        { cache: "no-store" }
+      );
+      if (!res.ok) return null;
+      const j = await res.json();
+      const cur = j && j.current;
+      if (!cur || typeof cur.temperature_2m !== "number") return null;
+      const data = {
+        temp: cur.temperature_2m,
+        code: cur.weather_code,
+        desc: WMO_TR[cur.weather_code] || "",
+        updated: typeof cur.time === "string" ? cur.time.slice(11, 16) : "",
+      };
+      wxDataCache.set(cacheKey, { data, at: Date.now() });
+      return data;
+    } catch { return null; }
   }
 
   const FIN_ORDER = [
@@ -1322,42 +1581,38 @@
     b.hidden = !c.childElementCount;
   }
 
-  async function renderWeatherBand() {
-    const b = document.getElementById("nvWeather");
+  /* Hava durumu artık body-pad'de yatay bir bant değil, hero/header'daki
+     küçük KARE bir rozet — konum/giriş butonlarıyla aynı boyut/dil
+     (bkz. .nv-wx-tile). İkon WMO koduna göre seçilir (wxIconSvg). */
+  async function renderWeatherTile() {
+    const b = document.getElementById("nvWxTile");
     if (!b) return;
     let d = null;
     try { d = await weatherProvider(state.cityName, state.distName); } catch { d = null; }
     if (!d || typeof d.temp !== "number" || !isFinite(d.temp)) { b.hidden = true; return; }
-    const c = b.querySelector(".nv-band-c");
-    c.textContent = "";
-    const loc = document.createElement("span");
-    loc.className = "nv-wx-loc";
-    loc.textContent = state.cityName + " · " + state.distName;
-    const t = document.createElement("span");
-    t.className = "nv-wx-t";
-    t.textContent = Math.round(d.temp) + "°";
-    c.append(loc, t);
-    if (d.desc) {
-      const s = document.createElement("span");
-      s.className = "nv-wx-d"; s.textContent = d.desc;
-      c.appendChild(s);
-    }
-    b.querySelector(".nv-band-src").textContent = d.updated ? "Güncelleme · " + d.updated : "";
+    b.innerHTML = wxIconSvg(d.code) + '<span class="nv-wx-tile-t">' + Math.round(d.temp) + "°</span>";
+    const locTxt = [state.cityName, state.distName].filter(Boolean).join(" · ");
+    b.title = locTxt + (d.desc ? " · " + d.desc : "") + (d.updated ? " · Güncelleme " + d.updated : "");
+    b.setAttribute("aria-label", "Hava durumu: " + b.title);
     b.hidden = false;
   }
 
-  /* Üstte finans, altta hava. İkisi de statik; kayan şerit yalnızca
-     mevcut CANLI namaz şerididir ve ona dokunulmaz. */
+  /* Üstte finans bandı (şu an kaynaksız, hep gizli). Hava durumu ise
+     header'daki top-actions'a küçük kare bir rozet olarak eklenir. */
   let nvBandsBuilt = false;
   function nvBands() {
     if (nvBandsBuilt) return;
     const pad = document.querySelector(".body-pad");
-    if (!pad) return;
+    const actions = document.querySelector(".nv-header .top-actions");
+    if (!pad || !actions) return;
     nvBandsBuilt = true;
     pad.prepend(nvBandEl("nvFinance", "fin", "Piyasa"));
-    pad.append(nvBandEl("nvWeather", "wx", "Hava Durumu"));
     renderFinanceBand();
-    renderWeatherBand();
+
+    const tile = document.createElement("div");
+    tile.id = "nvWxTile"; tile.className = "nv-wx-tile"; tile.hidden = true;
+    actions.insertBefore(tile, actions.firstChild);
+    renderWeatherTile();
   }
 
   let nvDashBuilt = false;
@@ -1448,8 +1703,38 @@
       const t = h ? (h.querySelector(".sec-title") || {}).textContent : "Aylık Vakitler";
       const meta = h ? h.querySelector(".sec-meta") : null;
       if (h) h.remove();
-      sub.appendChild(nvPanel("data", (t || "Aylık Vakitler").trim(), [calHead, calBody], meta));
+      const calPanel = nvPanel("data", (t || "Aylık Vakitler").trim(), [calHead, calBody], meta);
+      calPanel.classList.add("nv-panel--calendar");
+      const printTitle = document.createElement("div");
+      printTitle.className = "nv-print-title";
+      calPanel.querySelector(".nv-panel-b").prepend(printTitle);
+      const printBtn = document.createElement("button");
+      printBtn.type = "button"; printBtn.className = "nv-plink"; printBtn.textContent = "Yazdır";
+      printBtn.addEventListener("click", () => {
+        printTitle.textContent = [state.cityName, state.distName].filter(Boolean).join(" · ") + " — İmsakiye";
+        calExpanded = true;
+        renderCalendar();
+        window.print();
+      });
+      calPanel.querySelector(".nv-panel-h").appendChild(printBtn);
+      sub.appendChild(calPanel);
     }
+
+    /* Mevsimsel trend — zaten çekilmiş olan aylık veriden türetilir,
+       ek bir istek atılmaz. renderTrendChart() veriyi loadTimes() sonrası
+       doldurur; burada sadece boş kap oluşturulur. */
+    const trendHost = document.createElement("div");
+    trendHost.id = "nvTrend";
+    const trendPanel = nvPanel("data", "İmsak–Yatsı Aralığı", [trendHost]);
+    trendPanel.classList.add("nv-panel--trend");
+    sub.appendChild(trendPanel);
+
+    /* Günün Ayeti — Diyanet meali, api.alquran.cloud üzerinden canlı çekilir
+       (metin ezbere/uydurma değil). renderDailyVerse() dolduruyor. */
+    const verseHost = document.createElement("div");
+    verseHost.id = "nvVerse";
+    verseHost.innerHTML = '<p style="color:var(--muted2);font-size:13px;">Yükleniyor…</p>';
+    sub.appendChild(nvPanel("editorial", "Günün Ayeti", [verseHost]));
 
     const cities = nvSection(".city-links");
     if (cities) sub.appendChild(nvPanel("editorial", cities.title || "Popüler Şehirler", [cities.node], cities.link));
@@ -1463,6 +1748,8 @@
     if (tc && !tc.textContent.trim() && !tc.querySelector("img,svg,input,select,button,a")) tc.remove();
 
     pad.append(dash, sub);
+    renderTrendChart(); // #nvTrend artık gerçek DOM'a eklendi — burada çalışmalı
+    renderDailyVerse(); // #nvVerse artık gerçek DOM'a eklendi — burada çalışmalı
   }
 
   let nvShellBuilt = false;
@@ -1480,9 +1767,11 @@
     main.className = "nv-main";
     shell.append(nvAdSlot("side", "160 × 600"), main, nvAdSlot("side", "160 × 600"));
 
-    /* Şerit ile footer arasındaki her şeyi orta sütuna taşı */
+    /* Masthead (şerit + header + hero) ile footer arasındaki her şeyi orta
+       sütuna taşı. Şerit artık hero'nun ÖNÜNDE olduğu için sınır hero'nun
+       kendisinden hesaplanır — tkrEl'in DOM'daki yeri artık önemli değil. */
     const moved = [];
-    for (let n = tkrEl.nextElementSibling; n && n !== foot; n = n.nextElementSibling) moved.push(n);
+    for (let n = els.hero.nextElementSibling; n && n !== foot; n = n.nextElementSibling) moved.push(n);
     wrap.insertBefore(shell, foot);
     moved.forEach((n) => main.appendChild(n));
 
