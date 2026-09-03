@@ -1348,15 +1348,25 @@
     ins.setAttribute("data-ad-format", "auto");
     if (kind === "bar") ins.setAttribute("data-full-width-responsive", "true");
     d.appendChild(ins);
-    try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch {}
-    setTimeout(() => {
-      /* AdSense çözüldüğünde data-ad-status="filled"/"unfilled" YAZAR —
-         bu birincil sinyal. offsetHeight sadece o öznitelik hiç
-         gelmediyse (nadir) yedek olarak kullanılır. */
-      const status = ins.getAttribute("data-ad-status");
-      const filled = status ? status === "filled" : ins.offsetHeight > 40;
-      if (!filled) d.hidden = true;
-    }, 3500);
+    /* push() çağrısı ertelenir: nvAdSlot() döndüğü anda d henüz gerçek
+       sayfaya eklenmemiş olabilir (çağıran sonra append/insertBefore
+       yapıyor) — hemen push edilirse AdSense genişliği 0 ölçüp hata
+       veriyordu. requestAnimationFrame ile bir sonraki boyama turuna
+       ertelenir; o an hâlâ 0 genişlikse (ör. yan sütun <1400px'de
+       gizli) hiç push edilmez — görünmeyen bir slot için istek atmanın
+       anlamı yok. */
+    requestAnimationFrame(() => {
+      if (d.offsetWidth < 20) { d.hidden = true; return; }
+      try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch {}
+      setTimeout(() => {
+        /* AdSense çözüldüğünde data-ad-status="filled"/"unfilled" YAZAR —
+           bu birincil sinyal. offsetHeight sadece o öznitelik hiç
+           gelmediyse (nadir) yedek olarak kullanılır. */
+        const status = ins.getAttribute("data-ad-status");
+        const filled = status ? status === "filled" : ins.offsetHeight > 40;
+        if (!filled) d.hidden = true;
+      }, 3500);
+    });
     return d;
   }
   /* Header: marka (sol) · konum seçici (orta) · aksiyonlar (sağ).
