@@ -22,8 +22,6 @@
 # wildcard'in bunlari yanlislikla var olmayan bir .html'e yönlendirmesini
 # engeller (wildcard'dan ONCE gelmeli, ilk eslesen kural kazanir)
 /assets/    /assets/    200
-/docs/    /docs/    200
-/tools/    /tools/    200
 
 
 # Eski klasör-tipi il/statik-sayfa sayfalarindan duz URL'e yonlendirme
@@ -54,6 +52,24 @@
 /diyarbakir/merkez/    /diyarbakir    301
 /kahramanmaras/merkez/    /kahramanmaras    301
 /van/merkez/    /van    301
+
+# Ayni eski URL'lerin sondaki "/" olmadan ve percent-encoded halleri —
+# Google bunlari da tariyor, yukaridaki kurallar eslesmiyor ve 404 donuyordu
+/afyonkarahisar/emirdagi    /afyonkarahisar/emirdag/    301
+/hatay/samandagi    /hatay/samandag/    301
+/samsun/tekkeköy    /samsun/tekkekoy/    301
+/denizli/merkez    /denizli/merkezefendi/    301
+/erzurum/merkez    /erzurum/palandoken/    301
+/malatya/merkez    /malatya/yesilyurt/    301
+/mardin/merkez    /mardin/artuklu/    301
+/mugla/merkez    /mugla/mentese/    301
+/ordu/merkez    /ordu/altinordu/    301
+/manisa/merkez    /manisa    301
+/tekirdag/merkez    /tekirdag/suleymanpasa/    301
+/trabzon/merkez    /trabzon/ortahisar/    301
+/diyarbakir/merkez    /diyarbakir    301
+/kahramanmaras/merkez    /kahramanmaras    301
+/van/merkez    /van    301
 
 # Bilinmeyen URL'ler icin 404: Cloudflare Pages _redirects, status kodu
 # olarak 404'u KABUL ETMIYOR (yalnizca 200/301/302/303/307/308 gecerli —

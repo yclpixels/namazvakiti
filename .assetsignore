@@ -1,0 +1,12 @@
+.git
+.github
+.claude
+.wrangler
+.gitignore
+.assetsignore
+node_modules
+tools
+docs
+internal-notes
+README.md
+GOOGLE-GIRIS-KURULUM.txt
