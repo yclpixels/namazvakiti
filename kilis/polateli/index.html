@@ -31,11 +31,13 @@
 <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16-v2.png"/>
 <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon-v2.png"/>
 <link rel="preconnect" href="https://ezanvakti.emushaf.net"/>
-<link rel="stylesheet" href="/assets/style.css?v=13"/>
+<link rel="stylesheet" href="/assets/style.css?v=14"/>
+<link rel="preload" href="/assets/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin/>
 <script type="application/ld+json" data-faq-schema="1">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Bugün Polateli imsak saat kaçta?", "acceptedAnswer": {"@type": "Answer", "text": "Polateli için güncel imsak saati yukarıdaki tabloda yer alır. Sayfa her gün otomatik güncellenir."}}, {"@type": "Question", "name": "Polateli akşam ezanı saat kaçta okunur?", "acceptedAnswer": {"@type": "Answer", "text": "Polateli akşam ezanı saati tabloda \"Akşam\" satırında görünür. Saatler Diyanet verileriyle güncellenir."}}, {"@type": "Question", "name": "Polateli yatsı namazı saat kaçta?", "acceptedAnswer": {"@type": "Answer", "text": "Polateli yatsı vakti tabloda \"Yatsı\" satırında yer alır. İlçe seçersen saatler ilçene göre değişir."}}, {"@type": "Question", "name": "Vakitler neden bazen farklı görünebilir?", "acceptedAnswer": {"@type": "Answer", "text": "Seçili ilçe, hesaplama yöntemi veya cihaz saat ayarı farklılık yaratabilir. Tarayıcı saatini doğru olduğundan emin ol."}}]}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Ana Sayfa","item":"https://namazvakiti.net/"},{"@type":"ListItem","position":2,"name":"Kilis","item":"https://namazvakiti.net/kilis"},{"@type":"ListItem","position":3,"name":"Polateli","item":"https://namazvakiti.net/kilis/polateli/"}]}</script>
 </head>
 <body data-city="Kilis" data-district="Polateli">
+<a class="lx-skip" href="#main">İçeriğe geç</a>
 <header class="lx-nav">
   <div class="lx-c lx-nav-in">
     <a class="lx-logo" href="/" aria-label="Namaz Vakti — ana sayfa"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="11" fill="#f7f8f8"/><path d="M7 16.5v-5.2a4 4 0 0 1 8 0v5.2z" fill="#08090a"/></svg><span>Namaz Vakti</span></a>
@@ -45,6 +47,42 @@
       <span class="lx-wx" id="nvWxTile" hidden></span>
       <button class="lx-btn lx-btn--light" id="locBtn" type="button" title="Konumdan il seç"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12Z"/><circle cx="12" cy="9" r="2.4"/></svg><span>Konumum</span></button>
     </div>
+    <details class="lx-menu">
+      <summary class="lx-btn lx-icon-btn" aria-label="Menü"><svg class="lx-menu-open" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><svg class="lx-menu-close" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></summary>
+      <div class="lx-menu-panel">
+        <div class="lx-c lx-menu-grid">
+          <div>
+            <h4>Araçlar</h4>
+            <ul>
+              <li><a href="/">Namaz Vakitleri</a></li>
+              <li><a href="/sehirler">Tüm Şehirler</a></li>
+              <li><a href="/kible-yonu-bulma">Kıble Yönü Bulma</a></li>
+              <li><a href="/hicri-takvim">Hicri Takvim</a></li>
+              <li><a href="/kaza-namazi-hesaplama">Kaza Namazı Hesaplama</a></li>
+              <li><a href="/namaz-vakitleri-nasil-hesaplanir">Vakitler Nasıl Hesaplanır?</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>Popüler şehirler</h4>
+            <ul class="lx-menu-cities">
+              <li><a href="/istanbul">İstanbul</a></li><li><a href="/ankara">Ankara</a></li><li><a href="/izmir">İzmir</a></li>
+              <li><a href="/bursa">Bursa</a></li><li><a href="/antalya">Antalya</a></li><li><a href="/konya">Konya</a></li>
+              <li><a href="/adana">Adana</a></li><li><a href="/gaziantep">Gaziantep</a></li><li><a href="/kayseri">Kayseri</a></li>
+              <li><a href="/sehirler">Tüm 81 il →</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>Kurumsal</h4>
+            <ul>
+              <li><a href="/hakkimizda">Hakkımızda</a></li>
+              <li><a href="/iletisim">İletişim</a></li>
+              <li><a href="/gizlilik">Gizlilik</a></li>
+              <li><a href="/kullanim">Kullanım Şartları</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </details>
   </div>
 </header>
 
@@ -284,6 +322,6 @@
 </footer>
 
 <div class="toast" id="toast"></div>
-<script src="/app.js?v=14"></script>
+<script src="/app.js?v=15"></script>
 </body>
 </html>

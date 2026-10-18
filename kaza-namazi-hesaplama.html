@@ -30,7 +30,8 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32-v2.png"/>
 <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16-v2.png"/>
 <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon-v2.png"/>
-<link rel="stylesheet" href="/assets/style.css?v=13"/>
+<link rel="stylesheet" href="/assets/style.css?v=14"/>
+<link rel="preload" href="/assets/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin/>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Kaza namazı nedir?","acceptedAnswer":{"@type":"Answer","text":"Vaktinde kılınamayan farz namazın, vakti çıktıktan sonra kılınmasına kaza namazı denir. Kaza namazları, vakit namazlarına ek olarak kılınır."}},{"@type":"Question","name":"Kaza namazları hangi vakitleri kapsar?","acceptedAnswer":{"@type":"Answer","text":"Sabah, öğle, ikindi, akşam ve yatsı olmak üzere beş vakit namaz kaza edilir. Bu araç, seçtiğiniz tarih aralığındaki gün sayısını beşle çarparak her vakit için ayrı ayrı kaç kaza namazı olduğunu hesaplar."}},{"@type":"Question","name":"Bu hesap aracı dini bir hüküm mü veriyor?","acceptedAnswer":{"@type":"Answer","text":"Hayır. Bu araç yalnızca gün sayısına göre basit bir çarpım işlemi yapar; hangi günlerin hariç tutulması gerektiğine (örn. mazeretli günler) siz karar verip \"hariç tutulacak gün\" alanına kendiniz girersiniz. Dini sorularınız için bir din görevlisine danışmanız önerilir."}}]}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Ana Sayfa","item":"https://namazvakiti.net/"},{"@type":"ListItem","position":2,"name":"Kaza Namazı Hesaplama","item":"https://namazvakiti.net/kaza-namazi-hesaplama"}]}</script>
 <style>
@@ -62,6 +63,7 @@
 </style>
 </head>
 <body>
+<a class="lx-skip" href="#main">İçeriğe geç</a>
 <div class="wrap">
   <header class="lx-nav">
   <div class="lx-c lx-nav-in">
@@ -70,10 +72,46 @@
     <div class="lx-nav-r">
       <a class="lx-btn lx-btn--light" href="/">Namaz Vakitleri</a>
     </div>
+    <details class="lx-menu">
+      <summary class="lx-btn lx-icon-btn" aria-label="Menü"><svg class="lx-menu-open" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><svg class="lx-menu-close" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></summary>
+      <div class="lx-menu-panel">
+        <div class="lx-c lx-menu-grid">
+          <div>
+            <h4>Araçlar</h4>
+            <ul>
+              <li><a href="/">Namaz Vakitleri</a></li>
+              <li><a href="/sehirler">Tüm Şehirler</a></li>
+              <li><a href="/kible-yonu-bulma">Kıble Yönü Bulma</a></li>
+              <li><a href="/hicri-takvim">Hicri Takvim</a></li>
+              <li><a href="/kaza-namazi-hesaplama">Kaza Namazı Hesaplama</a></li>
+              <li><a href="/namaz-vakitleri-nasil-hesaplanir">Vakitler Nasıl Hesaplanır?</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>Popüler şehirler</h4>
+            <ul class="lx-menu-cities">
+              <li><a href="/istanbul">İstanbul</a></li><li><a href="/ankara">Ankara</a></li><li><a href="/izmir">İzmir</a></li>
+              <li><a href="/bursa">Bursa</a></li><li><a href="/antalya">Antalya</a></li><li><a href="/konya">Konya</a></li>
+              <li><a href="/adana">Adana</a></li><li><a href="/gaziantep">Gaziantep</a></li><li><a href="/kayseri">Kayseri</a></li>
+              <li><a href="/sehirler">Tüm 81 il →</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>Kurumsal</h4>
+            <ul>
+              <li><a href="/hakkimizda">Hakkımızda</a></li>
+              <li><a href="/iletisim">İletişim</a></li>
+              <li><a href="/gizlilik">Gizlilik</a></li>
+              <li><a href="/kullanim">Kullanım Şartları</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </details>
   </div>
 </header>
 
-  <div class="kb-wrap">
+  <main class="kb-wrap" id="main">
     <nav class="kb-crumb" aria-label="breadcrumb"><a href="/">Ana Sayfa</a> › <span style="color:var(--cream);">Kaza Namazı Hesaplama</span></nav>
     <h1 class="kb-h1">Kaza Namazı Hesaplama</h1>
     <p class="kb-intro">Vaktinde kılınamayan farz namazlar daha sonra <b>kaza</b> olarak kılınır. Aşağıya namaz kılmadığınız tarih aralığını girin; araç, o aralıktaki gün sayısını beş vakitle (sabah, öğle, ikindi, akşam, yatsı) çarparak toplam kaza namazı sayısını hesaplar. Mazeretli günleriniz varsa (örn. adet günleri) bunları <b>"hariç tutulacak gün"</b> alanına kendiniz girebilirsiniz — araç bu konuda bir hüküm vermez, sadece aritmetik hesaplama yapar. Hesapladıktan sonra her vakit için ayrı ayrı sayaç tutabilir, kıldıkça azaltabilirsiniz; ilerlemeniz yalnızca kendi tarayıcınızda saklanır.</p>
@@ -133,7 +171,7 @@
         <p>Hayır. Yalnızca gün sayısına göre aritmetik hesaplama yapar; mazeretli günleri siz kendiniz hariç tutarsınız. Dini sorularınız için bir din görevlisine danışmanız önerilir.</p>
       </details>
     </div>
-  </div>
+  </main>
 
   <footer class="lx-foot">
   <div class="lx-c">

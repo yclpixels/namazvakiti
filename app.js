@@ -1088,6 +1088,12 @@
       window.print();
     });
 
+    // ☰ menü Escape ile kapanır
+    document.addEventListener("keydown", (e) => {
+      const m = document.querySelector(".lx-menu[open]");
+      if (e.key === "Escape" && m) { m.open = false; m.querySelector("summary").focus(); }
+    });
+
     // Boş durumlardaki "Konumumu kullan" düğmeleri
     document.addEventListener("click", (e) => {
       if (e.target.closest("[data-locate]")) locateAndSelect();
