@@ -42,7 +42,7 @@ for (const p of dataset.provinces) {
     checks["sitemap'te var"] = sitemap.includes(`<loc>${expectedUrl}</loc>`);
     checks["robots tarafından engellenmiyor"] = !hasDisallow; // site genelinde Disallow yok
     checks["noindex değil"] = !html.includes('name="robots" content="noindex"');
-    checks["boş içerik değil (intro paragraf var)"] = /<p style="color:rgba\(245,240,230,\.55\)/.test(html);
+    checks["boş içerik değil (intro paragraf var)"] = /<p class="lx-intro">/.test(html);
     checks["FAQ içerik var (FAQPage schema kullanımı doğru)"] = html.includes('"FAQPage"') && html.includes("faq-item");
 
     if (titleM) { const arr = titles.get(titleM[1]) || []; arr.push(rel); titles.set(titleM[1], arr); }

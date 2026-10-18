@@ -24,26 +24,16 @@
 <meta name="twitter:title" content="Kaza Namazı Hesaplama | Namaz Vakitleri"/>
 <meta name="twitter:description" content="Kılınmayan namazların sayısını tarih aralığına göre hesaplayın ve kaza namazlarınızı vakit vakit takip edin."/>
 <meta name="twitter:image" content="https://namazvakiti.net/assets/og-image-v2.png"/>
-<meta name="theme-color" content="#1a1426"/>
+<meta name="theme-color" content="#08090a"/>
 <link rel="manifest" href="/manifest.webmanifest"/>
 <link rel="icon" href="/favicon.ico"/>
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32-v2.png"/>
 <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16-v2.png"/>
 <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon-v2.png"/>
-<link rel="stylesheet" href="/assets/style.css?v=12"/>
+<link rel="stylesheet" href="/assets/style.css?v=13"/>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Kaza namazı nedir?","acceptedAnswer":{"@type":"Answer","text":"Vaktinde kılınamayan farz namazın, vakti çıktıktan sonra kılınmasına kaza namazı denir. Kaza namazları, vakit namazlarına ek olarak kılınır."}},{"@type":"Question","name":"Kaza namazları hangi vakitleri kapsar?","acceptedAnswer":{"@type":"Answer","text":"Sabah, öğle, ikindi, akşam ve yatsı olmak üzere beş vakit namaz kaza edilir. Bu araç, seçtiğiniz tarih aralığındaki gün sayısını beşle çarparak her vakit için ayrı ayrı kaç kaza namazı olduğunu hesaplar."}},{"@type":"Question","name":"Bu hesap aracı dini bir hüküm mü veriyor?","acceptedAnswer":{"@type":"Answer","text":"Hayır. Bu araç yalnızca gün sayısına göre basit bir çarpım işlemi yapar; hangi günlerin hariç tutulması gerektiğine (örn. mazeretli günler) siz karar verip \"hariç tutulacak gün\" alanına kendiniz girersiniz. Dini sorularınız için bir din görevlisine danışmanız önerilir."}}]}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Ana Sayfa","item":"https://namazvakiti.net/"},{"@type":"ListItem","position":2,"name":"Kaza Namazı Hesaplama","item":"https://namazvakiti.net/kaza-namazi-hesaplama"}]}</script>
 <style>
-  .kb-wrap{max-width:680px;margin:0 auto;padding:20px 22px 60px;}
-  .kb-crumb{font-size:13px;color:var(--muted2);margin-bottom:18px;}
-  .kb-crumb a{color:var(--muted);text-decoration:none;}
-  .kb-crumb a:hover{color:var(--cream);}
-  .kb-h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(28px,6vw,40px);font-weight:700;letter-spacing:-.5px;margin-bottom:10px;}
-  .kb-intro{color:var(--muted);font-size:14px;line-height:1.75;margin-bottom:28px;}
-  .kb-intro b{color:var(--cream);}
-  .kb-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;margin-bottom:30px;}
-  .kb-links a{display:inline-flex;align-items:center;color:var(--muted);text-decoration:none;border:1px solid var(--line-soft);padding:8px 16px;border-radius:999px;font-size:13.5px;transition:.15s;}
-  .kb-links a:hover{border-color:var(--brand-line);background:var(--brand-tint);color:var(--cream);}
 
   .kz-card{background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:20px;margin-bottom:22px;}
   .kz-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
@@ -57,7 +47,7 @@
   .kz-result{display:none;}
   .kz-result.is-on{display:block;}
   .kz-total{text-align:center;padding:18px 0;border-bottom:1px solid var(--line);margin-bottom:16px;}
-  .kz-total-n{font-family:Georgia,serif;font-size:clamp(30px,7vw,42px);font-weight:700;color:var(--accent-light);line-height:1;}
+  .kz-total-n{font-size:clamp(30px,7vw,42px);font-weight:700;color:var(--accent-light);line-height:1;}
   .kz-total-l{color:var(--muted2);font-size:12px;margin-top:6px;}
   .kz-vakit{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--line-soft);}
   .kz-vakit:last-child{border-bottom:0;}
@@ -73,13 +63,15 @@
 </head>
 <body>
 <div class="wrap">
-  <header class="nv-header" style="max-width:680px;">
-    <div class="brand">
-      <div class="brand-logo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 21V11C5 11 7 8 12 8C17 8 19 11 19 11V21M9 21V16C9 14.34 10.34 13 12 13C13.66 13 15 14.34 15 16V21M12 8V4M10 6H14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></div>
-      <div><div class="brand-name serif">Namaz Vakti</div><div class="brand-sub">Kaza Namazı</div></div>
+  <header class="lx-nav">
+  <div class="lx-c lx-nav-in">
+    <a class="lx-logo" href="/" aria-label="Namaz Vakti — ana sayfa"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="11" fill="#f7f8f8"/><path d="M7 16.5v-5.2a4 4 0 0 1 8 0v5.2z" fill="#08090a"/></svg><span>Namaz Vakti</span></a>
+    <nav class="lx-links" aria-label="Site"><a href="/sehirler">Şehirler</a><a href="/kible-yonu-bulma">Kıble</a><a href="/hicri-takvim">Hicri Takvim</a><a href="/kaza-namazi-hesaplama" aria-current="page">Kaza Hesabı</a><a href="/namaz-vakitleri-nasil-hesaplanir">Nasıl Hesaplanır?</a></nav>
+    <div class="lx-nav-r">
+      <a class="lx-btn lx-btn--light" href="/">Namaz Vakitleri</a>
     </div>
-    <div class="top-actions"><a href="/" class="btn-round" aria-label="Ana Sayfa" style="text-decoration:none;display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></a></div>
-  </header>
+  </div>
+</header>
 
   <div class="kb-wrap">
     <nav class="kb-crumb" aria-label="breadcrumb"><a href="/">Ana Sayfa</a> › <span style="color:var(--cream);">Kaza Namazı Hesaplama</span></nav>
@@ -143,11 +135,36 @@
     </div>
   </div>
 
-  <footer>
-    Veriler Diyanet İşleri Başkanlığı kaynaklıdır.<br/>
-    <a href="/sehirler">Tüm Şehirler</a> · <a href="/kible-yonu-bulma">Kıble Yönü Bulma</a> · <a href="/hicri-takvim">Hicri Takvim</a> · <a href="/namaz-vakitleri-nasil-hesaplanir">Vakitler Nasıl Hesaplanır?</a><br/>
-    <a href="/gizlilik">Gizlilik</a> · <a href="/hakkimizda">Hakkımızda</a> · <a href="/iletisim">İletişim</a>
-  </footer>
+  <footer class="lx-foot">
+  <div class="lx-c">
+    <div class="lx-foot-grid">
+      <div class="lx-foot-brand">
+        <a class="lx-logo" href="/"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="11" fill="#f7f8f8"/><path d="M7 16.5v-5.2a4 4 0 0 1 8 0v5.2z" fill="#08090a"/></svg><span>Namaz Vakti</span></a>
+        <p>Türkiye'nin 81 ili ve 973 ilçesi için Diyanet İşleri Başkanlığı kaynaklı güncel namaz vakitleri.</p>
+      </div>
+      <div>
+        <h4>Araçlar</h4>
+        <ul>
+          <li><a href="/sehirler">Tüm Şehirler</a></li>
+          <li><a href="/kible-yonu-bulma">Kıble Yönü Bulma</a></li>
+          <li><a href="/hicri-takvim">Hicri Takvim</a></li>
+          <li><a href="/kaza-namazi-hesaplama">Kaza Namazı Hesaplama</a></li>
+          <li><a href="/namaz-vakitleri-nasil-hesaplanir">Vakitler Nasıl Hesaplanır?</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Kurumsal</h4>
+        <ul>
+          <li><a href="/hakkimizda">Hakkımızda</a></li>
+          <li><a href="/iletisim">İletişim</a></li>
+          <li><a href="/gizlilik">Gizlilik</a></li>
+          <li><a href="/kullanim">Kullanım Şartları</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="lx-foot-bottom"><span>© 2026 namazvakiti.net</span><span>Veriler Diyanet İşleri Başkanlığı kaynaklıdır.</span></div>
+  </div>
+</footer>
 </div>
 
 <script>

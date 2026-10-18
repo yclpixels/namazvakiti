@@ -1,673 +1,516 @@
+/* ══════════════════════════════════════════════════════════════════════
+   namazvakiti.net — tasarım sistemi
+   Dil: koyu, sakin, tipografi öncelikli. Kart galerisi yok; bilgi
+   hairline'larla ve boşlukla ayrışır. Tek vurgu rengi (indigo) yalnızca
+   "şu an"ı ve etkileşimi işaret eder.
+   ══════════════════════════════════════════════════════════════════════ */
 :root{
-  /* ── Yüzey kademeleri ──────────────────────────────────────────────
-     Derinlik gölgeyle değil TONLA kuruluyor. En arkadan öne:
-     bg → surface-2 → card → surface (panel) → card-lift (öne çıkan)   */
-  --bg:#0a1410;
-  --surface-2:#0d1712;
-  --card:#101a14;
-  --surface:#121e17;
-  --card-lift:#18261e;
+  --bg:#08090a;
+  --bg-2:#0c0d0e;
+  --panel:#0f1011;
+  --panel-2:#141516;
+  --panel-3:#1b1c1e;
 
-  /* ── Metin ──
-     Sıcak kırık beyaz; ikincil tonlar alfa ile (her yüzeye uyum sağlar) */
-  --cream:#f2f5f2;
-  --muted:rgba(242,245,242,.60);
-  --muted2:rgba(242,245,242,.54);
+  --text:#f7f8f8;
+  --text-2:#d0d6e0;
+  --text-3:#8a8f98;
+  --text-4:#6f747c;
 
-  /* ── Renk rolleri — üç ayrı anlam, üç ayrı renk ──
-     yeşil = marka / gezinme / araç (zamansız)
-     bakır = zamana bağlı vurgu (şu anki vakit, geri sayım, bugün)
-     kum   = kişisel / mevsimsel (favori, dua, Ramazan)                */
-  --brand:#3f8f57; --brand-deep:#2c6b40;
-  --brand-soft:#5fbb74;
-  --brand-tint:rgba(95,187,116,.12); --brand-line:rgba(95,187,116,.30);
+  --line:rgba(255,255,255,.08);
+  --line-2:rgba(255,255,255,.05);
+  --line-3:rgba(255,255,255,.13);
 
-  --accent:#e08a5a; --accent-light:#eda072; --accent-dim:rgba(224,138,90,.13);
+  --indigo:#5e6ad2;
+  --indigo-2:#7c87f2;
+  --indigo-3:#a5adff;
+  --indigo-bg:rgba(94,106,210,.12);
+  --peach:#f2b48a;
+  --green:#4cb782;
+  --red:#eb5757;
 
-  --sand:#d9b98c; --sand-dim:rgba(217,185,140,.10); --sand-line:rgba(217,185,140,.30);
+  --font:"Inter Variable","Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  --c:1120px;
+  --gut:24px;
+  --nav-h:64px;
+  --ease:cubic-bezier(.25,.46,.45,.94);
 
-  /* ── Durum renkleri (finans değişimi, hata) ── */
-  --pos:#52b96b;
-  --neg:#df665c; --neg-dim:rgba(223,102,92,.10); --neg-line:rgba(223,102,92,.26);
-
-  /* ── Çizgi kademeleri — tek --line yerine üç kademe ── */
-  --line-soft:rgba(95,187,116,.09);
-  --line:rgba(95,187,116,.14);
-  --line-strong:rgba(95,187,116,.22);
-
-  --shadow:0 1px 2px rgba(0,0,0,.25);
-
-  /* İçerik kabı — .wrap sınırlamıyor, genişliği iç kaplar taşıyor */
-  --container:680px;
-
-  /* ── Sayfa kabuğu (reklam kolonları) ──
-     Tam genişlikte bantların iç kabı ile orta sütun BİREBİR hizalansın
-     diye ikisi de aynı geometriden türetiliyor:
-     içerik = shell-max − 2×(pad + ad + gap)                            */
-  --shell-max:1640px; --ad-w:160px; --shell-gap:24px; --shell-pad:20px;
+  /* Statik bilgi sayfalarının (<style> blokları) kullandığı eski token
+     adları — yeni paletin karşılıkları */
+  --cream:var(--text); --muted:var(--text-3); --muted2:var(--text-4);
+  --surface:var(--panel); --surface-2:var(--bg-2); --card:var(--panel); --card-lift:var(--panel-2);
+  --line-soft:var(--line-2); --line-strong:var(--line-3);
+  --brand:var(--indigo); --brand-deep:#4c57c0; --brand-soft:var(--indigo-3);
+  --brand-tint:var(--indigo-bg); --brand-line:rgba(124,135,242,.35);
+  --accent:var(--indigo-2); --accent-light:var(--indigo-3); --accent-dim:var(--indigo-bg);
+  --sand:var(--peach); --sand-dim:rgba(242,180,138,.08); --sand-line:rgba(242,180,138,.28);
+  --pos:var(--green); --neg:var(--red); --neg-dim:rgba(235,87,87,.1); --neg-line:rgba(235,87,87,.28);
+  --shadow:none;
 }
+
+/* Inter Variable (SIL OFL 1.1 — assets/fonts/OFL.txt). Türkçe karakterler
+   latin + latin-ext alt kümelerinde; ikisi de kendi sunucumuzdan. */
+@font-face{font-family:"Inter Variable";font-style:normal;font-display:swap;font-weight:100 900;
+  src:url(/assets/fonts/inter-latin-ext-wght-normal.woff2) format("woff2-variations");
+  unicode-range:U+0100-02AF,U+0304,U+0308,U+0329,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;}
+@font-face{font-family:"Inter Variable";font-style:normal;font-display:swap;font-weight:100 900;
+  src:url(/assets/fonts/inter-latin-wght-normal.woff2) format("woff2-variations");
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}
+
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-html{scroll-behavior:smooth;}
-body{background:var(--bg);color:var(--cream);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh;line-height:1.55;overflow-x:hidden;}
-.serif{font-family:Georgia,"Times New Roman",serif;}
-/* .wrap genişlik SINIRLAMAZ: hero/şerit/footer arka planı viewport'a
-   kadar uzansın, içerik ise --container ile hizalansın. */
-.wrap{max-width:none;margin:0;}
-.hero-inner,.selectors,.body-pad{max-width:var(--container);margin-inline:auto;}
-/* H1 ve breadcrumb genişliği 1065 HTML'de inline gömülü (1100px);
-   kap sistemiyle hizalamak için hedefli override. */
-.wrap>h1[style],.wrap>nav[aria-label="breadcrumb"][style]{max-width:var(--container)!important;}
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--nav-h) + 16px);}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.6;
+  font-feature-settings:"cv01","ss03";-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  min-height:100vh;overflow-x:hidden;}
+a{color:inherit;}
+button{font-family:inherit;}
+::selection{background:rgba(94,106,210,.5);color:#fff;}
+:focus-visible{outline:2px solid var(--indigo-2);outline-offset:2px;border-radius:6px;}
+[hidden]{display:none!important;}
+.serif{font-family:inherit;}
+svg{flex-shrink:0;}
 
-/* ── Header ──────────────────────────────────────────────────────────
-   Zeminsiz, ince: marka · konum seçici · aksiyonlar. Referanstaki gibi
-   alçak bir satır; sayfanın asıl odağı namaz vakitleri olmalı.        */
-.nv-header{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;
-  gap:16px;max-width:var(--container);margin-inline:auto;padding:14px 22px;}
-.nv-header .brand{min-width:0;}
-.nv-header .top-actions{justify-self:end;}
-/* .selectors header'a taşındı: kendi zemini/kabı sıfırlanır */
-.nv-header .selectors{justify-self:center;display:flex;gap:8px;max-width:520px;width:100%;
-  margin:0;padding:0;background:transparent;border:none;}
-.nv-header .selectors select{background:var(--surface);border-color:var(--line);border-radius:999px;
-  padding-inline:16px 34px;font-size:13.5px;}
-.nv-header .selectors .sel-arrow{right:16px;}
-.nv-header .fav-btn{border-radius:999px;}
+.lx-c{max-width:calc(var(--c) + var(--gut)*2);margin-inline:auto;padding-inline:var(--gut);}
 
-@media(max-width:767px){
-  /* Mobilde header+hero ilk ekranı yemesin: vakitler hızlı görünmeli */
-  .nv-header{grid-template-columns:auto auto;grid-template-areas:"brand actions" "sel sel";
-    row-gap:10px;padding:10px 22px;}
-  .nv-header .brand-logo{width:30px;height:30px;}
-  .nv-header .brand{grid-area:brand;}
-  .nv-header .top-actions{grid-area:actions;}
-  .nv-header .selectors{grid-area:sel;max-width:none;}
-}
+/* ── Butonlar ─────────────────────────────────────────────────────── */
+.lx-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:36px;padding:0 14px;
+  border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--text-2);
+  font-size:13.5px;font-weight:500;letter-spacing:-.005em;text-decoration:none;cursor:pointer;white-space:nowrap;
+  transition:background .16s var(--ease),border-color .16s var(--ease),color .16s var(--ease);}
+.lx-btn:hover{background:rgba(255,255,255,.07);border-color:var(--line-3);color:var(--text);}
+.lx-btn svg{color:var(--text-3);transition:color .16s;}
+.lx-btn:hover svg{color:var(--text);}
+.lx-btn--light{background:#e6e6e7;border-color:transparent;color:#08090a;font-weight:550;}
+.lx-btn--light svg{color:#08090a;}
+.lx-btn--light:hover{background:#fff;color:#08090a;border-color:transparent;}
+.lx-btn--light:hover svg{color:#08090a;}
+.lx-btn.is-on{border-color:rgba(242,180,138,.32);background:rgba(242,180,138,.08);color:var(--peach);}
+.lx-btn.is-on svg{color:var(--peach);}
+.lx-btn.loading svg{animation:lx-spin 1s linear infinite;}
+.lx-icon-btn{width:36px;padding:0;}
+.lx-icon-btn.active{border-color:rgba(242,180,138,.32);background:rgba(242,180,138,.08);color:var(--peach);}
+.lx-icon-btn.active svg{color:var(--peach);fill:currentColor;}
+.lx-link{display:inline-flex;align-items:center;gap:6px;background:none;border:0;padding:0;color:var(--text-3);
+  font-size:13.5px;font-weight:500;cursor:pointer;text-decoration:none;transition:color .16s;}
+.lx-link:hover{color:var(--text);}
+@keyframes lx-spin{to{transform:rotate(360deg);}}
 
-/* ── Sayfa kabuğu ve reklam yuvaları ─────────────────────────────── */
-.nv-shell{display:grid;grid-template-columns:minmax(0,1fr);max-width:var(--shell-max);margin-inline:auto;padding-inline:0;}
-.nv-main{min-width:0;}
-/* Reklam kabı — gerçek AdSense birimi içeriyor (app.js:nvAdSlot). Dolmazsa
-   JS bunu tamamen gizler (hidden), bu yüzden burada placeholder görünümü
-   YOK — sadece alan ayırma ve taşma güvenliği. */
-.nv-ad{display:none;align-items:center;justify-content:center;overflow:hidden;}
-.nv-ad--bar{display:flex;width:100%;max-width:728px;min-height:90px;margin:30px auto 0;}
-/* Hero */
-/* Hero'ya karakter: üstte çok ince bir ışık çizgisi (sabah ışığı hissi),
-   altta gövdeye geçişi netleştiren güçlü hairline. Gradient/gölge yok. */
-.hero{background:var(--surface);border-bottom:1px solid var(--line-strong,rgba(255,255,255,.14));box-shadow:inset 0 1px 0 rgba(143,179,163,.10);}
-.hero-inner{padding:16px 22px;}
-.topbar{display:flex;align-items:center;justify-content:space-between;}
-.brand{display:flex;align-items:center;gap:10px;}
-.brand-logo{width:34px;height:34px;background:var(--brand-tint);border:1px solid var(--brand-line);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--brand-soft);}
-.brand-name{font-size:clamp(17px,4vw,19px);font-weight:600;letter-spacing:-.2px;}
-.brand-sub{color:var(--muted2);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;}
-.top-actions{display:flex;gap:8px;}
-.btn-round{background:var(--card);border:1px solid var(--line);color:var(--cream);width:36px;height:36px;border-radius:999px;cursor:pointer;font-size:0;display:flex;align-items:center;justify-content:center;transition:border-color .15s,background .15s;}
-.btn-round:hover{border-color:var(--brand-line);background:var(--brand-tint);}
-.btn-round:focus-visible{outline:2px solid var(--brand-soft);outline-offset:2px;}
-.btn-round:active{transform:scale(.96);}
-.btn-google:focus-visible{outline:2px solid var(--brand-soft);outline-offset:2px;}
-.day-nav-btn:focus-visible{outline:2px solid var(--brand-soft);outline-offset:2px;}
-.share-btn:focus-visible{outline:2px solid var(--brand-soft);outline-offset:2px;}
-.stat-clickable:focus-visible{outline:2px solid var(--brand-soft);outline-offset:2px;}
-.city-links a:focus-visible{outline:2px solid var(--brand-soft);outline-offset:2px;}
-.mosque:focus-visible{outline:2px solid var(--brand-soft);outline-offset:2px;}
-.faq-item summary:focus-visible{outline:2px solid var(--brand-soft);outline-offset:2px;border-radius:4px;}
-.qibla-btn:focus-visible{outline:2px solid var(--brand-soft);outline-offset:2px;}
-.btn-round.loading svg{animation:spin 1s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg);}}
-.btn-google{background:var(--cream);border:none;color:#2a2a2e;width:36px;height:36px;border-radius:999px;cursor:pointer;font-weight:700;font-size:15px;}
-.hero-loc{margin-top:14px;font-size:clamp(15px,3.6vw,18px);font-weight:500;color:var(--cream);letter-spacing:.1px;}
-.hero-meta{display:flex;align-items:center;gap:8px;margin-top:4px;font-size:11px;color:var(--muted2);}
-.friday-badge{background:var(--brand-tint);border:1px solid var(--brand-line);color:var(--brand-soft);padding:2px 9px;border-radius:8px;font-size:11px;}
+/* ── Üst menü ─────────────────────────────────────────────────────── */
+.lx-nav{position:sticky;top:0;z-index:50;height:var(--nav-h);
+  background:rgba(8,9,10,.78);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:1px solid var(--line);}
+.lx-nav-in{height:100%;display:flex;align-items:center;gap:32px;}
+.lx-logo{display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:var(--text);
+  font-size:15px;font-weight:590;letter-spacing:-.012em;white-space:nowrap;}
+.lx-logo svg{display:block;}
+.lx-links{display:flex;align-items:center;gap:4px;}
+.lx-links a{padding:6px 10px;border-radius:8px;color:var(--text-3);font-size:13.5px;font-weight:500;text-decoration:none;
+  transition:color .16s,background .16s;}
+.lx-links a:hover{color:var(--text);background:rgba(255,255,255,.04);}
+.lx-links a[aria-current="page"]{color:var(--text);}
+.lx-nav-r{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.lx-navcd{display:inline-flex;align-items:center;gap:8px;height:30px;padding:0 12px;border-radius:999px;
+  border:1px solid var(--line);color:var(--text-3);font-size:12.5px;font-weight:500;white-space:nowrap;
+  opacity:0;transform:translateY(-4px);pointer-events:none;transition:opacity .2s var(--ease),transform .2s var(--ease);}
+.lx-navcd b{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums;}
+.lx-navcd i{width:6px;height:6px;border-radius:50%;background:var(--indigo-2);box-shadow:0 0 8px var(--indigo-2);}
+.lx-nav.is-scrolled .lx-navcd{opacity:1;transform:none;}
+.lx-wx{display:inline-flex;align-items:center;gap:6px;color:var(--text-3);font-size:13px;font-weight:500;
+  font-variant-numeric:tabular-nums;white-space:nowrap;cursor:default;}
+.lx-wx svg{width:16px;height:16px;color:var(--text-3);}
 
-/* ── Hero: 3 kolon ───────────────────────────────────────────────────
-   sol = nerede + tarih · orta = sıradaki vakit + geri sayım (odak) ·
-   sağ = aksiyonlar. Hero yüksek olmasın: asıl odak vakitler.         */
-.hero-inner{display:grid;grid-template-columns:1fr;gap:18px;align-items:center;}
-.nv-hero-l{min-width:0;}
-.nv-hero-r{display:flex;flex-direction:column;gap:9px;min-width:0;}
-.nv-hbtn{display:inline-flex;align-items:center;justify-content:flex-start;gap:9px;min-height:44px;
-  padding:0 15px;background:transparent;border:1px solid var(--line);border-radius:10px;
-  color:var(--muted);font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;
-  transition:border-color .15s,background .15s,color .15s;}
-.nv-hbtn:hover{border-color:var(--brand-line);background:var(--brand-tint);color:var(--cream);}
-.nv-hbtn:focus-visible{outline:2px solid var(--brand-soft);outline-offset:2px;}
-.nv-hbtn svg{flex-shrink:0;color:var(--brand-soft);}
-.nv-hbtn.is-on{border-color:var(--sand-line);background:var(--sand-dim);color:var(--sand);}
-.nv-hbtn.is-on svg{color:var(--sand);fill:currentColor;}
-/* H1 hero'nun sol kolonunda küçük bir üst etiket — tek H1 korunur */
-h1.nv-eyebrow{max-width:none!important;padding:0!important;margin:0 0 6px!important;
-  font-size:10.5px!important;font-weight:600!important;letter-spacing:1.5px;text-transform:uppercase;
-  color:var(--brand-soft)!important;}
-.nv-next{color:var(--cream);font-size:clamp(26px,6.4vw,40px);font-weight:800;letter-spacing:-.6px;line-height:1.05;}
+/* ── Hero ─────────────────────────────────────────────────────────── */
+.lx-hero{position:relative;padding:88px 0 56px;}
+.lx-hero::before{content:"";position:absolute;inset:-64px 0 auto;height:520px;pointer-events:none;z-index:-1;
+  background:radial-gradient(ellipse 60% 70% at 30% 0%,rgba(94,106,210,.13),transparent 70%);}
+.lx-crumb{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:28px;color:var(--text-4);font-size:13px;}
+.lx-crumb a{color:var(--text-3);text-decoration:none;transition:color .16s;}
+.lx-crumb a:hover{color:var(--text);}
+.lx-crumb span{color:var(--text-2);}
+.lx-eyebrow{display:inline-flex;align-items:center;gap:10px;margin-bottom:22px;
+  font-size:14px;font-weight:500;letter-spacing:-.005em;color:var(--text-3);}
+.lx-eyebrow::before{content:"";width:7px;height:7px;border-radius:2px;background:var(--indigo-2);
+  box-shadow:0 0 12px rgba(124,135,242,.7);}
+.lx-title{font-size:clamp(40px,6.6vw,76px);line-height:1.04;font-weight:540;letter-spacing:-.035em;}
+.lx-place{display:block;color:var(--text);}
+.lx-cdline{display:block;color:var(--text-4);}
+.lx-cd{color:var(--text-3);font-variant-numeric:tabular-nums;font-feature-settings:"tnum","cv01","ss03";white-space:nowrap;}
+.lx-sub{margin-top:24px;max-width:56ch;color:var(--text-3);font-size:clamp(16px,1.8vw,18px);line-height:1.55;letter-spacing:-.01em;}
+.lx-ctl{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:36px;}
+.sel-wrap{position:relative;min-width:0;}
+.sel-wrap select{appearance:none;-webkit-appearance:none;height:36px;min-width:150px;max-width:240px;
+  padding:0 34px 0 14px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.03);
+  color:var(--text);font-family:inherit;font-size:13.5px;font-weight:500;cursor:pointer;
+  transition:background .16s,border-color .16s;}
+.sel-wrap select:hover{background:rgba(255,255,255,.07);border-color:var(--line-3);}
+.sel-wrap select option{background:var(--panel-2);color:var(--text);}
+.sel-arrow{position:absolute;right:13px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--text-3);display:flex;}
+.lx-ctl-sep{width:1px;height:20px;background:var(--line);margin:0 6px;}
 
-.cd-card{margin-top:0;padding-top:0;border-top:none;text-align:center;}
+/* ── Gün paneli (çerçeve) ─────────────────────────────────────────── */
+.lx-board{padding-bottom:40px;}
+#errBox:not(:empty),#noteBox:not(:empty){margin-bottom:16px;}
+.err,.note-box{padding:12px 16px;border-radius:10px;font-size:13.5px;line-height:1.5;}
+.err{color:#ffb3b3;background:rgba(235,87,87,.08);border:1px solid rgba(235,87,87,.25);}
+.note-box{color:var(--text-3);background:rgba(255,255,255,.02);border:1px solid var(--line);}
+.lx-frame{position:relative;border:1px solid var(--line);border-radius:16px;overflow:hidden;
+  background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.01) 40%),var(--panel);
+  box-shadow:0 0 0 1px rgba(0,0,0,.5),0 50px 120px -50px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.05);}
+.lx-frame-top{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:56px;
+  padding:10px 16px;border-bottom:1px solid var(--line);}
+.lx-daynav{display:flex;align-items:center;gap:4px;}
+.day-nav-btn{width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;
+  border:0;background:transparent;color:var(--text-3);cursor:pointer;transition:background .16s,color .16s;}
+.day-nav-btn:hover:not(:disabled){background:rgba(255,255,255,.06);color:var(--text);}
+.day-nav-btn:disabled{opacity:.3;cursor:default;}
+.day-nav-label{display:flex;align-items:center;gap:10px;padding:0 6px;font-size:14px;font-weight:590;letter-spacing:-.01em;}
+.day-nav-reset{background:none;border:0;color:var(--indigo-3);font-size:12.5px;font-weight:500;cursor:pointer;}
+.day-nav-reset:hover{color:var(--text);}
+.lx-frame-meta{display:flex;align-items:center;gap:10px;color:var(--text-3);font-size:13px;text-align:right;}
+.friday-badge{display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:999px;
+  background:var(--indigo-bg);color:var(--indigo-3);font-size:12px;font-weight:500;}
 
-/* Günün Ayeti şeridi — geri sayımın hemen altında, tek satırlık kısa bir
-   teaser (tam metin aşağıdaki "Günün Ayeti" panelinde). Veri yoksa/henüz
-   çekilmediyse gizli kalır (JS hidden yönetir). */
-.nv-verse-strip{grid-column:1/-1;display:flex;align-items:baseline;gap:10px;
-  justify-content:center;text-align:center;margin-top:4px;padding-top:14px;
-  border-top:1px solid var(--line-soft);flex-wrap:wrap;}
-.nv-verse-strip[hidden]{display:none;}
-.nv-verse-strip-lbl{flex-shrink:0;color:var(--brand-soft);font-size:10px;font-weight:700;
-  letter-spacing:1.2px;text-transform:uppercase;}
-.nv-verse-strip-txt{color:var(--muted);font-size:12.5px;font-family:Georgia,"Times New Roman",serif;
-  font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;
-  flex:0 1 auto;max-width:100%;}
-.cd-row{display:flex;align-items:baseline;justify-content:center;gap:12px;}
-.hc-label{color:var(--brand-soft);font-size:10.5px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;}
-.hc-time{color:var(--accent);font-size:clamp(34px,9.5vw,62px);font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.5px;line-height:1.05;}
-.hc-time .sep{opacity:.45;}
-.hc-sub{color:var(--muted2);font-size:11.5px;margin-top:5px;}
-/* .cd-row artık tek satırda label+time değil; label yukarıda ayrı durur */
-.cd-card .cd-row{flex-direction:column;gap:2px;}
-@media(min-width:900px){
-  .hero-inner{grid-template-columns:minmax(0,1fr) minmax(300px,auto) minmax(0,220px);gap:28px;}
-  .nv-hero-r{align-items:stretch;}
-}
+/* Vakit akışı: altı sütun, sütunların üst çizgisi günün ilerleyişini
+   gösterir. --seg (0..1) JS'ten gelir: geçmiş = 1, şu an = kesir. */
+.lx-times{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));min-height:168px;}
+.lx-t{position:relative;padding:28px 20px 24px;border-left:1px solid var(--line-2);min-width:0;
+  scroll-margin-top:calc(var(--nav-h) + 40px);}
+.lx-t:first-child{border-left:0;}
+.lx-t::before,.lx-t::after{content:"";position:absolute;left:0;top:0;height:2px;}
+.lx-t::before{right:0;background:var(--line);}
+.lx-t::after{width:calc(var(--seg,0) * 100%);background:rgba(255,255,255,.28);}
+.lx-t.is-now::after{background:linear-gradient(90deg,var(--indigo),var(--indigo-3));}
+.lx-t-dot{position:absolute;top:-3px;left:-4px;width:8px;height:8px;border-radius:50%;
+  background:var(--panel);border:1.5px solid rgba(255,255,255,.25);}
+.lx-t:first-child .lx-t-dot{left:0;}
+.lx-t.is-past .lx-t-dot{background:rgba(255,255,255,.45);border-color:transparent;}
+.lx-t.is-now .lx-t-dot{background:var(--indigo-2);border-color:transparent;}
+.lx-t-now{position:absolute;top:-5px;left:calc(var(--seg,0) * 100%);width:12px;height:12px;margin-left:-6px;border-radius:50%;
+  background:#fff;box-shadow:0 0 0 4px rgba(124,135,242,.25),0 0 18px 2px rgba(124,135,242,.75);}
+.lx-t-name{display:flex;align-items:center;gap:8px;color:var(--text-3);font-size:13.5px;font-weight:500;}
+.lx-t-name svg{width:15px;height:15px;color:var(--text-4);}
+.lx-t-time{margin-top:14px;font-size:clamp(26px,2.8vw,34px);font-weight:540;letter-spacing:-.03em;line-height:1;
+  font-variant-numeric:tabular-nums;font-feature-settings:"tnum","cv01","ss03";color:var(--text);}
+.lx-t-sub{margin-top:10px;min-height:18px;font-size:12.5px;color:var(--text-4);}
+.lx-t.is-past .lx-t-time{color:var(--text-4);}
+.lx-t.is-past .lx-t-name{color:var(--text-4);}
+.lx-t.is-now{background:linear-gradient(180deg,rgba(94,106,210,.13),rgba(94,106,210,0) 80%);}
+.lx-t.is-now .lx-t-name,.lx-t.is-now .lx-t-name svg{color:var(--indigo-3);}
+.lx-t.is-now .lx-t-sub{color:var(--indigo-3);font-weight:500;}
+.lx-t.is-next .lx-t-sub{color:var(--text-2);}
+.lx-t.is-target{animation:lx-flash 1.6s var(--ease);}
+@keyframes lx-flash{0%,40%{background-color:rgba(124,135,242,.14);}100%{background-color:transparent;}}
 
-.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:16px 0;}
-.stat-card{background:var(--card);border:1px solid var(--line);border-radius:7px;padding:11px 8px;text-align:center;box-shadow:var(--shadow);}
-.stat-card[hidden]{display:none;}
-.stat-ico{color:var(--muted2);margin-bottom:5px;display:flex;justify-content:center;}
-.stat-lbl{color:var(--muted2);font-size:11px;}
-.stat-val{color:var(--cream);font-size:13px;font-weight:600;margin-top:3px;}
-/* Hicri Tarih / Cuma — nötr bilgi, kart/KPI görünümü yok */
-.stat-card:not(.stat-clickable){background:transparent;border-color:transparent;box-shadow:none;}
-/* Kıble — tek etkileşimli kart, gerçek bir araç/CTA olduğu için hafifçe öne çıkar */
-.stat-clickable{cursor:pointer;border-color:var(--brand-line);transition:border-color .15s,background .15s;}
-.stat-clickable .stat-val{color:var(--brand-soft);}
-.stat-clickable:hover{background:var(--brand-tint);border-color:var(--brand-soft);}
-.stat-clickable:hover .stat-ico{color:var(--brand-soft);}
+/* ── Bölümler ─────────────────────────────────────────────────────── */
+.lx-sec{padding:96px 0;border-top:1px solid var(--line-2);}
+.lx-sh{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:24px;margin-bottom:40px;}
+.lx-kicker{display:inline-flex;align-items:center;gap:8px;margin-bottom:14px;color:var(--text-3);font-size:13.5px;font-weight:500;}
+.lx-kicker::before{content:"";width:7px;height:7px;border-radius:2px;background:currentColor;opacity:.9;}
+.lx-kicker--indigo{color:var(--indigo-3);}
+.lx-kicker--peach{color:var(--peach);}
+.lx-kicker--green{color:var(--green);}
+.lx-h2{font-size:clamp(30px,4.2vw,48px);line-height:1.08;font-weight:540;letter-spacing:-.03em;}
+.lx-h2 .dim{color:var(--text-4);}
+.lx-h3{font-size:20px;line-height:1.25;font-weight:590;letter-spacing:-.018em;}
+.lx-desc{margin-top:14px;max-width:52ch;color:var(--text-3);font-size:16px;line-height:1.6;letter-spacing:-.005em;}
+.lx-sh-actions{display:flex;gap:8px;flex-wrap:wrap;}
 
-/* Favori konumlar */
-.fav-list{display:grid;gap:8px;margin-bottom:22px;}
-.fav-item{display:flex;align-items:center;gap:4px;background:var(--surface-2);border:1px solid transparent;border-radius:7px;padding:4px;transition:background .15s,border-color .15s;}
-.fav-item:hover{background:var(--card);border-color:var(--line);}
-.fav-select{flex:1;min-width:0;display:flex;align-items:center;background:none;border:none;color:var(--cream);padding:12px;min-height:44px;font-size:13px;font-weight:500;text-align:left;cursor:pointer;font-family:inherit;}
-.fav-select:hover{color:var(--brand-soft);}
-.fav-select:focus-visible{outline:2px solid var(--brand-soft);outline-offset:-2px;border-radius:8px;}
-.fav-remove:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;}
-.fav-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.fav-remove{width:40px;height:40px;flex-shrink:0;background:none;border:none;color:var(--muted2);cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:color .15s,background .15s;}
-.fav-remove:hover{color:var(--neg);background:var(--neg-dim);}
-.fav-empty{padding:22px;text-align:center;color:var(--muted);font-size:13px;background:var(--card);border:1px dashed var(--line);border-radius:7px;margin-bottom:20px;}
+/* İmsakiye tablosu */
+.lx-table{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--bg-2);}
+.cal-head,.cal-row{display:grid;grid-template-columns:minmax(120px,1.5fr) repeat(6,minmax(0,1fr));align-items:center;padding:0 20px;}
+.cal-head{height:44px;border-bottom:1px solid var(--line);color:var(--text-4);font-size:12px;font-weight:500;letter-spacing:.02em;}
+.cal-head span:not(:first-child),.cal-cell{text-align:right;}
+.cal-row{min-height:56px;border-bottom:1px solid var(--line-2);transition:background .16s;}
+.cal-row:hover{background:rgba(255,255,255,.02);}
+.cal-day{font-size:14px;font-weight:500;color:var(--text-2);}
+.cal-date{font-size:12px;color:var(--text-4);font-variant-numeric:tabular-nums;}
+.cal-cell{font-size:14px;color:var(--text-3);font-variant-numeric:tabular-nums;}
+.cal-row.today{background:linear-gradient(90deg,rgba(94,106,210,.14),rgba(94,106,210,.03));box-shadow:inset 2px 0 0 var(--indigo-2);}
+.cal-row.today .cal-day,.cal-row.today .cal-cell{color:var(--text);}
+.cal-toggle{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:52px;border:0;background:transparent;
+  color:var(--text-3);font-size:13.5px;font-weight:500;cursor:pointer;transition:color .16s,background .16s;}
+.cal-toggle:hover{color:var(--text);background:rgba(255,255,255,.02);}
+.nv-print-title{display:none;}
 
-.ramadan-banner{display:flex;align-items:center;gap:12px;background:var(--sand-dim);border:1px solid var(--sand-line);border-radius:7px;padding:13px 16px;margin-bottom:22px;}
-.ramadan-banner[hidden]{display:none;}
-.ram-ico{color:var(--sand);flex-shrink:0;}
-.ram-title{color:var(--sand);font-size:13px;font-weight:600;}
-.ram-sub{color:var(--muted);font-size:11px;margin-top:2px;}
+/* Kıble + Camiler: iki özellik yan yana */
+.lx-split{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.lx-feat{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:16px;overflow:hidden;
+  background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,0) 50%),var(--bg-2);}
+.lx-feat-h{padding:32px 32px 0;}
+.lx-feat-h .lx-desc{font-size:15px;margin-top:10px;}
+.lx-feat-b{flex:1;padding:28px 32px 32px;}
+.lx-feat-h-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;}
 
-/* Kıble tek başına bir araç paneli — diğer kartlarla aynı görünmemeli:
-   kenarlık yok, daha koyu yüzey, daha geniş nefes. */
-.qibla-widget{display:flex;align-items:center;gap:22px;background:var(--surface-2);border:none;border-radius:8px;padding:22px;margin-bottom:26px;}
+/* Kıble pusulası */
+.qibla-widget{display:flex;align-items:center;gap:32px;}
 .qibla-compass{flex-shrink:0;}
-.qibla-ring{width:104px;height:104px;border-radius:50%;border:1.5px solid var(--brand-line);position:relative;}
-.qibla-n{position:absolute;top:6px;left:50%;transform:translateX(-50%);color:var(--muted2);font-size:10px;font-weight:700;}
-.qibla-needle{position:absolute;top:50%;left:50%;width:2px;height:42%;background:var(--accent);transform-origin:bottom center;transform:translate(-50%,-100%) rotate(0deg);transition:transform .3s ease-out;}
-.qibla-kaaba{position:absolute;top:-13px;left:50%;transform:translateX(-50%);color:var(--accent-light);}
-.qibla-info{flex:1;}
-.qibla-deg{color:var(--cream);font-size:clamp(20px,4.6vw,28px);font-weight:600;margin-bottom:6px;font-variant-numeric:tabular-nums;}
-.qibla-hint{color:var(--muted);font-size:12px;line-height:1.5;margin-bottom:10px;}
-.qibla-btn{background:var(--brand-tint);border:1px solid var(--brand-line);color:var(--brand-soft);padding:9px 14px;border-radius:8px;font-size:13px;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:6px;min-height:44px;transition:background .15s,color .15s;}
-.qibla-btn:hover{background:var(--brand-deep);color:var(--cream);}
-.qibla-btn:active{transform:scale(.97);}
+.qibla-ring{position:relative;width:176px;height:176px;border-radius:50%;
+  background:
+    radial-gradient(circle,var(--bg-2) 0 58%,transparent 58.5%),
+    repeating-conic-gradient(from -1deg,rgba(255,255,255,.22) 0 2deg,transparent 2deg 30deg),
+    repeating-conic-gradient(from -.5deg,rgba(255,255,255,.08) 0 1deg,transparent 1deg 10deg);
+  box-shadow:inset 0 0 0 1px var(--line),0 0 0 1px var(--line-2);}
+.qibla-ring::after{content:"";position:absolute;inset:30%;border-radius:50%;
+  background:radial-gradient(circle,rgba(94,106,210,.18),transparent 70%);}
+.qibla-n{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:1;color:var(--text-3);font-size:11px;font-weight:600;}
+.qibla-needle{position:absolute;top:50%;left:50%;z-index:2;width:2px;height:40%;border-radius:2px;
+  background:linear-gradient(to top,rgba(124,135,242,0),var(--indigo-3));
+  transform-origin:bottom center;transform:translate(-50%,-100%) rotate(0deg);transition:transform .4s var(--ease);}
+.qibla-needle::after{content:"";position:absolute;left:50%;bottom:-4px;width:8px;height:8px;margin-left:-4px;border-radius:50%;background:var(--text);}
+.qibla-kaaba{position:absolute;top:-14px;left:50%;transform:translateX(-50%);color:var(--text);
+  filter:drop-shadow(0 0 6px rgba(165,173,255,.8));}
+.qibla-info{flex:1;min-width:0;}
+.qibla-deg{font-size:56px;line-height:1;font-weight:540;letter-spacing:-.04em;font-variant-numeric:tabular-nums;}
+.qibla-hint{margin:14px 0 20px;color:var(--text-3);font-size:14px;line-height:1.55;}
+.qibla-hint b{color:var(--text);font-weight:590;}
+.qibla-btn{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 16px;border-radius:999px;border:0;
+  background:#e6e6e7;color:#08090a;font-size:13.5px;font-weight:550;cursor:pointer;transition:background .16s;}
+.qibla-btn:hover{background:#fff;}
 
-.dua-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px;margin-bottom:30px;}
-.dua-card{border-top:1px solid var(--line);padding:14px 0;}
-.dua-ico{font-size:18px;margin-bottom:6px;color:var(--sand);opacity:.8;}
-.dua-name{color:var(--cream);font-size:12.5px;font-weight:600;margin-bottom:4px;}
-.dua-desc{color:var(--muted);font-size:12px;line-height:1.6;}
+/* Yakındaki camiler: liste satırları */
+.mosques{display:flex;flex-direction:column;}
+.mosque{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:14px;padding:14px 0;
+  border-bottom:1px solid var(--line-2);text-decoration:none;color:inherit;}
+.mosque:first-child{padding-top:0;}
+.mosque:last-child{border-bottom:0;padding-bottom:0;}
+.mosque:hover .mosque-name{color:var(--indigo-3);}
+.mosque-ico{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;
+  border:1px solid var(--line);color:var(--text-3);}
+.mosque-ico svg{width:16px;height:16px;}
+.mosque-name{font-size:14.5px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .16s;}
+.mosque-area{font-size:12.5px;color:var(--text-4);}
+.mosque-dist{text-align:right;}
+.mosque-km{font-size:14px;font-weight:550;font-variant-numeric:tabular-nums;}
+.mosque-walk{font-size:12px;color:var(--text-4);white-space:nowrap;}
+.mosque-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;min-height:176px;
+  padding:24px;border:1px dashed var(--line-3);border-radius:12px;color:var(--text-3);font-size:14px;line-height:1.55;text-align:center;}
 
-.faq-wrap{margin-bottom:16px;}
-.city-links{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:30px;}
-/* Kutu ızgarası yerine metin çipleri: zemin yok, yalnızca ince kenarlık;
-   hover'da marka yüzeyi. Tekrar eden dikdörtgen deseni kırılıyor. */
-.city-links a{display:inline-flex;align-items:center;min-height:44px;color:var(--muted);text-decoration:none;background:transparent;border:1px solid var(--line-soft,rgba(255,255,255,.07));padding:8px 16px;border-radius:999px;font-size:13.5px;transition:border-color .15s,background .15s,color .15s;}
-.city-links a:hover{border-color:var(--brand-line);background:var(--brand-tint);color:var(--cream);}
-/* Dokunma hedefi: padding item'da degil summary'de olmali ki tiklanabilir
-   alan satirin tamamini kapsasin (>=44px). */
-.faq-item{border-bottom:1px solid var(--line);padding:0;margin-bottom:0;}
-.faq-wrap .faq-item:last-child{border-bottom:none;}
-.faq-item summary{color:var(--cream);font-size:13.5px;font-weight:500;line-height:1.4;cursor:pointer;padding:13px 0;min-height:44px;box-sizing:border-box;display:flex;align-items:center;}
-.faq-item p{color:var(--muted);font-size:12.5px;line-height:1.65;margin-top:0;padding-bottom:14px;}
+/* Günün ayeti */
+.lx-verse{text-align:center;}
+#nvVerse{max-width:860px;margin:0 auto;}
+.lx-quote{font-size:clamp(22px,3vw,34px);line-height:1.35;font-weight:500;letter-spacing:-.022em;color:var(--text);text-wrap:balance;}
+.lx-quote--long{font-size:clamp(18px,2.1vw,24px);line-height:1.5;}
+.lx-quote::before{content:"“";color:var(--text-4);}
+.lx-quote::after{content:"”";color:var(--text-4);}
+.lx-quote-src{margin-top:24px;color:var(--text-4);font-size:14px;}
+.lx-quote-src b{color:var(--text-3);font-weight:500;}
 
-@media(max-width:480px){
-  /* Dokunma hedefleri mobilde 44px */
-  .btn-round,.btn-google,.g-avatar-wrap{width:44px;height:44px;}
-  .qibla-widget{flex-direction:column;text-align:center;}
-  .dua-grid{grid-template-columns:1fr;}
-}
-
-/* Selectors — now visually part of the hero panel */
-/* .selectors zaten .hero icinde; kendi zemini/cizgisi cift kenarlik
-   yaratiyordu. Zemini hero tasiyor, alt cizgiyi de hero veriyor. */
-.selectors{display:flex;gap:10px;padding:14px 22px 18px;background:transparent;border-bottom:none;}
-.sel-wrap{flex:1;position:relative;}
-select{width:100%;min-height:44px;appearance:none;-webkit-appearance:none;background:var(--card);border:1px solid var(--line);color:var(--cream);padding:13px 30px 13px 13px;border-radius:8px;font-size:14px;cursor:pointer;transition:border-color .15s;box-shadow:var(--shadow);}
-select:hover{border-color:var(--brand-line);}
-select:hover{border-color:var(--brand-line);}
-select:focus-visible{outline:2px solid var(--brand-soft);outline-offset:1px;}
-.sel-arrow{position:absolute;right:13px;top:50%;transform:translateY(-50%);color:var(--muted2);pointer-events:none;font-size:11px;}
-.fav-btn{width:44px;height:44px;flex-shrink:0;background:var(--card);border:1px solid var(--line);border-radius:8px;color:var(--muted2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .15s,background .15s,color .15s;box-shadow:var(--shadow);}
-.fav-btn:hover{border-color:var(--brand-line);color:var(--cream);}
-.fav-btn:focus-visible{outline:2px solid var(--brand-soft);outline-offset:2px;}
-.fav-btn.active{color:var(--sand);border-color:var(--sand-line);background:var(--sand-dim);}
-.fav-btn.active svg{fill:currentColor;}
-
-.body-pad{padding:20px 22px 50px;}
-#errBox:not(:empty){margin:0 0 18px;}
-.err{color:var(--neg);background:var(--neg-dim);border:1px solid var(--neg-line);border-radius:7px;padding:14px;font-size:13px;text-align:center;}
-.note-box{color:var(--muted);background:var(--card);border:1px solid var(--line);border-radius:7px;padding:12px 14px;font-size:12px;text-align:center;line-height:1.5;margin-bottom:18px;}
-
-/* Günlük navigasyon */
-.day-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;}
-.day-nav-btn{background:var(--card);border:1px solid var(--line);color:var(--cream);width:36px;height:36px;border-radius:999px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:border-color .15s,background .15s;box-shadow:var(--shadow);}
-.day-nav-btn:hover:not(:disabled){border-color:var(--brand-line);background:var(--brand-tint);}
-.day-nav-btn:disabled{opacity:.32;cursor:default;}
-.day-nav-label{flex:1;min-width:0;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;font-weight:600;color:var(--cream);}
-.day-nav-reset{background:none;border:none;color:var(--brand-soft);font-size:11px;font-weight:500;cursor:pointer;text-decoration:underline;text-underline-offset:2px;padding:2px 4px;flex-shrink:0;font-family:inherit;}
-.day-nav-reset:focus-visible{outline:2px solid var(--brand-soft);outline-offset:1px;border-radius:4px;}
-
-/* Prayer grid */
-/* ── Vakit kartları — üç kademeli hiyerarşi ──────────────────────────
-   ŞU AN   : bakır kenarlık + yükseltilmiş yüzey (tek renkli vurgu)
-   sıradaki: renk YOK, sadece tam parlak saat (hero geri sayımıyla
-             çakışmasın diye kasıtlı olarak renksiz)
-   geçmiş  : sönük                                                    */
-.prayers{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:16px;margin-bottom:22px;}
-.p-card{background:var(--card);border:1px solid var(--line-soft);border-radius:7px;
-  padding:14px 8px 12px;text-align:center;transition:border-color .15s,background .15s;}
-.p-card:not(.is-now):hover{border-color:var(--brand-line);}
-.p-card .ico{color:var(--muted2);margin-bottom:6px;display:flex;justify-content:center;}
-.p-card .lbl{color:var(--muted);font-size:9.5px;font-weight:600;letter-spacing:.9px;text-transform:uppercase;}
-.p-card .tm{color:var(--cream);font-size:clamp(19px,5vw,26px);font-weight:700;margin-top:3px;
-  font-variant-numeric:tabular-nums;letter-spacing:-.4px;line-height:1.1;}
-/* Alt satır her kartta yer tutar → kart yükseklikleri eşit kalır */
-.p-card .p-sub{min-height:15px;margin-top:5px;color:var(--muted2);font-size:10.5px;line-height:1.3;}
-
-.p-card.is-next .tm{color:var(--cream);}
-.p-card.is-next{border-color:var(--line);}
-.p-card.is-past .ico{opacity:.45;}
-.p-card.is-past .lbl{color:var(--muted2);}
-.p-card.is-past .tm{color:var(--muted);font-weight:600;}
-
-.p-card.is-now{background:var(--card-lift);border-color:var(--accent);}
-.p-card.is-now .ico{color:var(--accent-light);}
-.p-card.is-now .lbl{color:var(--accent-light);}
-.p-card.is-now .tm{color:var(--accent-light);font-size:clamp(21px,5.5vw,28px);}
-.p-now{display:inline-flex;align-items:center;gap:6px;color:var(--accent-light);
-  font-size:9.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;}
-.p-now i{width:5px;height:5px;border-radius:50%;background:var(--accent);flex-shrink:0;}
-
-.share-row{display:flex;justify-content:flex-end;margin-bottom:16px;}
-.share-btn{display:inline-flex;align-items:center;gap:7px;background:transparent;border:1px solid var(--line);border-radius:999px;color:var(--muted);padding:0 16px;height:44px;font-size:12.5px;font-weight:500;cursor:pointer;font-family:inherit;transition:border-color .15s,background .15s,color .15s;}
-.share-btn:hover{border-color:var(--brand-line);background:var(--brand-tint);color:var(--cream);}
-.share-btn:active{transform:scale(.98);}
-
-/* Sections */
-/* Bölüm başlığı artık görsel bir eşik: üstte nefes, altta hairline.
-   Bölümler böylece kart kutularına ihtiyaç duymadan ayrışıyor. */
-.sec-head{display:flex;align-items:center;gap:10px;margin:34px 0 15px;padding-bottom:11px;border-bottom:1px solid var(--line);}
-.sec-head:first-of-type{margin-top:0;}
-.sec-head .sh-ico{flex-shrink:0;color:var(--brand-soft);opacity:.85;}
-.sec-title{font-size:clamp(16px,3.6vw,20px);font-weight:600;letter-spacing:-.2px;flex:1;}
-.sec-link{color:var(--brand-soft);font-size:12px;cursor:pointer;text-decoration:none;}
-.sec-link:hover{color:var(--cream);text-decoration:underline;text-underline-offset:3px;}
-.sec-link:focus-visible{outline:2px solid var(--brand-soft);outline-offset:2px;border-radius:3px;}
-.sec-meta{color:var(--muted2);font-size:12px;}
-
-/* Editorial bölümler (Dua Vakitleri, SSS) — araç/veri bölümlerinden
-   (Favoriler, Kıble, Camiler, Takvim) farklı, ikon rozeti olmayan, biraz
-   daha büyük bir başlık dili kullanır. :has() desteklemeyen tarayıcılarda
-   bu kural hiç uygulanmaz, sec-head mevcut (tek tip) haliyle kalır. */
-.sec-head:has(+ .dua-grid) .sh-ico,
-.sec-head:has(+ .faq-wrap) .sh-ico{display:none;}
-.sec-head:has(+ .dua-grid) .sec-title,
-.sec-head:has(+ .faq-wrap) .sec-title{font-size:18px;}
-
-/* Camiler+Takvim iki kolonu: hangi kolon daha uzunsa ona göre değil, blok
-   olarak sabit bir alt boşluk bıraksın. */
-.two-col{margin-bottom:22px;}
-
-/* Mosques */
-.mosques{display:grid;gap:8px;margin-bottom:30px;}
-/* Camiler bir liste, kart galerisi değil: zemin yerine sol kenarda ince
-   bir marka çizgisi; hover'da kart yüzeyine yükseliyor. */
-.mosque{display:flex;align-items:center;gap:12px;background:var(--surface-2);border:1px solid transparent;border-left:2px solid var(--brand-line);border-radius:0 6px 6px 0;padding:13px 14px;text-decoration:none;color:inherit;transition:background .15s,border-color .15s;}
-.mosque:hover{background:var(--card);border-color:var(--line);border-left-color:var(--brand-soft);}
-.mosque-ico{width:36px;height:36px;flex-shrink:0;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:999px;display:flex;align-items:center;justify-content:center;color:var(--muted2);}
-.mosque-info{flex:1;min-width:0;}
-.mosque-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.mosque-area{color:var(--muted2);font-size:11px;margin-top:2px;}
-.mosque-dist{flex-shrink:0;text-align:right;}
-.mosque-km{color:var(--cream);font-size:14px;font-weight:600;font-variant-numeric:tabular-nums;}
-.mosque-walk{color:var(--muted2);font-size:10.5px;margin-top:2px;white-space:nowrap;}
-.mosque-empty{padding:22px;text-align:center;color:var(--muted);font-size:13px;background:var(--card);border:1px dashed var(--line);border-radius:7px;}
-
-/* Calendar */
-.cal-head{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr 1fr 1fr 1fr;padding:0 14px 10px;color:var(--muted2);font-size:10px;}
-.cal-head span:not(:first-child){text-align:center;}
-.cal-row{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr 1fr 1fr 1fr;padding:11px 14px;align-items:center;border-bottom:1px solid var(--line);}
-.cal-row:last-of-type{border-bottom:none;}
-/* Bugün satırı: dolu renk bloğu yerine sol kenarda işaret + hafif tint.
-   Takvim böylece "vurgulanmış hücre" değil, akan bir liste olarak okunuyor. */
-.cal-row.today{background:var(--accent-dim);box-shadow:inset 2px 0 0 var(--accent);border-radius:0 6px 6px 0;}
-.cal-day{font-size:12px;font-weight:500;}
-.cal-date{color:var(--muted2);font-size:10px;}
-.cal-row.today .cal-day{color:var(--accent-light);font-weight:600;}
-.cal-cell{font-size:12px;text-align:center;color:rgba(244,243,241,.85);font-variant-numeric:tabular-nums;}
-.cal-row.today .cal-cell{color:var(--accent-light);font-weight:600;}
-.cal-toggle{width:100%;background:transparent;border:1px solid var(--line);color:var(--brand-soft);padding:12px;border-radius:6px;font-size:13px;font-family:inherit;cursor:pointer;margin-top:6px;min-height:44px;transition:background .15s,border-color .15s,color .15s;}
-.cal-toggle:hover{background:var(--brand-tint);border-color:var(--brand-line);color:var(--cream);}
-.cal-toggle:focus-visible{outline:2px solid var(--brand-soft);outline-offset:2px;}
-.g-avatar-wrap{width:36px;height:36px;border-radius:999px;overflow:hidden;cursor:pointer;border:1px solid var(--line);}
-.g-avatar{width:100%;height:100%;object-fit:cover;display:block;}
-.g-avatar-wrap:focus-visible{outline:2px solid var(--brand-soft);outline-offset:2px;}
-
-/* Footer tam genişlikte bir zemin; metni zaten ortalı olduğu için
-   ayrıca iç kap gerekmiyor (içerik doğrudan text node'lardan oluşuyor). */
-.wrap>footer{border-top:1px solid var(--line);background:var(--surface);max-width:none;}
-
-footer{text-align:center;color:var(--muted2);font-size:11.5px;padding:26px 22px 34px;line-height:2.1;}
-footer a{color:var(--muted);text-decoration:none;padding:2px 0;transition:color .15s;}
-footer a:hover{color:var(--brand-soft);text-decoration:underline;text-underline-offset:3px;}
-footer a:focus-visible{outline:2px solid var(--brand-soft);outline-offset:2px;border-radius:3px;}
-
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--surface);border:1px solid var(--line);color:var(--cream);padding:12px 20px;border-radius:10px;font-size:13px;z-index:100;transition:transform .3s;box-shadow:0 8px 24px rgba(0,0,0,.35);max-width:90%;}
-.toast.show{transform:translateX(-50%) translateY(0);}
-
-@media(max-width:480px){
-  .day-nav-btn{width:44px;height:44px;}
-  .prayers{gap:7px;}
-  .p-card{padding:12px 6px 10px;}
-  .cal-row,.cal-head{font-size:11px;}
-  .cal-cell{font-size:11px;}
-}
-
-/* ── Geniş ekran (PC) düzeni ── */
-@media(min-width:900px){
-  :root{--container:1200px;}
-  .hero-inner{padding:22px 40px;}
-  .selectors{padding:14px 40px 18px;}
-  .body-pad{padding:24px 40px 60px;}
-  .day-nav{max-width:820px;margin:0 auto 12px;}
-  .share-row{max-width:820px;margin:0 auto 16px;}
-  /* Referanstaki gibi 6 kart tek satırda, içerik kolonunun TAMAMINDA */
-  .prayers{grid-template-columns:repeat(6,1fr);max-width:none;margin:18px 0 26px;gap:12px;}
-  .p-card{padding:20px 8px 16px;}
-  .stat-row{max-width:820px;margin:0 auto 20px;gap:12px;}
-  .fav-list{max-width:820px;margin-left:auto;margin-right:auto;}
-  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start;max-width:820px;margin-left:auto;margin-right:auto;}
-  .dua-grid{grid-template-columns:repeat(4,1fr);max-width:820px;margin-left:auto;margin-right:auto;}
-  .city-links{max-width:820px;margin-left:auto;margin-right:auto;}
-  .city-links a{font-size:14px;padding:10px 18px;}
-  .faq-wrap{max-width:820px;margin-left:auto;margin-right:auto;}
-  .qibla-widget{max-width:640px;margin:0 auto 26px;}
-  .ramadan-banner{max-width:820px;margin:0 auto 22px;}
-}
-
-/* ══ Bilgi şeridi (hero altı) ═══════════════════════════════════════
-   Markup app.js tarafından üretilir (HTML dosyalarına dokunulmaz).
-   İki katman: sakin marka/konum satırı + yavaş akan vakit şeridi.   */
-/* Şerit tam viewport genişliğinde tek satır: solda sabit CANLI, sağda akış.
-   .wrap zaten genişlik sınırlamıyor, iç kap da kaldırıldı. */
-.tkr{display:flex;align-items:stretch;background:var(--surface);border-bottom:1px solid var(--line);overflow:hidden;max-width:100%;}
-.tkr[hidden]{display:none;}
-/* .wrap artık sınırlamadığı için şerit iç kabı da kendi genişliğini
-   taşımalı; yoksa 680–900px arasında gövdeyle hizası kayıyor. */
-/* Sabit CANLI göstergesi — marka yeşili, akıştan bir hairline ile ayrık. */
-.tkr-live{display:flex;align-items:center;gap:7px;flex-shrink:0;padding:0 14px;
-  border-right:1px solid var(--line);background:var(--brand-tint);color:var(--brand-soft);
-  font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap;}
-.tkr-live i{width:6px;height:6px;border-radius:50%;background:var(--brand-soft);flex-shrink:0;}
-
-/* Üst şerit — marka · konum · gün */
-.tkr-sep{opacity:.42;font-weight:400;flex-shrink:0;}
-/* Akışın içindeki konum ve gün etiketleri */
-.tkr-place{flex-shrink:0;color:var(--cream);font-size:11px;font-weight:600;letter-spacing:1.3px;text-transform:uppercase;white-space:nowrap;}
-.tkr-day{flex-shrink:0;color:var(--muted);font-size:10.5px;font-weight:600;letter-spacing:1.3px;text-transform:uppercase;white-space:nowrap;}
-
-/* Alt şerit — akan vakitler */
-.tkr-rail{position:relative;flex:1;min-width:0;overflow:hidden;overscroll-behavior-x:contain;}
-.tkr-track{display:flex;align-items:center;width:max-content;animation:tkr-run var(--tkr-dur,120s) linear infinite;}
-@keyframes tkr-run{from{transform:translate3d(0,0,0);}to{transform:translate3d(-50%,0,0);}}
-.tkr-rail:hover .tkr-track,.tkr-rail:focus-within .tkr-track,.tkr.is-paused .tkr-track{animation-play-state:paused;}
-.tkr-seq{display:flex;align-items:center;flex-shrink:0;}
-
-.tkr-item{display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:0;background:none;border:0;border-radius:8px;font-family:inherit;color:inherit;cursor:pointer;}
-.tkr-lbl{font-size:10.5px;font-weight:600;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);transition:color .15s;}
-.tkr-tm{font-size:13px;font-weight:600;letter-spacing:.2px;color:var(--cream);font-variant-numeric:tabular-nums;transition:color .15s;}
-.tkr-item:hover .tkr-lbl{color:var(--cream);}
-.tkr-item:hover .tkr-tm{color:var(--accent-light);}
-.tkr-item:focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
-/* Şu an devam eden vakit — şeridin kendi "ŞU AN …" metniyle birlikte */
-.tkr-item.is-now .tkr-lbl,.tkr-item.is-now .tkr-tm{color:var(--accent-light);}
-.tkr-div{flex-shrink:0;padding:0 14px;font-size:11px;color:var(--muted2);opacity:.4;}
-
-/* "Şu an" göstergesi — nokta + metin (renk tek başına anlam taşımaz) */
-.tkr-now{display:inline-flex;align-items:center;gap:7px;flex-shrink:0;height:26px;padding:0 11px;border:1px solid var(--accent-dim);border-radius:8px;background:var(--accent-dim);color:var(--accent-light);font-size:10px;font-weight:600;letter-spacing:1.4px;text-transform:uppercase;white-space:nowrap;}
-.tkr-now i{width:5px;height:5px;border-radius:50%;background:var(--accent);flex-shrink:0;}
-
-/* Compact sticky bar — scroll sonrası, ince */
-.tkr-sticky{position:fixed;top:0;left:0;right:0;z-index:90;background:var(--surface);border-bottom:1px solid var(--line);opacity:0;transform:translateY(-100%);transition:transform .26s ease,opacity .26s ease;pointer-events:none;}
-.tkr-sticky.is-on{opacity:1;transform:translateY(0);pointer-events:auto;}
-.tkr-sticky-inner{max-width:680px;margin:0 auto;padding:0 22px;height:42px;display:flex;align-items:center;gap:9px;font-size:10px;font-weight:600;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
-.tkr-s-brand{color:var(--muted);flex-shrink:0;}
-.tkr-s-loc{min-width:0;overflow:hidden;text-overflow:ellipsis;color:var(--muted);font-weight:500;}
-.tkr-s-now{display:inline-flex;align-items:center;gap:6px;flex-shrink:0;margin-left:auto;color:var(--accent-light);}
-.tkr-s-now i{width:5px;height:5px;border-radius:50%;background:var(--accent);flex-shrink:0;}
-.tkr-s-cd{flex-shrink:0;font-size:13px;font-weight:600;letter-spacing:.3px;text-transform:none;color:var(--cream);font-variant-numeric:tabular-nums;}
-
-/* Şeritten vakit kartına gidildiğinde kısa, sakin işaret */
-.p-card[data-prayer]:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
-.p-card.p-card--target{border-color:var(--accent);}
-
-/* Dar ekran: üst satırın marka · konum · gün üçlüsü kırpılmadan sığsın */
-@media(max-width:430px){
-  .tkr-live{padding:0 11px;letter-spacing:1.2px;}
-  .tkr-sticky .tkr-s-brand,.tkr-sticky .tkr-s-sep{display:none;}
-  .tkr-div{padding:0 11px;}
-}
-@media(min-width:900px){
-  .tkr-live{padding:0 18px;}
-  .tkr-sticky-inner{max-width:var(--container);padding:0 40px;height:44px;}
-}
-
-/* Hareket azaltma tercihi — animasyon kapalı, içerik statik ve erişilebilir */
-@media(prefers-reduced-motion:reduce){
-  html{scroll-behavior:auto;}
-  .toast{transition:none;}
-  .tkr-track{animation:none;transform:none;}
-  .tkr-rail{overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
-  .tkr-rail::-webkit-scrollbar{display:none;}
-  .tkr-sticky{transition:none;}
-}
-
-/* ── Reklam kolonlu düzen (≥1400px) ──────────────────────────────────
-   Bu blok dosyanın SONUNDA olmalı: ≥900px bloğundaki .hero-inner /
-   .body-pad padding kısayolları aksi halde bu kuralları eziyor.      */
-@media(min-width:1400px){
-  .nv-shell{grid-template-columns:var(--ad-w) minmax(0,1fr) var(--ad-w);gap:var(--shell-gap);
-    align-items:start;padding-inline:var(--shell-pad);}
-  .nv-ad--side{display:flex;width:var(--ad-w);min-height:600px;position:sticky;top:18px;}
-  /* Tam genişlikteki bantların içeriği orta sütunla BİREBİR hizalansın */
-  .hero-inner,.nv-header{max-width:var(--shell-max);
-    padding-inline:calc(var(--shell-pad) + var(--ad-w) + var(--shell-gap))!important;}
-  .body-pad{max-width:none;padding-inline:0;}
-}
-
-/* ── Mobil sıkıştırma (≤767px) ────────────────────────────────────────
-   Bu blok dosyanın SONUNDA: .hero-inner / .nv-hero-r temel kuralları
-   daha aşağıda tanımlandığı için erken bir media bloğu onları ezemiyor. */
-@media(max-width:767px){
-  .hero-inner{gap:14px;}
-  .hero-inner{padding-block:14px;}
-  .nv-hero-r{flex-direction:row;flex-wrap:wrap;}
-  .nv-hero-r .nv-hbtn{flex:1 1 auto;min-width:calc(50% - 5px);justify-content:center;padding-inline:10px;}
-}
-
-/* ══ Dashboard ═══════════════════════════════════════════════════════
-   Tek tip kart galerisi DEĞİL — içerik türüne göre dört yüzey dili:
-     tool      araç paneli (kıble)      → yeşil tonlu, çerçeveli
-     info      kompakt bilgi            → panel yüzeyi
-     list      liste (camiler, favori)  → panel + satır ritmi
-     data      veri tablosu (takvim)    → sıkı, tabular
-     editorial dua / SSS / şehirler     → ZEMİNSİZ, tipografik           */
-.nv-dash,.nv-sub{display:grid;grid-template-columns:1fr;gap:12px;margin-top:26px;align-items:start;}
-.nv-panel{min-width:0;border-radius:8px;}
-.nv-panel-h{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;margin-bottom:12px;}
-.nv-panel-t{flex:1 1 auto;min-width:min-content;color:var(--cream);font-size:11px;font-weight:700;
-  letter-spacing:1.4px;text-transform:uppercase;}
-.nv-panel-b{min-width:0;}
-.nv-plink,.nv-panel-h .sec-link,.nv-panel-h .sec-meta{flex-shrink:0;background:none;border:0;
-  padding:0;font-family:inherit;font-size:11.5px;color:var(--brand-soft);cursor:pointer;
-  text-decoration:none;white-space:nowrap;}
-.nv-plink:hover,.nv-panel-h .sec-link:hover{color:var(--cream);text-decoration:underline;text-underline-offset:3px;}
-.nv-plink:focus-visible{outline:2px solid var(--brand-soft);outline-offset:2px;border-radius:4px;}
-.nv-panel-h .sec-meta{color:var(--muted2);cursor:default;}
-
-/* yüzey dilleri */
-.nv-panel--tool{background:var(--brand-tint);border:1px solid var(--brand-line);padding:16px;}
-.nv-panel--info{background:var(--surface);border:1px solid var(--line-soft);padding:16px;}
-.nv-panel--list{background:var(--surface);border:1px solid var(--line-soft);padding:16px;}
-.nv-panel--data{background:var(--surface);border:1px solid var(--line-soft);padding:16px 14px;}
-.nv-panel--editorial{background:transparent;border:0;border-top:1px solid var(--line);
-  border-radius:0;padding:18px 0 0;}
-/* Editoryal bölümler (Dua, Popüler Şehirler, SSS) sayfanın gerçek "bölüm
-   başlıkları" — büyük, kalın, numaralı bir manşet gibi okunur. Numara
-   otomatik: kaçıncı editoryal panel olduğuna göre CSS counter üretir. */
-.body-pad{counter-reset:nv-ed;}
-.nv-panel--editorial{counter-increment:nv-ed;}
-.nv-panel--editorial .nv-panel-h{margin-bottom:16px;align-items:baseline;}
-.nv-panel--editorial .nv-panel-t{font-family:Georgia,"Times New Roman",serif;
-  font-size:clamp(22px,5.2vw,32px);font-weight:700;letter-spacing:-.4px;
-  text-transform:none;color:var(--cream);}
-.nv-panel--editorial .nv-panel-t::before{
-  content:counter(nv-ed,decimal-leading-zero) "\2002—\2002";
-  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  font-size:13px;font-weight:700;letter-spacing:1px;color:var(--brand-soft);}
-
-/* panellerin içindeki eski kart/boşluk kabukları sadeleşir */
-.nv-panel .qibla-widget{margin:0;padding:0;background:transparent;border:0;gap:16px;}
-.nv-panel .mosques,.nv-panel .fav-list{margin:0;gap:6px;}
-.nv-panel--editorial .dua-grid{grid-template-columns:1fr;margin:0;}
-.nv-panel .dua-card:first-child{border-top:0;padding-top:0;}
-.nv-panel .faq-wrap{margin:0;}
-.nv-panel .city-links{margin:0;}
-.nv-panel .cal-head{padding:0 12px 8px;}
-.nv-panel .stat-card{background:transparent;border:0;box-shadow:none;padding:0;text-align:left;}
-.nv-panel .stat-card + .stat-card{margin-top:12px;padding-top:12px;border-top:1px solid var(--line-soft);}
-.nv-panel .stat-ico{justify-content:flex-start;}
-.nv-panel .stat-val{font-size:22px;font-weight:700;letter-spacing:-.3px;}
-/* Ramazan gün sayacı */
+/* Üçlü bilgi şeridi: sütunlar hairline ile ayrılır, kutu yok */
+.lx-three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+.lx-cell{padding:36px 32px 40px;border-left:1px solid var(--line);min-width:0;}
+.lx-cell:first-child{border-left:0;padding-left:0;}
+.lx-cell:last-child{padding-right:0;}
+.lx-cell .lx-kicker{margin-bottom:10px;}
+.lx-cell .lx-h3{margin-bottom:22px;}
 .nv-ram{display:none;}
 .nv-ram.is-on{display:block;}
-.nv-ram-n{color:var(--sand);font-size:34px;font-weight:700;letter-spacing:-1px;line-height:1;
-  font-variant-numeric:tabular-nums;}
-.nv-ram-u{color:var(--sand);font-size:12px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;margin-left:6px;}
-.nv-ram-s{color:var(--muted2);font-size:11.5px;line-height:1.5;margin-top:7px;}
-.nv-panel .nv-ram-banner{margin:12px 0 0;}
+.nv-ram-n{font-size:64px;line-height:1;font-weight:540;letter-spacing:-.045em;color:var(--text);font-variant-numeric:tabular-nums;}
+.nv-ram-u{margin-left:10px;color:var(--text-3);font-size:15px;font-weight:500;}
+.nv-ram-s{margin-top:14px;color:var(--text-3);font-size:14px;line-height:1.55;}
+.ramadan-banner{display:flex;align-items:center;gap:12px;color:var(--text-2);font-size:14px;}
+.ram-ico{color:var(--peach);display:flex;}
+.ram-title{color:var(--peach);font-weight:590;}
+.ram-sub{color:var(--text-3);font-size:13px;}
+.fav-list{display:flex;flex-direction:column;}
+.fav-empty{color:var(--text-3);font-size:14px;line-height:1.6;}
+.fav-item{display:flex;align-items:center;border-bottom:1px solid var(--line-2);}
+.fav-item:last-child{border-bottom:0;}
+.fav-select{flex:1;min-width:0;display:flex;align-items:center;gap:10px;height:44px;padding:0;background:none;border:0;
+  color:var(--text-2);font-size:14.5px;font-weight:500;text-align:left;cursor:pointer;transition:color .16s;}
+.fav-select::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--peach);flex-shrink:0;}
+.fav-select:hover{color:var(--text);}
+.fav-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.fav-remove{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border:0;border-radius:8px;
+  background:none;color:var(--text-4);cursor:pointer;transition:color .16s,background .16s;}
+.fav-remove:hover{color:var(--red);background:rgba(235,87,87,.08);}
+#nvTrend svg{display:block;}
+.lx-trend-meta{display:flex;justify-content:space-between;gap:10px;margin-top:12px;color:var(--text-4);font-size:13px;}
+.lx-trend-meta b{color:var(--text-2);font-weight:550;font-variant-numeric:tabular-nums;}
 
-@media(min-width:900px){
-  .nv-dash,.nv-sub{grid-template-columns:repeat(12,1fr);gap:14px;}
-  /* Eşit genişlikte DEĞİL — içerik ağırlığına göre */
-  /* Genişlikler içerik ağırlığına göre; toplam her satırda 12 */
-  .nv-dash > :nth-child(1){grid-column:span 3;}   /* kıble   — araç */
-  .nv-dash > :nth-child(2){grid-column:span 2;}   /* hicri   — bilgi */
-  .nv-dash > :nth-child(3){grid-column:span 3;}   /* camiler — liste */
-  .nv-dash > :nth-child(4){grid-column:span 4;}   /* dua     — editoryal */
-  .nv-sub  > :nth-child(1){grid-column:span 3;}   /* ramazan — bilgi */
-  .nv-sub  > :nth-child(2){grid-column:span 3;}   /* favori  — liste */
-  .nv-sub  > :nth-child(3){grid-column:span 6;}   /* takvim  — veri */
-  .nv-sub .nv-panel--trend{grid-column:span 6;}   /* trend grafiği — veri */
-  .nv-sub .nv-panel--editorial{grid-column:span 12;}
+/* Dua vakitleri */
+.dua-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:40px 32px;}
+.dua-card{padding-top:24px;border-top:1px solid var(--line);}
+.dua-ico{display:flex;margin-bottom:18px;color:var(--text-3);}
+.dua-name{font-size:15.5px;font-weight:590;letter-spacing:-.012em;margin-bottom:8px;}
+.dua-desc{color:var(--text-3);font-size:14px;line-height:1.6;}
+
+/* Sayfaya özgü SEO içeriği (il/ilçe tanıtımı, ilçe listeleri) */
+.lx-seo .lx-c > *{max-width:900px;}
+.lx-seo p{margin-bottom:36px;color:var(--text-3);font-size:16px;line-height:1.75;}
+.lx-seo .sec-head{margin:0 0 18px;}
+.lx-seo .sec-head .sh-ico{display:none;}
+.lx-seo .sec-title{font-size:22px;font-weight:590;letter-spacing:-.02em;}
+.lx-seo .sec-link{margin-left:auto;}
+.lx-seo .lx-c > div:not(.sec-head){display:flex;flex-wrap:wrap;gap:8px;margin-bottom:40px;}
+.lx-seo .lx-c > div:not(.sec-head) > div{flex-basis:100%;margin-bottom:6px;color:var(--text-4);font-size:13.5px;font-weight:500;}
+.city-links{display:flex;flex-wrap:wrap;gap:8px;}
+.city-links a,.lx-seo .lx-c > div:not(.sec-head) > a,.lx-chip{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 14px;
+  border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.02);color:var(--text-2);
+  font-size:13.5px;font-weight:500;text-decoration:none;transition:background .16s,border-color .16s,color .16s;}
+.city-links a:hover,.lx-seo .lx-c > div:not(.sec-head) > a:hover,.lx-chip:hover{background:rgba(255,255,255,.07);border-color:var(--line-3);color:var(--text);}
+.sec-head{display:flex;align-items:center;gap:12px;}
+.sec-link{color:var(--text-3);font-size:13.5px;font-weight:500;text-decoration:none;cursor:pointer;transition:color .16s;}
+.sec-link:hover{color:var(--text);}
+
+/* SSS */
+.lx-faq-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:64px;align-items:start;}
+.faq-wrap{border-top:1px solid var(--line);}
+.faq-item{border-bottom:1px solid var(--line);}
+.faq-item summary{display:flex;align-items:center;gap:16px;min-height:64px;padding:16px 0;list-style:none;cursor:pointer;
+  font-size:16px;font-weight:500;letter-spacing:-.012em;color:var(--text);}
+.faq-item summary::-webkit-details-marker{display:none;}
+.faq-item summary::after{content:"";margin-left:auto;flex-shrink:0;width:8px;height:8px;
+  border-right:1.5px solid var(--text-3);border-bottom:1.5px solid var(--text-3);transform:translateY(-3px) rotate(45deg);
+  transition:transform .2s var(--ease);}
+.faq-item[open] summary::after{transform:translateY(2px) rotate(225deg);}
+.faq-item summary:hover::after{border-color:var(--text);}
+.faq-item p{padding:0 40px 22px 0;color:var(--text-3);font-size:15px;line-height:1.7;}
+
+/* ── Reklam yuvaları ──────────────────────────────────────────────── */
+.nv-ad{display:none;align-items:center;justify-content:center;overflow:hidden;}
+.nv-ad--bar{display:flex;width:100%;max-width:728px;min-height:90px;margin:0 auto 64px;}
+.nv-ad--side{position:fixed;top:calc(var(--nav-h) + 32px);width:160px;min-height:600px;z-index:1;}
+.nv-ad--side.is-l{left:calc(50% - var(--c)/2 - var(--gut) - 184px);}
+.nv-ad--side.is-r{right:calc(50% - var(--c)/2 - var(--gut) - 184px);}
+@media(min-width:1560px){.nv-ad--side{display:flex;}}
+
+/* ── Footer ───────────────────────────────────────────────────────── */
+.lx-foot{border-top:1px solid var(--line);padding:64px 0 40px;color:var(--text-3);font-size:13.5px;}
+.lx-foot-grid{display:grid;grid-template-columns:minmax(0,2fr) repeat(2,minmax(0,1fr));gap:40px;}
+.lx-foot-brand p{margin-top:16px;max-width:36ch;color:var(--text-4);line-height:1.6;}
+.lx-foot h4{margin-bottom:16px;color:var(--text);font-size:13.5px;font-weight:550;}
+.lx-foot ul{list-style:none;display:flex;flex-direction:column;gap:10px;}
+.lx-foot ul a{color:var(--text-3);text-decoration:none;transition:color .16s;}
+.lx-foot ul a:hover{color:var(--text);}
+.lx-foot-bottom{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;margin-top:56px;padding-top:24px;
+  border-top:1px solid var(--line-2);color:var(--text-4);font-size:12.5px;}
+
+/* ── Toast ────────────────────────────────────────────────────────── */
+.toast{position:fixed;left:50%;bottom:24px;z-index:100;max-width:calc(100% - 32px);padding:11px 16px;border-radius:10px;
+  background:var(--panel-3);border:1px solid var(--line-3);color:var(--text);font-size:13.5px;
+  box-shadow:0 20px 50px -12px rgba(0,0,0,.8);transform:translate(-50%,120px);transition:transform .3s var(--ease);}
+.toast.show{transform:translate(-50%,0);}
+
+/* ── Statik bilgi sayfaları (hakkımızda, kıble, hicri, kaza…) ─────── */
+.kb-wrap{max-width:calc(760px + var(--gut)*2);margin:0 auto;padding:72px var(--gut) 96px;}
+.kb-wrap--wide{max-width:calc(var(--c) + var(--gut)*2);}
+.kb-crumb{margin-bottom:28px;color:var(--text-4);font-size:13px;}
+.kb-crumb a{color:var(--text-3);text-decoration:none;}
+.kb-crumb a:hover{color:var(--text);}
+.kb-h1{margin-bottom:24px;font-size:clamp(36px,6vw,56px);line-height:1.05;font-weight:540;letter-spacing:-.035em;}
+.kb-intro{margin-bottom:40px;color:var(--text-3);font-size:18px;line-height:1.6;letter-spacing:-.01em;}
+.kb-updated{margin-bottom:32px;color:var(--text-4);font-size:13px;}
+.kb-body{color:var(--text-3);font-size:16px;line-height:1.75;}
+.kb-body p{margin-bottom:18px;}
+.kb-body b,.kb-body strong{color:var(--text-2);font-weight:590;}
+.kb-body a{color:var(--indigo-3)!important;text-decoration:none;}
+.kb-body a:hover{text-decoration:underline;text-underline-offset:3px;}
+.kb-body h2{margin:44px 0 14px;color:var(--text);font-size:24px;font-weight:590;letter-spacing:-.022em;}
+.kb-body h3{margin:28px 0 10px;color:var(--text);font-size:18px;font-weight:590;letter-spacing:-.015em;}
+.kb-body ul,.kb-body ol{margin:0 0 18px;padding-left:20px;}
+.kb-body li{margin-bottom:8px;}
+.kb-card{margin:24px 0;padding:24px;border:1px solid var(--line);border-radius:14px;background:var(--bg-2);}
+.kb-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:48px;padding-top:32px;border-top:1px solid var(--line-2);}
+.kb-links a{display:inline-flex;align-items:center;height:34px;padding:0 14px;border-radius:999px;border:1px solid var(--line);
+  background:rgba(255,255,255,.02);color:var(--text-2);font-size:13.5px;font-weight:500;text-decoration:none;
+  transition:background .16s,border-color .16s,color .16s;}
+.kb-links a:hover{background:rgba(255,255,255,.07);border-color:var(--line-3);color:var(--text);}
+.kb-wrap .sec-head{margin:56px 0 12px;}
+.kb-wrap .sec-head .sh-ico{display:none;}
+.kb-wrap .sec-title{font-size:28px;font-weight:540;letter-spacing:-.025em;}
+.kb-wrap .qibla-widget{margin:8px 0 24px;padding:32px;border:1px solid var(--line);border-radius:16px;background:var(--bg-2);}
+
+/* Araç sayfalarının kendi bileşenleri (sayfa içi <style>'ı ezmek için body önekli) */
+body .kz-card,body .hj-today,body .vk-card{border-radius:14px;background:var(--bg-2);border-color:var(--line);}
+body .kz-card{padding:24px;}
+body .kz-field label{font-size:13px;font-weight:500;letter-spacing:0;color:var(--text-3);}
+body .kz-field input{height:40px;min-height:0;border-radius:10px;background:rgba(255,255,255,.03);}
+body .kz-btn{height:40px;padding:0;border:0;border-radius:999px;background:#e6e6e7;color:#08090a;font-size:14px;font-weight:550;}
+body .kz-btn:hover{background:#fff;color:#08090a;}
+body .kz-total-n{color:var(--text);font-weight:540;letter-spacing:-.04em;}
+body .kz-progress-bar{background:var(--indigo-2);}
+body .hj-today-d{font-weight:540;letter-spacing:-.03em;}
+body .hj-table th{font-size:12px;font-weight:500;letter-spacing:0;text-transform:none;color:var(--text-4);}
+body .hj-table tr.is-today td{color:var(--text);}
+
+/* ── Duyarlı ──────────────────────────────────────────────────────── */
+@media(max-width:1023px){
+  .lx-times{grid-template-columns:repeat(3,minmax(0,1fr));}
+  .lx-t:nth-child(4){border-left:0;}
+  .lx-t:nth-child(n+4){border-top:1px solid var(--line-2);}
+  .lx-split{grid-template-columns:1fr;}
+  .lx-three{grid-template-columns:1fr;}
+  .lx-cell,.lx-cell:first-child,.lx-cell:last-child{padding:32px 0;border-left:0;border-top:1px solid var(--line);}
+  .lx-cell:first-child{border-top:0;}
+  .dua-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .lx-faq-grid{grid-template-columns:1fr;gap:32px;}
+  .lx-links{display:none;}
+}
+@media(max-width:719px){
+  :root{--gut:16px;--nav-h:56px;}
+  .lx-nav-in{gap:16px;}
+  .lx-navcd{display:none;}
+  .lx-hero{padding:44px 0 32px;}
+  .lx-crumb{margin-bottom:20px;}
+  .lx-eyebrow{margin-bottom:16px;font-size:13px;}
+  .lx-title{font-size:clamp(34px,10.5vw,48px);}
+  .lx-sub{margin-top:16px;font-size:15px;}
+  .lx-ctl{margin-top:24px;}
+  .sel-wrap{flex:1 1 calc(50% - 4px);}
+  .sel-wrap select{width:100%;min-width:0;max-width:none;}
+  .lx-ctl-sep{display:none;}
+  .lx-frame{border-radius:14px;}
+  .lx-frame-top{padding:8px 10px;}
+  .lx-frame-meta{font-size:12px;}
+  /* Vakit akışı dikey: çizgi soldan aşağı iner */
+  .lx-times{grid-template-columns:1fr;min-height:0;}
+  .lx-t{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto;align-items:center;column-gap:12px;
+    padding:16px 18px 16px 34px;border-left:0;border-top:1px solid var(--line-2);}
+  .lx-t:first-child{border-top:0;}
+  .lx-t::before,.lx-t::after{left:16px;top:0;right:auto;bottom:0;width:2px;height:auto;}
+  .lx-t::after{bottom:auto;height:calc(var(--seg,0) * 100%);}
+  .lx-t-dot,.lx-t:first-child .lx-t-dot{left:13px;top:-4px;}
+  .lx-t-now{left:17px;top:calc(var(--seg,0) * 100%);margin-top:-6px;}
+  .lx-t-name{grid-column:1;grid-row:1;}
+  .lx-t-sub{grid-column:1;grid-row:2;margin-top:2px;min-height:0;}
+  .lx-t-sub:empty{display:none;}
+  .lx-t-time{grid-column:2;grid-row:1 / 3;margin-top:0;font-size:26px;}
+  .lx-sec{padding:64px 0;}
+  .lx-sh{grid-template-columns:1fr;gap:16px;margin-bottom:28px;}
+  .cal-head,.cal-row{grid-template-columns:minmax(84px,1.3fr) repeat(6,minmax(0,1fr));padding:0 12px;}
+  .cal-head{font-size:10px;letter-spacing:0;}
+  .cal-head,.cal-row{column-gap:4px;}
+  .cal-day{font-size:13px;}
+  .cal-date{font-size:11px;}
+  .cal-cell{font-size:12.5px;}
+  .lx-feat-h{padding:24px 20px 0;}
+  .lx-feat-b{padding:24px 20px;}
+  .qibla-widget{flex-direction:column;align-items:flex-start;gap:24px;}
+  .qibla-deg{font-size:44px;}
+  .dua-grid{grid-template-columns:1fr;gap:28px;}
+  .lx-foot-grid{grid-template-columns:1fr 1fr;}
+  .lx-foot-brand{grid-column:1 / -1;}
+  .kb-wrap{padding-top:44px;}
+  .faq-item p{padding-right:0;}
+}
+@media(max-width:380px){
+  .lx-wx{display:none;}
 }
 
-/* ── Tablet ara aralığı ──────────────────────────────────────────────
-   600–899: mobil 2 kolon fazla seyrek, ≥900'ün 6 kolonu ise erken.
-   Aralık çakışmadığı için bu blok dosya sonunda güvenle durur.      */
-@media(min-width:600px) and (max-width:899px){
-  .prayers{grid-template-columns:repeat(3,1fr);}
-  .nv-dash,.nv-sub{grid-template-columns:repeat(2,1fr);}
-  .nv-sub .nv-panel--data,.nv-sub .nv-panel--editorial{grid-column:span 2;}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto;}
+  *,*::before,*::after{transition:none!important;animation:none!important;}
 }
 
-/* ── Statik bilgi bantları ───────────────────────────────────────────
-   Üstte finans, altta hava. İkisi de STATİK — sayfadaki tek hareketli
-   şerit CANLI namaz şerididir. Veri kaynağı bağlı değilse bant JS
-   tarafından hidden bırakılır; sahte değer basılmaz.
-   Renk rolleri: yeşil = marka/araç, bakır = zaman. Bantlar bilgi
-   yüzeyidir; ikisi de nötr kalır, vurgu çalmaz.                     */
-.nv-band{margin:14px 0;border:1px solid var(--line-soft);border-radius:8px;background:var(--surface-2);}
-.nv-band[hidden]{display:none;}
-.nv-band-in{display:flex;align-items:center;flex-wrap:wrap;gap:8px 16px;padding:11px 14px;}
-.nv-band-lbl{flex-shrink:0;color:var(--muted2);font-size:9.5px;font-weight:700;
-  letter-spacing:1.4px;text-transform:uppercase;}
-.nv-band-c{display:flex;align-items:center;flex-wrap:wrap;gap:8px 18px;min-width:0;flex:1;}
-.nv-band-src{flex-shrink:0;color:var(--muted2);font-size:10.5px;}
-
-/* finans kalemi */
-.nv-bi{display:inline-flex;align-items:baseline;gap:7px;white-space:nowrap;}
-.nv-bi-k{color:var(--muted);font-size:10px;font-weight:600;letter-spacing:.9px;text-transform:uppercase;}
-.nv-bi-v{color:var(--cream);font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;}
-.nv-bi-c{font-size:11px;font-weight:600;font-variant-numeric:tabular-nums;}
-.nv-bi-c.is-up{color:var(--pos);}
-.nv-bi-c.is-dn{color:var(--neg);}
-
-/* hava — header'daki diğer küçük kare/yuvarlak butonlarla (konum, giriş)
-   aynı boyut ve dilde bir rozet: ikon üstte, sıcaklık altta, tek satır
-   metin/kart YOK — sadece bir bakışta okunan minimal bir kare. */
-.nv-wx-tile{width:36px;height:36px;flex-shrink:0;background:var(--card);border:1px solid var(--line);
-  border-radius:8px;color:var(--cream);display:flex;flex-direction:column;align-items:center;
-  justify-content:center;gap:1px;cursor:default;}
-.nv-wx-tile[hidden]{display:none;}
-.nv-wx-tile svg{color:var(--brand-soft);flex-shrink:0;}
-.nv-wx-tile-t{font-size:9.5px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums;line-height:1;}
-
-@media(max-width:479px){
-  .nv-band-in{gap:7px 14px;padding:10px 12px;}
-  .nv-band-src{display:none;}
-  .nv-bi-v{font-size:13px;}
-}
-
-/* Mobilde 4 finans kalemi düzensiz sarmak yerine 2×2 hizalanır.
-   ≥600 ile çakışmadığı için dosya sonunda güvenle durur. */
-@media(max-width:599px){
-  .nv-band--fin .nv-band-c{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px 14px;}
-  /* minmax(0,1fr) + nowrap iptali: 'GRAM ALTIN 4.512,70 +1,24%' dar
-     hücrede taşmak yerine sarar. */
-  .nv-band--fin .nv-bi{justify-content:space-between;gap:4px 8px;min-width:0;
-    flex-wrap:wrap;white-space:normal;}
-  .nv-band--fin .nv-bi-k{flex:1 1 100%;}
-}
-
-/* ── Footer ──────────────────────────────────────────────────────────
-   Markup 1065 HTML dosyasında ortak olduğu için YALNIZCA CSS ile ele
-   alınır: yapı/etiket değişmez, sayfa gövdesinden ayrılır ve bağlantı
-   satırları gezinilebilir bir alt-nav gibi okunur.                   */
-footer{margin-top:34px;border-top:1px solid var(--line);background:var(--surface-2);
-  padding:30px 22px 38px;line-height:2.3;}
-footer a{position:relative;font-weight:500;}
-/* İlk satır (veri kaynağı) künye tonunda kalsın, bağlantılar öne çıksın */
-footer br:first-of-type{line-height:3;}
-
-/* ── İmsakiye yazdırma ────────────────────────────────────────────────
-   "Yazdır" butonu sayfayı değiştirmez; sadece window.print() çağırır.
-   Bu blok yazdırma anında SADECE aylık takvim panelini görünür bırakır
-   (klasik "visibility:hidden + tek öğeyi geri aç" tekniği) — kart
-   arka planları/vurgu renkleri yerine sade siyah-beyaz baskı kullanılır. */
+/* ── Yazdırma: yalnızca imsakiye ─────────────────────────────────── */
 @media print{
+  body{background:#fff;}
   body *{visibility:hidden;}
-  .nv-panel--calendar,.nv-panel--calendar *{visibility:visible;}
-  .nv-panel--calendar{position:absolute;left:0;top:0;width:100%;background:#fff;color:#000;padding:0;border:0;}
-  .nv-panel--calendar .nv-panel-h,.nv-panel--calendar .cal-toggle,.nv-panel--calendar .nv-plink{display:none;}
-  .nv-print-title{display:block;font-size:18px;font-weight:700;margin-bottom:14px;color:#000;}
-  .nv-panel--calendar .cal-head,.nv-panel--calendar .cal-row{color:#000;border-color:#ccc;}
-  .nv-panel--calendar .cal-row.today{background:#f0f0f0;box-shadow:none;}
-  .nv-panel--calendar .cal-cell,.nv-panel--calendar .cal-day,.nv-panel--calendar .cal-date{color:#000;}
+  .lx-cal,.lx-cal *{visibility:visible;}
+  .lx-cal{position:absolute;left:0;top:0;width:100%;padding:0;border:0;}
+  .lx-cal .lx-sh,.lx-cal .cal-toggle{display:none;}
+  .lx-table{border:0;background:#fff;}
+  .nv-print-title{display:block;margin-bottom:14px;font-size:18px;font-weight:700;color:#000;}
+  .cal-head,.cal-row{color:#000;border-color:#ccc;}
+  .cal-row.today{background:#f0f0f0;box-shadow:none;}
+  .cal-cell,.cal-day,.cal-date{color:#000!important;}
 }
-.nv-print-title{display:none;}

@@ -24,182 +24,173 @@
 <meta name="twitter:title" content="Derince Namaz Vakitleri 2026 | Güncel Ezan Saatleri"/>
 <meta name="twitter:description" content="Derince (Kocaeli) için bugün güncel imsâk, güneş, öğle, ikindi, akşam ve yatsı ezan vakitleri ve aylık takvim."/>
 <meta name="twitter:image" content="https://namazvakiti.net/assets/og-image-v2.png"/>
-<meta name="theme-color" content="#1a1426"/>
+<meta name="theme-color" content="#08090a"/>
 <link rel="manifest" href="/manifest.webmanifest"/>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
 <link rel="icon" href="/favicon.ico"/>
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32-v2.png"/>
 <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16-v2.png"/>
 <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon-v2.png"/>
 <link rel="preconnect" href="https://ezanvakti.emushaf.net"/>
-<link rel="stylesheet" href="/assets/style.css?v=12"/>
+<link rel="stylesheet" href="/assets/style.css?v=13"/>
 <script type="application/ld+json" data-faq-schema="1">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Bugün Derince imsak saat kaçta?", "acceptedAnswer": {"@type": "Answer", "text": "Derince için güncel imsak saati yukarıdaki tabloda yer alır. Sayfa her gün otomatik güncellenir."}}, {"@type": "Question", "name": "Derince akşam ezanı saat kaçta okunur?", "acceptedAnswer": {"@type": "Answer", "text": "Derince akşam ezanı saati tabloda \"Akşam\" satırında görünür. Saatler Diyanet verileriyle güncellenir."}}, {"@type": "Question", "name": "Derince yatsı namazı saat kaçta?", "acceptedAnswer": {"@type": "Answer", "text": "Derince yatsı vakti tabloda \"Yatsı\" satırında yer alır. İlçe seçersen saatler ilçene göre değişir."}}, {"@type": "Question", "name": "Vakitler neden bazen farklı görünebilir?", "acceptedAnswer": {"@type": "Answer", "text": "Seçili ilçe, hesaplama yöntemi veya cihaz saat ayarı farklılık yaratabilir. Tarayıcı saatini doğru olduğundan emin ol."}}]}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Ana Sayfa","item":"https://namazvakiti.net/"},{"@type":"ListItem","position":2,"name":"Kocaeli","item":"https://namazvakiti.net/kocaeli"},{"@type":"ListItem","position":3,"name":"Derince","item":"https://namazvakiti.net/kocaeli/derince/"}]}</script>
 </head>
 <body data-city="Kocaeli" data-district="Derince">
-<div class="wrap">
-
-  <div class="hero" id="hero">
-    <div class="hero-inner">
-      <div class="topbar">
-        <div class="brand">
-          <div class="brand-logo">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 21V11C5 11 7 8 12 8C17 8 19 11 19 11V21M9 21V16C9 14.34 10.34 13 12 13C13.66 13 15 14.34 15 16V21M12 8V4M10 6H14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-          </div>
-          <div>
-            <div class="brand-name serif">Namaz Vakti</div>
-            <div class="brand-sub" id="heroVakit">Vakitler</div>
-          </div>
-        </div>
-        <div class="top-actions">
-          <button class="btn-round" id="locBtn" title="Konumdan bul" aria-label="Konumdan bul">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="9" r="2.3" stroke="currentColor" stroke-width="1.6"/></svg>
-          </button>
-          <button class="btn-google" id="loginBtn" title="Google ile giriş">G</button>
-          <div id="gAvatarWrap" class="g-avatar-wrap" hidden>
-            <img id="gAvatar" class="g-avatar" alt="Profil"/>
-          </div>
-        </div>
-      </div>
-      <div id="hiddenGoogleBtn" style="position:absolute;opacity:0;pointer-events:none;top:-9999px;left:-9999px;"></div>
-      <div class="hero-loc" id="heroLoc">—</div>
-      <div class="hero-meta">
-        <span id="heroHijri"></span>
-        <span id="heroFriday" class="friday-badge" hidden>Bugün Cuma</span>
-      </div>
-      <div class="cd-card">
-        <div class="cd-row">
-          <div class="hc-label" id="cdLabel">Yükleniyor</div>
-          <div class="hc-time" id="cdTime">--<span class="sep">:</span>--<span class="sep">:</span>--</div>
-        </div>
-        <div class="hc-sub" id="cdSub">Vakitler yükleniyor…</div>
-      </div>
-    </div>
-    <div class="selectors">
-      <div class="sel-wrap">
-        <select id="citySel" aria-label="İl seç"></select>
-        <span class="sel-arrow">▾</span>
-      </div>
-      <div class="sel-wrap">
-        <select id="distSel" aria-label="İlçe seç"></select>
-        <span class="sel-arrow">▾</span>
-      </div>
-      <button class="fav-btn" id="favToggleBtn" aria-label="Favorilere ekle" title="Favorilere ekle">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.8L12 3.5Z"/></svg>
-      </button>
+<header class="lx-nav">
+  <div class="lx-c lx-nav-in">
+    <a class="lx-logo" href="/" aria-label="Namaz Vakti — ana sayfa"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="11" fill="#f7f8f8"/><path d="M7 16.5v-5.2a4 4 0 0 1 8 0v5.2z" fill="#08090a"/></svg><span>Namaz Vakti</span></a>
+    <nav class="lx-links" aria-label="Site"><a href="/sehirler">Şehirler</a><a href="/kible-yonu-bulma">Kıble</a><a href="/hicri-takvim">Hicri Takvim</a><a href="/kaza-namazi-hesaplama">Kaza Hesabı</a><a href="/namaz-vakitleri-nasil-hesaplanir">Nasıl Hesaplanır?</a></nav>
+    <div class="lx-nav-r">
+      <span class="lx-navcd" id="navCd" aria-hidden="true"></span>
+      <span class="lx-wx" id="nvWxTile" hidden></span>
+      <button class="lx-btn lx-btn--light" id="locBtn" type="button" title="Konumdan il seç"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12Z"/><circle cx="12" cy="9" r="2.4"/></svg><span>Konumum</span></button>
     </div>
   </div>
+</header>
 
-  <nav style="max-width:1100px;margin:14px auto 0;padding:0 22px;font-size:13px;color:rgba(255,255,255,.45);" aria-label="breadcrumb"><a href="/" style="color:rgba(255,255,255,.75);text-decoration:none;">Ana Sayfa</a> › <a href="/kocaeli" style="color:rgba(255,255,255,.75);text-decoration:none;">Kocaeli</a> › <span style="color:#fff;">Derince</span></nav>
-  <h1 style="max-width:1100px;margin:10px auto 0;padding:0 22px;font-size:14px;font-weight:600;color:rgba(255,255,255,.9);letter-spacing:.2px;" class="serif">Derince Namaz Vakitleri</h1>
-
-  <div class="body-pad">
-    <div id="errBox"></div>
-    <div id="noteBox"></div>
-
-    <div class="day-nav" id="dayNav">
-      <button class="day-nav-btn" id="dayPrev" aria-label="Önceki gün">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
-      </button>
-      <div class="day-nav-label">
-        <span id="dayLabel">Bugün</span>
-        <button class="day-nav-reset" id="dayReset" hidden>Bugüne dön</button>
-      </div>
-      <button class="day-nav-btn" id="dayNext" aria-label="Sonraki gün">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
-      </button>
-    </div>
-    <div class="prayers" id="prayerGrid"></div>
-
-    <div class="share-row">
-      <button class="share-btn" id="shareBtn" aria-label="Namaz vakitlerini paylaş">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.3"/><circle cx="6" cy="12" r="2.3"/><circle cx="18" cy="19" r="2.3"/><path d="M8.1 10.9l7.8-4.4M8.1 13.1l7.8 4.4"/></svg>
-        <span>Paylaş</span>
-      </button>
-    </div>
-
-    <div class="stat-row" id="statRow">
-      <div class="stat-card">
-        <div class="stat-ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M8 2v6M16 2v6"/></svg></div>
-        <div class="stat-lbl">Hicri Tarih</div>
-        <div class="stat-val" id="statHijri">—</div>
-      </div>
-      <div class="stat-card stat-clickable" id="qiblaCard">
-        <div class="stat-ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.2 8.8l-2.1 5.3-5.3 2.1 2.1-5.3 5.3-2.1Z"/></svg></div>
-        <div class="stat-lbl">Kıble Yönü</div>
-        <div class="stat-val" id="statQibla">Bul →</div>
-      </div>
-      <div class="stat-card" id="fridayCard" hidden>
-        <div class="stat-ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21h16M5 21v-6.5c0-1 .6-1.8 1.5-2.3L9 11v-2a3 3 0 0 1 6 0v2l2.5 1.2c.9.5 1.5 1.3 1.5 2.3V21M12 6V3M10.5 4.5h3"/></svg></div>
-        <div class="stat-lbl">Bugün</div>
-        <div class="stat-val">Cuma</div>
+<main id="main">
+  <section class="lx-hero">
+    <div class="lx-c">
+      <nav class="lx-crumb" aria-label="breadcrumb"><a href="/">Ana Sayfa</a> › <a href="/kocaeli">Kocaeli</a> › <span>Derince</span></nav>
+      <h1 class="lx-eyebrow">Derince Namaz Vakitleri</h1>
+      <p class="lx-title"><span class="lx-place" id="heroLoc">Derince</span><span class="lx-cdline"><span id="cdLabel">Namaz vakitleri</span> <span class="lx-cd" id="cdTime"></span></span></p>
+      <p class="lx-sub" id="cdSub">Diyanet İşleri Başkanlığı verisiyle güncel imsak, güneş, öğle, ikindi, akşam ve yatsı vakitleri.</p>
+      <div class="lx-ctl">
+        <div class="sel-wrap"><select id="citySel" aria-label="İl seç"></select><span class="sel-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span></div>
+        <div class="sel-wrap"><select id="distSel" aria-label="İlçe seç"></select><span class="sel-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span></div>
+        <button class="lx-btn lx-icon-btn" id="favToggleBtn" type="button" aria-label="Favorilere ekle" title="Favorilere ekle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.8L12 3.5Z"/></svg></button>
+        <span class="lx-ctl-sep" aria-hidden="true"></span>
+        <button class="lx-btn" id="shareBtn" type="button" aria-label="Namaz vakitlerini paylaş"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg><span>Paylaş</span></button>
+        <button class="lx-btn" id="notifBtn" type="button"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 4.5 1.5 6 2 7H4c.5-1 2-2.5 2-7Z"/><path d="M9.5 18a2.5 2.5 0 0 0 5 0"/></svg><span>Ezan bildirimi</span></button>
       </div>
     </div>
+  </section>
 
-    <div class="sec-head">
-      <span class="sh-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.8L12 3.5Z"/></svg></span>
-      <h2 class="sec-title serif">Favori Konumlarım</h2>
-    </div>
-    <div class="fav-list" id="favList"></div>
-
-    <div id="ramadanBanner" hidden class="ramadan-banner">
-      <span class="ram-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3.5A8.5 8.5 0 1 0 20.5 18 7 7 0 0 1 16 3.5Z"/></svg></span>
-      <div>
-        <div class="ram-title">Ramazan Ayındasınız</div>
-        <div class="ram-sub"><span id="ramSahur"></span> sahur sonu (İmsak) · <span id="ramIftar"></span> iftar (Akşam)</div>
-      </div>
-    </div>
-
-    <div class="sec-head" id="qiblaSecHead" style="display:none;">
-      <span class="sh-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.2 8.8l-2.1 5.3-5.3 2.1 2.1-5.3 5.3-2.1Z"/></svg></span>
-      <h2 class="sec-title serif">Kıble Pusulası</h2>
-    </div>
-    <div id="qiblaWidget" class="qibla-widget" style="display:none;">
-      <div class="qibla-compass">
-        <div class="qibla-ring">
-          <div class="qibla-n">K</div>
-          <div class="qibla-needle" id="qiblaNeedle">
-            <div class="qibla-kaaba"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="1.5"/></svg></div>
+  <section class="lx-board" aria-label="Günün vakitleri">
+    <div class="lx-c">
+      <div id="errBox"></div>
+      <div id="noteBox"></div>
+      <div class="lx-frame">
+        <div class="lx-frame-top">
+          <div class="lx-daynav" id="dayNav">
+            <button class="day-nav-btn" id="dayPrev" type="button" aria-label="Önceki gün"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+            <div class="day-nav-label"><span id="dayLabel">Bugün</span><button class="day-nav-reset" id="dayReset" type="button" hidden>Bugüne dön</button></div>
+            <button class="day-nav-btn" id="dayNext" type="button" aria-label="Sonraki gün"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
           </div>
+          <div class="lx-frame-meta"><span id="heroFriday" class="friday-badge" hidden>Cuma</span><span id="heroHijri"></span></div>
+        </div>
+        <div class="lx-times" id="prayerGrid"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="lx-sec lx-cal" id="imsakiye">
+    <div class="lx-c">
+      <div class="lx-sh">
+        <div>
+          <div class="lx-kicker lx-kicker--indigo">İmsakiye<span id="calMonth"></span></div>
+          <h2 class="lx-h2">Aylık vakitler</h2>
+          <p class="lx-desc">Önümüzdeki 30 güne kadar Diyanet vakitleri. Bugün vurgulu; yazdırıp imsakiye olarak kullanabilirsiniz.</p>
+        </div>
+        <div class="lx-sh-actions"><button class="lx-btn" id="calPrintBtn" type="button"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/></svg><span>Yazdır</span></button></div>
+      </div>
+      <div class="lx-table">
+        <div class="nv-print-title" id="calPrintTitle"></div>
+        <div class="cal-head"><span>Tarih</span><span>İmsak</span><span>Güneş</span><span>Öğle</span><span>İkindi</span><span>Akşam</span><span>Yatsı</span></div>
+        <div id="calBody"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="lx-sec">
+    <div class="lx-c">
+      <div class="lx-sh">
+        <div>
+          <div class="lx-kicker lx-kicker--green">Konum</div>
+          <h2 class="lx-h2">Kıble ve camiler <span class="dim">bulunduğunuz yere göre.</span></h2>
         </div>
       </div>
-      <div class="qibla-info">
-        <div class="qibla-deg" id="qiblaDeg">—°</div>
-        <div class="qibla-hint" id="qiblaHint">Kıble yönünü hesaplamak için konum izni gerekir.</div>
-        <button class="qibla-btn" id="qiblaPermBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.3"/></svg> Kıbleyi Bul</button>
+      <div class="lx-split">
+        <article class="lx-feat">
+          <div class="lx-feat-h">
+            <h3 class="lx-h3">Kıble yönü</h3>
+            <p class="lx-desc">Kâbe'nin yönü konumunuzdan hesaplanır; telefonda pusula canlı döner.</p>
+          </div>
+          <div class="lx-feat-b">
+            <div id="qiblaWidget" class="qibla-widget">
+              <div class="qibla-compass">
+                <div class="qibla-ring">
+                  <div class="qibla-n">K</div>
+                  <div class="qibla-needle" id="qiblaNeedle"><div class="qibla-kaaba"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="1.5"/></svg></div></div>
+                </div>
+              </div>
+              <div class="qibla-info">
+                <div class="qibla-deg" id="qiblaDeg">—°</div>
+                <div class="qibla-hint" id="qiblaHint">Kıble yönünü hesaplamak için konum izni gerekir.</div>
+                <button class="qibla-btn" id="qiblaPermBtn" type="button"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12Z"/><circle cx="12" cy="9" r="2.4"/></svg> Kıbleyi bul</button>
+              </div>
+            </div>
+          </div>
+        </article>
+        <article class="lx-feat">
+          <div class="lx-feat-h">
+            <div class="lx-feat-h-row"><h3 class="lx-h3">Yakındaki camiler</h3><button class="lx-link" id="mosqueMapLink" type="button">Haritada aç ↗</button></div>
+            <p class="lx-desc">2,5 km içindeki camiler, yürüme süresiyle birlikte.</p>
+          </div>
+          <div class="lx-feat-b">
+            <div class="mosques" id="mosqueList">
+              <div class="mosque-empty">Konum izni verdiğinizde en yakın camiler burada listelenir.<button class="lx-btn lx-btn--light" type="button" data-locate><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12Z"/><circle cx="12" cy="9" r="2.4"/></svg><span>Konumumu kullan</span></button></div>
+            </div>
+          </div>
+        </article>
       </div>
     </div>
+  </section>
 
-    <div class="two-col">
-    <div>
-    <div class="sec-head">
-      <span class="sh-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 21V11C5 11 7 8 12 8C17 8 19 11 19 11V21M9 21V16C9 14.34 10.34 13 12 13C13.66 13 15 14.34 15 16V21" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
-      <h2 class="sec-title serif">Yakındaki Camiler</h2>
-      <span class="sec-link" id="mosqueMapLink">Harita ↗</span>
+  <section class="lx-sec lx-verse" id="verseSec" aria-label="Günün ayeti">
+    <div class="lx-c">
+      <div class="lx-kicker">Günün ayeti</div>
+      <div id="nvVerse"></div>
     </div>
-    <div class="mosques" id="mosqueList">
-      <div class="mosque-empty">Konum izni verirseniz yakındaki camiler listelenir.</div>
-    </div>
+  </section>
 
+  <section class="lx-sec">
+    <div class="lx-c">
+      <div class="lx-three">
+        <div class="lx-cell">
+          <div class="lx-kicker lx-kicker--peach">Ramazan</div>
+          <h3 class="lx-h3">Ramazan sayacı</h3>
+          <div class="nv-ram" id="nvRamadan"></div>
+          <div id="ramadanBanner" class="ramadan-banner" hidden>
+            <div>
+              <div class="ram-title">Ramazan ayındasınız</div>
+              <div class="ram-sub"><span id="ramSahur"></span> sahur sonu (imsak) · <span id="ramIftar"></span> iftar (akşam)</div>
+            </div>
+          </div>
+        </div>
+        <div class="lx-cell">
+          <div class="lx-kicker lx-kicker--peach">Favoriler</div>
+          <h3 class="lx-h3">Kayıtlı konumlar</h3>
+          <div class="fav-list" id="favList"></div>
+        </div>
+        <div class="lx-cell">
+          <div class="lx-kicker">Bu ay</div>
+          <h3 class="lx-h3">İmsak–yatsı aralığı</h3>
+          <div id="nvTrend"></div>
+        </div>
+      </div>
     </div>
-    <div>
-    <div class="sec-head">
-      <span class="sh-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M3 9H21M8 2V6M16 2V6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
-      <h2 class="sec-title serif">Aylık Vakitler</h2>
-      <span class="sec-meta" id="calMonth"></span>
-    </div>
-    <div class="cal-head">
-      <span>TARİH</span><span>İMS</span><span>GÜN</span><span>ÖĞL</span><span>İKİ</span><span>AKŞ</span><span>YAT</span>
-    </div>
-    <div id="calBody"></div>
-    </div>
-    </div>
+  </section>
 
-    <div class="sec-head">
-      <span class="sh-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 21v-6.5a1.8 1.8 0 0 1 3.5 0M7 13.5 5.3 9a1.2 1.2 0 0 1 2.2-.9L9 11.5M17 21v-6.5a1.8 1.8 0 0 0-3.5 0M17 13.5 18.7 9a1.2 1.2 0 0 0-2.2-.9L15 11.5"/></svg></span>
-      <h2 class="sec-title serif">Dua Vakitleri</h2>
-    </div>
-    <div class="dua-grid">
+  <section class="lx-sec">
+    <div class="lx-c">
+      <div class="lx-sh">
+        <div>
+          <div class="lx-kicker">Dua</div>
+          <h2 class="lx-h2">Dua vakitleri <span class="dim">duaların makbul olduğu anlar.</span></h2>
+        </div>
+      </div>
+      <div class="dua-grid">
       <div class="dua-card">
         <div class="dua-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15a6 6 0 0 1 12 0"/><path d="M2 15h20M12 2v4M8.5 6.5 12 3l3.5 3.5"/></svg></div>
         <div class="dua-name">Seher Vakti</div>
@@ -221,16 +212,25 @@
         <div class="dua-desc">Oruçlu kişinin iftar anındaki duasının makbul olduğu rivayet edilir.</div>
       </div>
     </div>
-
-    
-    <p style="color:rgba(245,240,230,.55);font-size:13px;line-height:1.7;margin-bottom:26px;">Bu sayfada Derince (Kocaeli) için güncel namaz vakitleri yer alır: imsak, güneş, öğle, ikindi, akşam ve yatsı. Vakitler, Diyanet İşleri Başkanlığı'nın resmi hesaplama yöntemiyle, Derince ilçesinin coğrafi konumuna göre güneşin açısı esas alınarak belirlenir ve her gün otomatik güncellenir. Aşağıdaki aylık takvimden önümüzdeki günlerin vakitlerine, kıble pusulasından ise Kâbe yönüne bakabilirsiniz. Kocaeli genelinde toplam 12 ilçe için ayrı namaz vakti sayfası bulunuyor; alttan diğer Kocaeli ilçelerine geçebilirsiniz.</p>
-    <div style="margin-bottom:26px;"><a href="/kocaeli" style="color:#fff;text-decoration:none;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);padding:8px 14px;border-radius:999px;display:inline-block;margin:3px;font-size:13px;">← Kocaeli Namaz Vakitleri</a></div>
-    <div class="nv-sibling-districts" style="margin-bottom:26px;"><div style="color:rgba(245,240,230,.4);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">Diğer Kocaeli İlçeleri</div><a href="/kocaeli/basiskele/" style="color:#fff;text-decoration:none;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);padding:8px 14px;border-radius:999px;display:inline-block;margin:3px;font-size:13px;">Başiskele</a><a href="/kocaeli/cayirova/" style="color:#fff;text-decoration:none;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);padding:8px 14px;border-radius:999px;display:inline-block;margin:3px;font-size:13px;">Çayırova</a><a href="/kocaeli/darica/" style="color:#fff;text-decoration:none;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);padding:8px 14px;border-radius:999px;display:inline-block;margin:3px;font-size:13px;">Darıca</a><a href="/kocaeli/dilovasi/" style="color:#fff;text-decoration:none;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);padding:8px 14px;border-radius:999px;display:inline-block;margin:3px;font-size:13px;">Dilovası</a><a href="/kocaeli/gebze/" style="color:#fff;text-decoration:none;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);padding:8px 14px;border-radius:999px;display:inline-block;margin:3px;font-size:13px;">Gebze</a><a href="/kocaeli/golcuk/" style="color:#fff;text-decoration:none;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);padding:8px 14px;border-radius:999px;display:inline-block;margin:3px;font-size:13px;">Gölcük</a><a href="/kocaeli/izmit/" style="color:#fff;text-decoration:none;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);padding:8px 14px;border-radius:999px;display:inline-block;margin:3px;font-size:13px;">İzmit</a><a href="/kocaeli/kandira/" style="color:#fff;text-decoration:none;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);padding:8px 14px;border-radius:999px;display:inline-block;margin:3px;font-size:13px;">Kandıra</a><a href="/kocaeli" style="color:#fff;text-decoration:none;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);padding:8px 14px;border-radius:999px;display:inline-block;margin:3px;font-size:13px;">Tüm Kocaeli İlçeleri →</a></div>
-    <div class="sec-head">
-      <span class="sh-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.3 9.2a2.7 2.7 0 1 1 3.8 2.4c-.8.4-1.1.9-1.1 1.7v.4"/><path d="M12 17h.01"/></svg></span>
-      <h2 class="sec-title serif">Sık Sorulan Sorular</h2>
     </div>
-    <div class="faq-wrap" id="faqWrap">
+  </section>
+
+  <section class="lx-sec lx-seo">
+    <div class="lx-c">
+      <p class="lx-intro">Bu sayfada Derince (Kocaeli) için güncel namaz vakitleri yer alır: imsak, güneş, öğle, ikindi, akşam ve yatsı. Vakitler, Diyanet İşleri Başkanlığı'nın resmi hesaplama yöntemiyle, Derince ilçesinin coğrafi konumuna göre güneşin açısı esas alınarak belirlenir ve her gün otomatik güncellenir. Aşağıdaki aylık takvimden önümüzdeki günlerin vakitlerine, kıble pusulasından ise Kâbe yönüne bakabilirsiniz. Kocaeli genelinde toplam 12 ilçe için ayrı namaz vakti sayfası bulunuyor; alttan diğer Kocaeli ilçelerine geçebilirsiniz.</p>
+      <div><a href="/kocaeli">← Kocaeli Namaz Vakitleri</a></div>
+      <div class="nv-sibling-districts"><div>Diğer Kocaeli İlçeleri</div><a href="/kocaeli/basiskele/">Başiskele</a><a href="/kocaeli/cayirova/">Çayırova</a><a href="/kocaeli/darica/">Darıca</a><a href="/kocaeli/dilovasi/">Dilovası</a><a href="/kocaeli/gebze/">Gebze</a><a href="/kocaeli/golcuk/">Gölcük</a><a href="/kocaeli/izmit/">İzmit</a><a href="/kocaeli/kandira/">Kandıra</a><a href="/kocaeli">Tüm Kocaeli İlçeleri →</a></div>
+    </div>
+  </section>
+
+  <section class="lx-sec">
+    <div class="lx-c lx-faq-grid">
+      <div>
+        <div class="lx-kicker">SSS</div>
+        <h2 class="lx-h2">Sık sorulan sorular</h2>
+        <p class="lx-desc">Aradığınızı bulamadınız mı? <a class="lx-link" href="/iletisim">Bize yazın →</a></p>
+      </div>
+      <div class="faq-wrap" id="faqWrap">
       <details class="faq-item">
         <summary>Bugün Derince imsak saat kaçta?</summary>
         <p>Derince için güncel imsak saati yukarıdaki tabloda yer alır. Sayfa her gün otomatik güncellenir.</p>
@@ -248,16 +248,42 @@
         <p>Seçili ilçe, hesaplama yöntemi veya cihaz saat ayarı farklılık yaratabilir. Tarayıcı saatini doğru olduğundan emin ol.</p>
       </details>
     </div>
-  </div>
+    </div>
+  </section>
+</main>
 
-  <footer>
-    Veriler Diyanet İşleri Başkanlığı kaynaklıdır.<br/>
-    <a href="/sehirler">Tüm Şehirler</a> · <a href="/kible-yonu-bulma">Kıble Yönü Bulma</a> · <a href="/hicri-takvim">Hicri Takvim</a> · <a href="/kaza-namazi-hesaplama">Kaza Namazı Hesaplama</a> · <a href="/namaz-vakitleri-nasil-hesaplanir">Vakitler Nasıl Hesaplanır?</a><br/>
-    <a href="/gizlilik">Gizlilik</a> · <a href="/hakkimizda">Hakkımızda</a> · <a href="/iletisim">İletişim</a>
-  </footer>
-</div>
+<footer class="lx-foot">
+  <div class="lx-c">
+    <div class="lx-foot-grid">
+      <div class="lx-foot-brand">
+        <a class="lx-logo" href="/"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="11" fill="#f7f8f8"/><path d="M7 16.5v-5.2a4 4 0 0 1 8 0v5.2z" fill="#08090a"/></svg><span>Namaz Vakti</span></a>
+        <p>Türkiye'nin 81 ili ve 973 ilçesi için Diyanet İşleri Başkanlığı kaynaklı güncel namaz vakitleri.</p>
+      </div>
+      <div>
+        <h4>Araçlar</h4>
+        <ul>
+          <li><a href="/sehirler">Tüm Şehirler</a></li>
+          <li><a href="/kible-yonu-bulma">Kıble Yönü Bulma</a></li>
+          <li><a href="/hicri-takvim">Hicri Takvim</a></li>
+          <li><a href="/kaza-namazi-hesaplama">Kaza Namazı Hesaplama</a></li>
+          <li><a href="/namaz-vakitleri-nasil-hesaplanir">Vakitler Nasıl Hesaplanır?</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Kurumsal</h4>
+        <ul>
+          <li><a href="/hakkimizda">Hakkımızda</a></li>
+          <li><a href="/iletisim">İletişim</a></li>
+          <li><a href="/gizlilik">Gizlilik</a></li>
+          <li><a href="/kullanim">Kullanım Şartları</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="lx-foot-bottom"><span>© 2026 namazvakiti.net</span><span>Veriler Diyanet İşleri Başkanlığı kaynaklıdır.</span></div>
+  </div>
+</footer>
 
 <div class="toast" id="toast"></div>
-<script src="/app.js?v=13"></script>
+<script src="/app.js?v=14"></script>
 </body>
 </html>

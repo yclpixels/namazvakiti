@@ -4,7 +4,7 @@
    - Push notification (ezan vakti)
    ============================================================ */
 
-const CACHE = "namaz-v3";
+const CACHE = "namaz-v4";
 const OFFLINE_URL = "/offline.html";
 
 /* Uygulama kabuğu: her zaman cache'ten sun */

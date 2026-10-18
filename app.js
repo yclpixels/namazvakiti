@@ -60,27 +60,20 @@
   const $ = (id) => document.getElementById(id);
   const els = {
     city: $("citySel"), dist: $("distSel"), err: $("errBox"), note: $("noteBox"),
-    cdLabel: $("cdLabel"), cdTime: $("cdTime"), cdSub: $("cdSub"), 
+    cdLabel: $("cdLabel"), cdTime: $("cdTime"), cdSub: $("cdSub"),
     grid: $("prayerGrid"), mosques: $("mosqueList"), mosqueLink: $("mosqueMapLink"),
     dayPrev: $("dayPrev"), dayNext: $("dayNext"), dayLabel: $("dayLabel"), dayReset: $("dayReset"),
     favBtn: $("favToggleBtn"), favList: $("favList"),
-    shareBtn: $("shareBtn"),
-    hero: $("hero"), heroLoc: $("heroLoc"), heroVakit: $("heroVakit"),
-    cal: $("calBody"), calMonth: $("calMonth"),
-    locBtn: $("locBtn"), loginBtn: $("loginBtn"), toast: $("toast"),
+    shareBtn: $("shareBtn"), notifBtn: $("notifBtn"), navCd: $("navCd"),
+    heroLoc: $("heroLoc"),
+    cal: $("calBody"), calMonth: $("calMonth"), calPrint: $("calPrintBtn"), calPrintTitle: $("calPrintTitle"),
+    locBtn: $("locBtn"), toast: $("toast"),
     heroHijri: $("heroHijri"), heroFriday: $("heroFriday"),
-    statHijri: $("statHijri"), statQibla: $("statQibla"),
-    fridayCard: $("fridayCard"), qiblaCard: $("qiblaCard"),
     ramadanBanner: $("ramadanBanner"), ramSahur: $("ramSahur"), ramIftar: $("ramIftar"),
-    qiblaSecHead: $("qiblaSecHead"), qiblaWidget: $("qiblaWidget"),
+    qiblaWidget: $("qiblaWidget"),
     qiblaNeedle: $("qiblaNeedle"), qiblaDeg: $("qiblaDeg"), qiblaHint: $("qiblaHint"),
     qiblaPermBtn: $("qiblaPermBtn"),
-    gAvatarWrap: $("gAvatarWrap"), gAvatar: $("gAvatar"), hiddenGoogleBtn: $("hiddenGoogleBtn"),
   };
-
-  // Not: Google Cloud Console'dan alacağın kendi Client ID'ni buraya yapıştır
-  const GOOGLE_CLIENT_ID = "BURAYA_KENDI_CLIENT_ID.apps.googleusercontent.com";
-  const USER_KEY = "nv_user_v1";
 
   const KAABA = { lat: 21.4225, lon: 39.8262 };
 
@@ -100,6 +93,11 @@
       .replace(/İ/g, "i").replace(/ı/g, "i").replace(/i̇/g, "i")
       .replace(/ş/g, "s").replace(/ğ/g, "g").replace(/ü/g, "u")
       .replace(/ö/g, "o").replace(/ç/g, "c").trim();
+  }
+  /* "İSTANBUL" / "ŞEHİTKAMİL" → "İstanbul" / "Şehitkamil" (API büyük harf döner) */
+  function titleTR(s) {
+    return String(s || "").toLocaleLowerCase("tr")
+      .replace(/(^|[\s\-(/])(\S)/g, (m, a, b) => a + b.toLocaleUpperCase("tr"));
   }
   /* Dış kaynaklardan (Diyanet API, OSM Overpass/Nominatim) gelen metinleri
      innerHTML içine güvenli şekilde yazmak için: her yerde kullan. */
@@ -185,9 +183,6 @@
     if (btn) btn.classList.add("is-on");
     toast("Ezan bildirimleri açık — vakit girince haber verilecek.");
   }
-  function applyTheme(prayerKey) {
-    if (els.heroVakit) els.heroVakit.textContent = (PRAYER_NAMES[prayerKey] || "İKİNDİ") + " VAKTİ";
-  }
 
   /* localStorage tercih ── */
   const PREF = "nv_pref_v2";
@@ -250,12 +245,6 @@
   function renderFavorites() {
     if (els.favBtn) {
       const active = isFavorited(state.cityId, state.distId);
-      const hb = document.querySelector('.nv-hbtn[data-nv="fav"]');
-      if (hb) {
-        hb.classList.toggle("is-on", active);
-        const sp = hb.querySelector("span");
-        if (sp) sp.textContent = active ? "Favorilerde" : "Favorilere Ekle";
-      }
       els.favBtn.classList.toggle("active", active);
       const label = active ? "Favorilerden kaldır" : "Favorilere ekle";
       els.favBtn.setAttribute("aria-label", label);
@@ -264,13 +253,13 @@
     if (!els.favList) return;
     const list = loadFavorites();
     if (!list.length) {
-      els.favList.innerHTML = `<div class="fav-empty">Henüz favori konumunuz yok. Üstteki yıldıza dokunarak mevcut konumu favorileyebilirsiniz.</div>`;
+      els.favList.innerHTML = `<div class="fav-empty">Henüz kayıtlı konum yok. Yukarıdaki yıldızla bulunduğunuz konumu ekleyin; tek dokunuşla geri dönersiniz.</div>`;
       return;
     }
     els.favList.innerHTML = list.map((f) => `
       <div class="fav-item">
         <button class="fav-select" data-city="${escapeHtml(f.cityId)}" data-dist="${escapeHtml(f.distId)}">
-          <span class="fav-name">${escapeHtml(f.cityName)} / ${escapeHtml(f.distName)}</span>
+          <span class="fav-name">${escapeHtml(titleTR(f.distName))}, ${escapeHtml(titleTR(f.cityName))}</span>
         </button>
         <button class="fav-remove" data-city="${escapeHtml(f.cityId)}" data-dist="${escapeHtml(f.distId)}" aria-label="Favoriden kaldır" title="Favoriden kaldır">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
@@ -286,7 +275,7 @@
     for (const c of cities) {
       const opt = document.createElement("option");
       opt.value = c.SehirID;
-      opt.textContent = c.SehirAdi;
+      opt.textContent = titleTR(c.SehirAdi);
       els.city.appendChild(opt);
     }
   }
@@ -298,12 +287,16 @@
     for (const d of districts) {
       const opt = document.createElement("option");
       opt.value = d.IlceID;
-      opt.textContent = d.IlceAdi;
+      opt.textContent = titleTR(d.IlceAdi);
       els.dist.appendChild(opt);
     }
 
     let pick = preferDistId && districts.find((d) => d.IlceID === preferDistId);
-    if (!pick) pick = districts.find((d) => normTR(d.IlceAdi) === "merkez") || districts[0];
+    /* İl seçilince il merkezi: Diyanet büyükşehirlerde merkezi noktayı il
+       adıyla ("ANKARA"), diğerlerinde "MERKEZ" diye yayınlıyor. Alfabetik
+       ilk ilçeye (ör. Ankara → Akyurt) ancak ikisi de yoksa düşülür. */
+    if (!pick) pick = districts.find((d) => normTR(d.IlceAdi) === normTR(state.cityName))
+      || districts.find((d) => normTR(d.IlceAdi) === "merkez") || districts[0];
     state.distId = pick.IlceID;
     state.distName = pick.IlceAdi;
     els.dist.value = pick.IlceID;
@@ -320,6 +313,7 @@
       renderCalendar();
       renderTrendChart();
       startCountdown();
+      renderWeatherTile();
     } catch (e) {
       showErr(e.message || "Vakitler alınamadı.");
     }
@@ -369,7 +363,7 @@
       els.grid.innerHTML = "";
       renderPrayerGrid._sig = "";
       els.cdSub.textContent = "Bugün için vakit bulunamadı.";
-      tkrSync(null, "--:--:--");
+      navSync(null, "");
       return;
     }
     const now = new Date();
@@ -397,39 +391,35 @@
        imsak ise henüz GELMEMİŞ vakittir. Şeritteki "ŞU AN …" göstergesiyle
        aynı kural. */
     const activeKey = current ? current.key : "Yatsi";
-    applyTheme(activeKey);
     notifCheck(activeKey);
 
     renderPrayerGrid(next, current, now);
 
-    // countdown
+    // Geri sayım — başlığın ikinci satırı: "Akşam ezanına 00:45:12"
     let cdText = "--:--:--";
+    const place = placeLabel();
     if (next) {
       const diff = next.dt - now;
       const h = Math.floor(diff / 3600000);
       const m = Math.floor((diff % 3600000) / 60000);
       const s = Math.floor((diff % 60000) / 1000);
       cdText = `${pad(h)}:${pad(m)}:${pad(s)}`;
-      els.cdLabel.textContent = nvHeroNext ? "Sıradaki Vakit" : `Sıradaki · ${next.label}`;
-      if (nvHeroNext && nvHeroNext.textContent !== next.label) nvHeroNext.textContent = next.label;
-      els.cdTime.innerHTML = `${pad(h)}<span class="sep">:</span>${pad(m)}<span class="sep">:</span>${pad(s)}`;
-      els.cdSub.textContent = `${next.label} ezanına kalan süre · ${next.time}`;
+      const lbl = `${next.label} ezanına`;
+      if (els.cdLabel.textContent !== lbl) els.cdLabel.textContent = lbl;
+      els.cdTime.textContent = cdText;
+      const sub = `${place.long} için sıradaki vakit ${next.label.toLocaleLowerCase("tr")}, saat ${next.time}. Vakitler Diyanet İşleri Başkanlığı verisidir.`;
+      if (els.cdSub.textContent !== sub) els.cdSub.textContent = sub;
     }
-    if (els.heroLoc) els.heroLoc.textContent = `${state.cityName} · ${state.distName}`;
-    if (nvBandsBuilt) renderWeatherTile();
+    if (els.heroLoc && els.heroLoc.textContent !== place.short) els.heroLoc.textContent = place.short;
+    navSync(next, cdText);
 
     // Hicri tarih — API'nin uzun alanını (ay adı yazılı) doğrudan göster, format tahmini yok
     const hijriLong = today.HicriTarihUzun || today.HijriTarihUzun || "";
     if (hijriLong) {
       // "16 Muharrem 1448" gibi; yıl kısmını kırpıp kartta göster
       if (els.heroHijri) els.heroHijri.textContent = hijriLong;
-      if (els.statHijri) {
-        const parts = hijriLong.split(" ");
-        els.statHijri.textContent = parts.length >= 2 ? parts[0] + " " + parts[1] : hijriLong;
-      }
     } else {
       const hijriShort = today.HicriTarihKisa || today.HijriTarihKisa || "";
-      if (hijriShort && els.statHijri) els.statHijri.textContent = hijriShort;
       if (hijriShort && els.heroHijri) els.heroHijri.textContent = hijriShort;
     }
 
@@ -445,10 +435,6 @@
     // Cuma günü rozeti
     const isFriday = now.getDay() === 5;
     if (els.heroFriday) els.heroFriday.hidden = !isFriday;
-    if (els.fridayCard) els.fridayCard.hidden = !isFriday;
-
-    // Bilgi şeridi — aynı tick, ayrı sayaç/interval yok
-    tkrSync(current, cdText);
   }
 
   /* ── Günlük vakit kartları (Bugün / ‹ Önceki Gün / Sonraki Gün ›) ──
@@ -489,22 +475,36 @@
     renderPrayerGrid._sig = gridSig;
 
     const base = now ? new Date(now.getFullYear(), now.getMonth(), now.getDate()) : null;
-    els.grid.innerHTML = PRAYERS.map((p) => {
+    /* Her sütunun üst çizgisi (mobilde sol çizgisi) günün akışını gösterir:
+       geçmiş vakit = dolu, şu anki vakit = sonraki vakte kadar geçen kesir. */
+    const segOf = (i) => {
+      if (!isToday || !base) return 0;
+      const start = asDate(base, rec[PRAYERS[i].key]);
+      if (start > now) return 0;
+      let end = i + 1 < PRAYERS.length ? asDate(base, rec[PRAYERS[i + 1].key]) : null;
+      if (!end) {
+        const t = getTomorrow();
+        end = t ? asDate(new Date(base.getTime() + 86400000), t.Imsak) : new Date(base.getTime() + 86400000);
+      }
+      return Math.max(0, Math.min(1, (now - start) / (end - start)));
+    };
+    els.grid.innerHTML = PRAYERS.map((p, i) => {
       const isNow = nowKey === p.key;
       const isNext = nextKey === p.key;
-      let cls = "p-card", sub = "";
-      if (isNow) { cls += " is-now"; sub = '<span class="p-now"><i aria-hidden="true"></i>Şu an</span>'; }
+      let cls = "lx-t", sub = "";
+      const seg = segOf(i);
+      if (isNow) { cls += " is-now"; sub = "Şu an"; }
       else if (isToday && base) {
         const dt = asDate(base, rec[p.key]);
-        if (dt > now) sub = escapeHtml(remainText(dt - now));
+        if (dt > now) sub = remainText(dt - now);
         if (isNext) cls += " is-next";
       }
       if (isToday && !isNow && !sub) cls += " is-past";
-      return `<div class="${cls}" data-prayer="${p.key}" tabindex="-1">
-        <div class="ico">${p.ico}</div>
-        <div class="lbl">${escapeHtml(p.label)}</div>
-        <div class="tm">${escapeHtml(rec[p.key])}</div>
-        <div class="p-sub">${sub}</div>
+      return `<div class="${cls}" data-prayer="${p.key}" tabindex="-1" style="--seg:${seg.toFixed(4)}">
+        <span class="lx-t-dot" aria-hidden="true"></span>${isNow ? '<span class="lx-t-now" aria-hidden="true"></span>' : ""}
+        <div class="lx-t-name">${p.ico}${escapeHtml(p.label)}</div>
+        <div class="lx-t-time">${escapeHtml(rec[p.key])}</div>
+        <div class="lx-t-sub">${escapeHtml(sub)}</div>
       </div>`;
     }).join("");
     updateDayNav(rec);
@@ -595,8 +595,9 @@
 
     if (state.monthly[start]) {
       const d = state.monthly[start];
-      els.calMonth.textContent = (d.MiladiTarihUzun || "").split(" ").slice(1, 3).join(" ")
+      const month = (d.MiladiTarihUzun || "").split(" ").slice(1, 3).join(" ")
         || new Date().toLocaleDateString("tr-TR", { month: "long", year: "numeric" });
+      els.calMonth.textContent = month ? " · " + month : "";
     }
 
     const rows = slice.map((r) => {
@@ -621,7 +622,7 @@
     }).join("");
 
     const toggleBtn = hasMore || calExpanded
-      ? `<button class="cal-toggle" id="calToggleBtn">${calExpanded ? "▲ Daha Az Göster" : "▼ Tümünü Gör (30 Gün)"}</button>`
+      ? `<button class="cal-toggle" id="calToggleBtn">${calExpanded ? "Daha az göster" : "30 günün tamamını göster"}</button>`
       : "";
 
     els.cal.innerHTML = rows + toggleBtn;
@@ -665,19 +666,18 @@
     const areaPath = "M" + pts[0][0].toFixed(1) + "," + H + " L" + line.split(" ").join(" L") +
       " L" + pts[n - 1][0].toFixed(1) + "," + H + " Z";
     const todayIdx = rows.findIndex((r) => r.MiladiTarihKisa === todayKey());
-    const todayPt = todayIdx >= 0 ? pts[todayIdx] : null;
     const fmtSpan = (mins) => Math.floor(mins / 60) + "sa " + pad(mins % 60) + "dk";
     const trend = spans[n - 1] - spans[0];
     const trendTxt = trend > 2 ? "uzuyor" : trend < -2 ? "kısalıyor" : "sabit";
 
     host.innerHTML =
-      '<svg viewBox="0 0 ' + W + " " + H + '" preserveAspectRatio="none" style="width:100%;height:74px;display:block;" aria-hidden="true">' +
-        '<path d="' + areaPath + '" fill="var(--brand-tint)"/>' +
-        '<polyline points="' + line + '" fill="none" stroke="var(--brand-soft)" stroke-width="2"/>' +
-        (todayPt ? '<circle cx="' + todayPt[0].toFixed(1) + '" cy="' + todayPt[1].toFixed(1) + '" r="3.5" fill="var(--accent)"/>' : "") +
+      '<svg viewBox="0 0 ' + W + " " + H + '" preserveAspectRatio="none" style="width:100%;height:88px;" aria-hidden="true">' +
+        '<defs><linearGradient id="nvTrendG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7c87f2" stop-opacity=".28"/><stop offset="1" stop-color="#7c87f2" stop-opacity="0"/></linearGradient></defs>' +
+        '<path d="' + areaPath + '" fill="url(#nvTrendG)"/>' +
+        '<polyline points="' + line + '" fill="none" stroke="#a5adff" stroke-width="1.5" vector-effect="non-scaling-stroke"/>' +
       "</svg>" +
-      '<div style="display:flex;justify-content:space-between;gap:10px;margin-top:8px;font-size:11px;color:var(--muted2);">' +
-        "<span>Bugün: " + escapeHtml(fmtSpan(spans[todayIdx >= 0 ? todayIdx : 0])) + "</span>" +
+      '<div class="lx-trend-meta">' +
+        "<span>Bugün <b>" + escapeHtml(fmtSpan(spans[todayIdx >= 0 ? todayIdx : 0])) + "</b></span>" +
         "<span>Bu ay " + trendTxt + "</span>" +
       "</div>";
   }
@@ -706,8 +706,7 @@
   }
   async function renderDailyVerse() {
     const panel = document.getElementById("nvVerse");
-    const strip = document.getElementById("nvVerseStrip");
-    if (!panel && !strip) return;
+    if (!panel) return;
     const todayIso = todayKey();
     try {
       const cached = JSON.parse(localStorage.getItem(VERSE_KEY) || "null");
@@ -725,31 +724,18 @@
       try { localStorage.setItem(VERSE_KEY, JSON.stringify(data)); } catch {}
       paintVerse(data);
     } catch {
-      if (panel) panel.innerHTML = "";
-      if (strip) strip.hidden = true;
+      /* Kaynak yoksa bölüm hiç görünmez — uydurma/yer tutucu metin yok */
+      const sec = panel.closest("section");
+      if (sec) sec.hidden = true;
     }
   }
-  /* Panel (aşağıdaki "Günün Ayeti" bölümü) — tam metin + kaynak.
-     Şerit (hero'da, geri sayımın altında) — kısaltılmış tek satır teaser;
-     tam metni okumak isteyen aşağıdaki panele bakar. İkisi de AYNI
-     çekilmiş veriden beslenir, ikinci bir istek atılmaz. */
   function paintVerse(d) {
     const panel = document.getElementById("nvVerse");
-    if (panel) {
-      panel.innerHTML =
-        '<p style="font-family:Georgia,\'Times New Roman\',serif;font-size:clamp(16px,3.4vw,19px);line-height:1.6;color:var(--cream);margin-bottom:10px;">"' +
-        escapeHtml(d.text) + '"</p>' +
-        '<p style="color:var(--muted2);font-size:12px;">' + escapeHtml(d.sura) + " Suresi, " + d.ayahNo +
-        ". Ayet — Diyanet İşleri Başkanlığı Meali</p>";
-    }
-    const strip = document.getElementById("nvVerseStrip");
-    if (strip) {
-      const teaser = d.text.length > 100 ? d.text.slice(0, 100).trim() + "…" : d.text;
-      strip.innerHTML =
-        '<span class="nv-verse-strip-lbl">Günün Ayeti</span>' +
-        '<span class="nv-verse-strip-txt">' + escapeHtml(teaser) + "</span>";
-      strip.hidden = false;
-    }
+    if (!panel) return;
+    panel.innerHTML =
+      '<p class="lx-quote' + (d.text.length > 200 ? " lx-quote--long" : "") + '">' + escapeHtml(d.text) + "</p>" +
+      '<p class="lx-quote-src"><b>' + escapeHtml(d.sura) + " Suresi, " + escapeHtml(d.ayahNo) +
+      ". ayet</b> · Diyanet İşleri Başkanlığı meali</p>";
   }
 
   /* ── Yakındaki camiler (Overpass / OpenStreetMap) ── */
@@ -872,7 +858,6 @@
       const dirName = compassDirName(qiblaAngle);
 
       if (els.qiblaDeg) els.qiblaDeg.textContent = `${Math.round(qiblaAngle)}°`;
-      if (els.statQibla) els.statQibla.textContent = `${Math.round(qiblaAngle)}°`;
       if (els.qiblaNeedle) els.qiblaNeedle.style.transform = `translate(-50%,-100%) rotate(${qiblaAngle}deg)`;
 
       // iOS 13+ hareket sensörü izni
@@ -882,7 +867,7 @@
           els.qiblaHint.innerHTML = `Kıble yönü kuzeyden <b>${Math.round(qiblaAngle)}°</b> (${dirName}). Pusulayı canlı döndürmek için izin gerekir.`;
         }
         if (els.qiblaPermBtn) {
-          els.qiblaPermBtn.textContent = "Pusulayı Etkinleştir";
+          els.qiblaPermBtn.textContent = "Pusulayı etkinleştir";
           els.qiblaPermBtn.onclick = async () => {
             try {
               const res = await DOE.requestPermission();
@@ -902,13 +887,6 @@
       if (els.qiblaHint) els.qiblaHint.textContent = "Konum alınamadı. Tarayıcı ayarlarından izin verin.";
       toast("Konum alınamadı.");
     }, { enableHighAccuracy: true, timeout: 10000 });
-  }
-
-  function openQiblaWidget() {
-    if (els.qiblaSecHead) els.qiblaSecHead.style.display = "flex";
-    if (els.qiblaWidget) els.qiblaWidget.style.display = "flex";
-    els.qiblaWidget.scrollIntoView({ behavior: "smooth", block: "center" });
-    if (qiblaAngle === null) findQibla();
   }
 
   /* ── Konumdan il seç ── */
@@ -975,87 +953,8 @@
   }
 
   /* ── Başlat ── */
-  /* ── Google Girişi ── */
-  function decodeJwt(token) {
-    try {
-      const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
-      const json = decodeURIComponent(
-        atob(base64).split("").map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2)).join("")
-      );
-      return JSON.parse(json);
-    } catch { return null; }
-  }
-
-  function showLoggedInUser(user) {
-    if (els.loginBtn) els.loginBtn.hidden = true;
-    if (els.gAvatarWrap) els.gAvatarWrap.hidden = false;
-    if (els.gAvatar) {
-      // Sadece http(s) resim URL'lerini kabul et (decode edilen JWT imza-doğrulanmadığı için savunma amaçlı)
-      els.gAvatar.src = /^https:\/\//.test(user.picture || "") ? user.picture : "";
-      els.gAvatar.title = `${user.name} — çıkış için dokun`;
-    }
-  }
-
-  function showLoggedOut() {
-    if (els.loginBtn) els.loginBtn.hidden = false;
-    if (els.gAvatarWrap) els.gAvatarWrap.hidden = true;
-  }
-
-  function handleCredentialResponse(response) {
-    const payload = decodeJwt(response.credential);
-    if (!payload) { toast("Giriş başarısız oldu."); return; }
-    const user = { name: payload.name, email: payload.email, picture: payload.picture };
-    try { localStorage.setItem(USER_KEY, JSON.stringify(user)); } catch {}
-    showLoggedInUser(user);
-    toast(`Hoş geldin, ${payload.given_name || payload.name}!`);
-  }
-
-  function logoutUser() {
-    try { localStorage.removeItem(USER_KEY); } catch {}
-    showLoggedOut();
-    if (window.google && google.accounts && google.accounts.id) {
-      google.accounts.id.disableAutoSelect();
-    }
-    toast("Çıkış yapıldı.");
-  }
-
-  function initGoogleAuth() {
-    if (GOOGLE_CLIENT_ID.indexOf("BURAYA_KENDI") === 0) {
-      // Client ID henüz ayarlanmamış — giriş butonu görünür ama uyarı verir
-      els.loginBtn.addEventListener("click", () =>
-        toast("Google girişi için Client ID ayarlanmalı (BURADAN-BASLA.txt'ye bak).")
-      );
-      return;
-    }
-    if (!window.google || !google.accounts || !google.accounts.id) {
-      setTimeout(initGoogleAuth, 300);
-      return;
-    }
-    google.accounts.id.initialize({
-      client_id: GOOGLE_CLIENT_ID,
-      callback: handleCredentialResponse,
-      auto_select: false,
-    });
-    google.accounts.id.renderButton(els.hiddenGoogleBtn, { theme: "outline", size: "large" });
-
-    els.loginBtn.addEventListener("click", () => {
-      const realBtn = els.hiddenGoogleBtn && els.hiddenGoogleBtn.querySelector("div[role=button]");
-      if (realBtn) realBtn.click();
-      else google.accounts.id.prompt();
-    });
-
-    // Önceki oturumu geri yükle
-    try {
-      const saved = localStorage.getItem(USER_KEY);
-      if (saved) showLoggedInUser(JSON.parse(saved));
-    } catch {}
-
-    if (els.gAvatarWrap) els.gAvatarWrap.addEventListener("click", () => {
-      if (confirm("Çıkış yapmak istiyor musun?")) logoutUser();
-    });
-  }
-
   async function init() {
+    lxSetup();
     try {
       await loadCities();
       // Sayfa belirli bir il/ilçe icin mi? (il ve ilçe sayfaları body'de data-city taşır)
@@ -1100,7 +999,7 @@
           state.distName = pageDist; // sayfanın konusu (H1/başlık) hep [İlçe] olarak kalır
           els.dist.value = dm.IlceID;
           if (usedFallback) {
-            state.districtFallbackNote = `Diyanet, ${pageDist} için ayrı vakit yayınlamıyor; ${city.SehirAdi} geneli için hesaplanan merkezi vakitler gösteriliyor.`;
+            state.districtFallbackNote = `Diyanet, ${pageDist} için ayrı vakit yayınlamıyor; ${titleTR(city.SehirAdi)} geneli için hesaplanan merkezi vakitler gösteriliyor.`;
           }
         } else {
           // 3) Hiçbir eşleşme yok — yanlış ilçenin verisini göstermek yerine
@@ -1121,12 +1020,6 @@
       showErr(e.message || "Veriler yüklenemedi. Bağlantınızı kontrol edin.");
     }
     renderFavorites();
-    nvHeader();
-    nvHero();
-    nvDash();
-    nvBands();
-    tkrBuild();
-    nvShell();
 
     els.city.addEventListener("change", (e) => onCityChange(e.target.value));
     els.dist.addEventListener("change", (e) => onDistChange(e.target.value));
@@ -1142,9 +1035,7 @@
       const selectBtn = e.target.closest(".fav-select");
       if (selectBtn) selectFavorite(selectBtn.dataset.city, selectBtn.dataset.dist);
     });
-    if (els.qiblaCard) els.qiblaCard.addEventListener("click", openQiblaWidget);
     if (els.qiblaPermBtn) els.qiblaPermBtn.addEventListener("click", findQibla);
-    initGoogleAuth();
     els.mosqueLink.addEventListener("click", () => {
       if (state.coords) {
         window.open(`https://www.google.com/maps/search/cami/@${state.coords.lat},${state.coords.lon},15z`, "_blank");
@@ -1155,171 +1046,69 @@
     });
   }
 
-  /* ══ Bilgi şeridi (hero altı ticker + compact sticky bar) ═════════════
-     - Markup burada üretilir; hiçbir HTML/SEO dosyası değişmez.
-     - Hareket tamamen CSS animasyonu; JS sadece içerik gerçekten
-       değiştiğinde (konum / gün / aktif vakit / motion tercihi) DOM'a dokunur.
-     - Geri sayım metni mevcut renderGridAndCountdown tick'inden gelir;
-       yeni bir sayaç veya interval kurulmaz. */
-  const TKR_SPEED = 26; // px/sn — yavaş, sakin akış
-  const tkrReduce = window.matchMedia("(prefers-reduced-motion: reduce)");
-  const tkr = {
-    built: false, root: null, rail: null, track: null,
-    sticky: null, sLoc: null, sNow: null, sCd: null, sig: "", hl: null,
-  };
+  /* ══ Sayfa düzeni ════════════════════════════════════════════════════
+     İskelet artık statik HTML'de (tools/migrations/2026-10-linear-redesign.js);
+     burada sadece davranış bağlanır: menüdeki geri sayım, bildirim/yazdır
+     düğmeleri, hava durumu ve reklam yuvaları. */
 
-  /* Tek bir vakit dizisi. `primary` olmayan kopyalar yalnızca kesintisiz
-     loop için vardır: ekran okuyucudan ve tab sırasından çıkarılır. */
-  function tkrSeq(rec, activeKey, place, dayLabel, primary) {
-    const div = '<span class="tkr-div" aria-hidden="true">·</span>';
-    const out = [];
-    /* Konum ve gün artık sabit satırda değil, akışın içinde: şerit tek
-       satır olduğu için bu bilgiler de kullanıcıya akarak ulaşıyor. */
-    out.push(`<span class="tkr-place">${escapeHtml(place)}</span>`, div);
-    if (dayLabel) out.push(`<span class="tkr-day">${escapeHtml(dayLabel)}</span>`, div);
-    if (activeKey) {
-      out.push(`<span class="tkr-now"><i aria-hidden="true"></i>Şu an ${escapeHtml(PRAYER_NAMES[activeKey] || "")}</span>`, div);
-    }
-    for (const p of PRAYERS) {
-      const attrs = primary
-        ? `aria-label="${escapeHtml(p.label)} vakti ${escapeHtml(rec[p.key])} — vakit kartına git"`
-        : 'tabindex="-1"';
-      /* Şeritte bakır = "şu an devam eden vakit". Şeridin kendi metni
-         ("ŞU AN …") bu anlamı açıkça yazdığı için renk tek başına
-         bilgi taşımıyor. */
-      out.push(
-        `<button type="button" class="tkr-item${activeKey === p.key ? " is-now" : ""}" data-goto="${p.key}" ${attrs}>` +
-        `<span class="tkr-lbl">${escapeHtml(p.label)}</span>` +
-        `<span class="tkr-tm">${escapeHtml(rec[p.key])}</span></button>`, div);
-    }
-    /* Kopya diziler tamamen ekran okuyucudan çıkarılır (loop artefaktı). */
-    return `<div class="tkr-seq"${primary ? "" : ' aria-hidden="true"'}>${out.join("")}</div>`;
+  /* Başlıkta gösterilen konum: ilçe sayfasında ilçe, il merkezinde il adı */
+  function placeLabel() {
+    const city = titleTR(state.cityName);
+    const dist = titleTR(state.distName);
+    if (!dist || normTR(dist) === normTR(city) || normTR(dist) === "merkez") return { short: city || "—", long: city };
+    return { short: dist, long: `${dist}, ${city}` };
   }
 
-  function tkrRender(rec, activeKey, place, dayLabel) {
-    if (tkrReduce.matches) {
-      tkr.track.style.removeProperty("--tkr-dur");
-      tkr.track.innerHTML = tkrSeq(rec, activeKey, place, dayLabel, true);
-      tkr.rail.scrollLeft = 0;
-      return;
+  /* Hero ekrandan çıkınca menüde küçük bir geri sayım belirir */
+  function navSync(next, cdText) {
+    if (!els.navCd) return;
+    const html = next ? `<i></i>${escapeHtml(next.label)} <b>${escapeHtml(cdText)}</b>` : "";
+    if (navSync._h !== html) { navSync._h = html; els.navCd.innerHTML = html; }
+  }
+
+  function lxSetup() {
+    const nav = document.querySelector(".lx-nav");
+    const title = document.querySelector(".lx-title");
+    if (nav && title && "IntersectionObserver" in window) {
+      new IntersectionObserver((ents) => nav.classList.toggle("is-scrolled", !ents[0].isIntersecting),
+        { rootMargin: "-64px 0px 0px 0px" }).observe(title);
     }
-    // 1) Bir diziyi ölç
-    tkr.track.innerHTML = tkrSeq(rec, activeKey, place, dayLabel, true);
-    const seqW = tkr.track.firstElementChild ? tkr.track.firstElementChild.offsetWidth : 0;
-    /* Ölçüm alınamadıysa (henüz layout yok) tek dizi kalır ve loop dikişi
-       tutmaz → imzayı sıfırla ki bir sonraki tick tekrar denesin. */
-    if (!seqW) { tkr.sig = ""; return; }
-    // 2) Track'in yarısı rail'i doldurmalı, yoksa loop başında boşluk oluşur
-    const k = Math.max(1, Math.ceil((tkr.rail.clientWidth || seqW) / seqW) + 1);
-    let html = tkrSeq(rec, activeKey, place, dayLabel, true);
-    for (let i = 1; i < k * 2; i++) html += tkrSeq(rec, activeKey, place, dayLabel, false);
-    tkr.track.innerHTML = html;
-    // 3) Süre genişliğe göre → her ekranda aynı, sabit px/sn hız
-    tkr.track.style.setProperty("--tkr-dur", ((k * seqW) / TKR_SPEED).toFixed(1) + "s");
-  }
 
-  function tkrGoto(key) {
-    const card = els.grid && els.grid.querySelector('.p-card[data-prayer="' + key + '"]');
-    if (!card) return;
-    card.scrollIntoView({ behavior: tkrReduce.matches ? "auto" : "smooth", block: "center" });
-    try { card.focus({ preventScroll: true }); } catch { card.focus(); }
-    card.classList.add("p-card--target");
-    clearTimeout(tkr.hl);
-    tkr.hl = setTimeout(() => card.classList.remove("p-card--target"), 1800);
-  }
+    if (els.notifBtn) {
+      if (loadNotifPref() && typeof Notification !== "undefined" && Notification.permission === "granted") {
+        els.notifBtn.classList.add("is-on");
+      }
+      els.notifBtn.addEventListener("click", () => toggleNotifications(els.notifBtn));
+    }
 
-  function tkrBuild() {
-    if (tkr.built || !els.hero || !els.hero.parentNode) return;
-    tkr.built = true;
-
-    const sec = document.createElement("section");
-    sec.className = "tkr";
-    sec.id = "tickerBar";
-    sec.hidden = true;
-    sec.setAttribute("aria-label", "Namaz vakitleri şeridi");
-    /* Tek satır: solda sabit CANLI göstergesi, sağda tam genişlikte akış.
-       .tkr-inner kaldırıldı — şerit artık --container'a takılmıyor. */
-    sec.innerHTML =
-      '<div class="tkr-live"><i aria-hidden="true"></i>Canlı</div>' +
-      '<div class="tkr-rail"><div class="tkr-track"></div></div>';
-    /* Şerit sayfanın EN ÜSTÜNDE olmalı — header/hero'nun bile önünde.
-       .wrap'in ilk elemanı olarak eklenir (nvHeader() bu noktada zaten
-       çalışmış olabilir; firstElementChild o zaman header'dır). */
-    const wrap = els.hero.parentNode;
-    wrap.insertBefore(sec, wrap.firstElementChild);
-
-    /* Compact sticky bar — sayfadaki bilgiyi tekrarladığı ve etkileşimli
-       öğe içermediği için ekran okuyucudan gizli. */
-    const bar = document.createElement("div");
-    bar.className = "tkr-sticky";
-    bar.setAttribute("aria-hidden", "true");
-    bar.innerHTML =
-      '<div class="tkr-sticky-inner">' +
-        '<span class="tkr-s-brand">Namaz Vakitleri</span>' +
-        '<span class="tkr-sep tkr-s-sep">·</span>' +
-        '<span class="tkr-s-loc"></span>' +
-        '<span class="tkr-s-now"><i></i><span class="tkr-s-now-lbl"></span></span>' +
-        '<span class="tkr-sep">·</span>' +
-        '<span class="tkr-s-cd">--:--:--</span>' +
-      '</div>';
-    document.body.appendChild(bar);
-
-    tkr.root = sec;
-    tkr.rail = sec.querySelector(".tkr-rail");
-    tkr.track = sec.querySelector(".tkr-track");
-    tkr.sticky = bar;
-    tkr.sLoc = bar.querySelector(".tkr-s-loc");
-    tkr.sNow = bar.querySelector(".tkr-s-now-lbl");
-    tkr.sCd = bar.querySelector(".tkr-s-cd");
-
-    tkr.rail.addEventListener("click", (e) => {
-      const btn = e.target.closest("[data-goto]");
-      if (btn) tkrGoto(btn.dataset.goto);
+    if (els.calPrint) els.calPrint.addEventListener("click", () => {
+      if (els.calPrintTitle) els.calPrintTitle.textContent = placeLabel().long + " — İmsakiye";
+      calExpanded = true;
+      renderCalendar();
+      window.print();
     });
 
-    /* Klavyeyle gezinirken tarayıcı, odaklanan butonu görünür kılmak için
-       rail'i kaydırır (doğru davranış; animasyon focus-within ile duruyor).
-       Odak şeritten ayrılınca kaydırmayı sıfırla, yoksa loop kalıcı kayar.
-       Hareket azaltma modunda rail'i kullanıcı kaydırıyor → dokunma. */
-    tkr.rail.addEventListener("focusout", (e) => {
-      if (tkrReduce.matches) return;
-      if (!e.relatedTarget || !tkr.rail.contains(e.relatedTarget)) tkr.rail.scrollLeft = 0;
+    // Boş durumlardaki "Konumumu kullan" düğmeleri
+    document.addEventListener("click", (e) => {
+      if (e.target.closest("[data-locate]")) locateAndSelect();
     });
 
-    // Şerit ekranda değilken animasyonu durdur (pil/CPU)
-    if ("IntersectionObserver" in window) {
-      new IntersectionObserver((ents) => {
-        sec.classList.toggle("is-paused", !ents[0].isIntersecting);
-      }, { threshold: 0 }).observe(sec);
-    }
+    /* Reklamlar: içerik ile footer arasında yatay bant; çok geniş ekranda
+       (≥1560px) içerik kolonunun iki yanında sabit dikey birimler. */
+    const foot = document.querySelector(".lx-foot");
+    if (foot) foot.parentNode.insertBefore(nvAdSlot("bar"), foot);
+    ["l", "r"].forEach((side) => {
+      const ad = nvAdSlot("side");
+      ad.classList.add("is-" + side);
+      document.body.appendChild(ad);
+    });
 
-    let queued = false;
-    const onScroll = () => {
-      queued = false;
-      bar.classList.toggle("is-on", !sec.hidden && sec.getBoundingClientRect().bottom < 0);
-    };
-    window.addEventListener("scroll", () => {
-      if (!queued) { queued = true; requestAnimationFrame(onScroll); }
-    }, { passive: true });
-
-    /* Genişlik veya motion tercihi değişince kopya sayısı ve süre yeniden
-       hesaplanmalı: imzayı sıfırla, bir sonraki tick yeniden kurar. */
-    const invalidate = () => { tkr.sig = ""; };
-    window.addEventListener("resize", invalidate, { passive: true });
-    if (tkrReduce.addEventListener) tkrReduce.addEventListener("change", invalidate);
-    else if (tkrReduce.addListener) tkrReduce.addListener(invalidate);
+    renderDailyVerse();
   }
 
-  /* ══ Sayfa kabuğu — reklam kolonları ═══════════════════════════════
-     Şeridin ALTINDAKİ her şeyi (h1, breadcrumb, body-pad) 3 kolonlu bir
-     grid'in orta sütununa TAŞIR. Düğümler yeniden üretilmez, sadece yer
-     değiştirir; bu yüzden mevcut event listener'lar ve element
-     referansları (els.*) aynen çalışmaya devam eder.
-     Reklamlar yalnızca ≥1400px'de görünür (CSS, yan sütunlar); alt bar
-     her genişlikte. ads.txt ve legacy statik sayfalarda (hakkimizda vb.)
-     zaten kullanılan gerçek AdSense yayıncı kimliği burada da kullanılır —
-     yeni bir hesap/onay gerekmez. Doldurulamayan (onay bekleyen/envanter
-     yok) slotlar kırık kutu göstermek yerine tamamen gizlenir. */
+  /* ── Reklam yuvaları ──
+     Doldurulamayan (onay bekleyen/envanter yok) slotlar kırık kutu
+     göstermek yerine tamamen gizlenir. */
   const AD_CLIENT = "ca-pub-4283080394775837";
   const AD_SLOT = "7676950354";
   let adsenseScriptRequested = false;
@@ -1369,103 +1158,20 @@
     });
     return d;
   }
-  /* Header: marka (sol) · konum seçici (orta) · aksiyonlar (sağ).
-     Mevcut .topbar içeriği ve .selectors buraya TAŞINIR. */
-  let nvHeaderBuilt = false;
-  function nvHeader() {
-    if (nvHeaderBuilt) return;
-    const wrap = document.querySelector(".wrap");
-    const heroEl = els.hero;
-    if (!wrap || !heroEl) return;
-    const topbar = heroEl.querySelector(".topbar");
-    const brand = topbar && topbar.querySelector(".brand");
-    const actions = topbar && topbar.querySelector(".top-actions");
-    const sel = heroEl.querySelector(".selectors");
-    if (!topbar || !brand || !actions || !sel) return;
-    nvHeaderBuilt = true;
 
-    const h = document.createElement("header");
-    h.className = "nv-header";
-    h.append(brand, sel, actions);          // düğüm taşıma
-    wrap.insertBefore(h, heroEl);
-    topbar.remove();                        // artık boş
-  }
-
-  /* Hero: sol (konum + tarih) · orta (sıradaki vakit + geri sayım) ·
-     sağ (aksiyonlar). H1 sol kolona "eyebrow" olarak taşınır — sayfada
-     tek H1 kalır, SEO metni birebir korunur. */
-  let nvHeroBuilt = false;
-  function nvHero() {
-    if (nvHeroBuilt) return;
-    const inner = els.hero && els.hero.querySelector(".hero-inner");
-    const cd = inner && inner.querySelector(".cd-card");
-    const loc = inner && inner.querySelector(".hero-loc");
-    const meta = inner && inner.querySelector(".hero-meta");
-    if (!inner || !cd || !loc || !meta) return;
-    nvHeroBuilt = true;
-
-    const left = document.createElement("div");
-    left.className = "nv-hero-l";
-    const h1 = document.querySelector(".nv-main > h1, .wrap > h1");
-    if (h1) { h1.classList.add("nv-eyebrow"); left.appendChild(h1); }
-    left.append(loc, meta);
-
-    /* Sıradaki vaktin ADI kendi satırında (referanstaki hiyerarşi) */
-    const name = document.createElement("div");
-    name.className = "nv-next";
-    cd.insertBefore(name, cd.querySelector(".cd-row"));
-
-    const right = document.createElement("div");
-    right.className = "nv-hero-r";
-    right.innerHTML =
-      '<button type="button" class="nv-hbtn" data-nv="city">' +
-        '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.3"/></svg>' +
-        "<span>Şehri Değiştir</span></button>" +
-      '<button type="button" class="nv-hbtn" data-nv="fav">' +
-        '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.8L12 3.5Z"/></svg>' +
-        "<span>Favorilere Ekle</span></button>" +
-      '<button type="button" class="nv-hbtn" data-nv="notif">' +
-        '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 4.5 1.5 6 2 7H4c.5-1 2-2.5 2-7Z"/><path d="M9.5 18a2.5 2.5 0 0 0 5 0"/></svg>' +
-        '<span class="nv-notif-lbl">Ezan Bildirimi</span></button>';
-    if (loadNotifPref() && typeof Notification !== "undefined" && Notification.permission === "granted") {
-      right.querySelector('[data-nv="notif"]').classList.add("is-on");
-    }
-    /* Mevcut kontrollere delege eder — ikinci bir mantık yazılmaz */
-    right.addEventListener("click", (e) => {
-      const b = e.target.closest("[data-nv]");
-      if (!b) return;
-      if (b.dataset.nv === "fav") { els.favBtn && els.favBtn.click(); return; }
-      if (b.dataset.nv === "notif") { toggleNotifications(b); return; }
-      const s = els.city;
-      if (!s) return;
-      s.focus();
-      try { if (typeof s.showPicker === "function") s.showPicker(); } catch {}
-    });
-
-    const verseStrip = document.createElement("div");
-    verseStrip.id = "nvVerseStrip";
-    verseStrip.className = "nv-verse-strip";
-    verseStrip.hidden = true;
-
-    inner.append(left, cd, right, verseStrip);
-    nvHeroNext = name;
-  }
-  let nvHeroNext = null;
-
-  /* ══ Dashboard ═════════════════════════════════════════════════════
-     Tek tip kart galerisi DEĞİL: dört ayrı yüzey dili
-       tool      → kıble (araç paneli)
-       list      → camiler, favoriler
-       data      → aylık takvim (veri tablosu)
-       editorial → dua, SSS (zeminsiz, tipografik)                     */
-  /* Kalan gün YALNIZCA Diyanet'in hicri tarihinden hesaplanır. Hicri alan
-     yoksa veya ay adı tanınmazsa hiçbir şey gösterilmez (uydurma yok). */
   function renderRamadanCountdown(hijriLong, isRamadan) {
     const box = document.getElementById("nvRamadan");
     if (!box) return;
     const h = isRamadan ? null : parseHijri(hijriLong);
     const n = h ? daysToRamadan(h) : null;
-    if (!n) { box.classList.remove("is-on"); box.textContent = ""; return; }
+    if (!n) {
+      /* Ramazan içindeyken banner konuşur; hicri tarih okunamadıysa uydurma
+         sayı yerine bunu açıkça söyle */
+      if (isRamadan || !hijriLong) { box.classList.remove("is-on"); box.textContent = ""; return; }
+      box.innerHTML = '<p class="nv-ram-s">Hicri tarih okunamadığı için hesaplanamadı.</p>';
+      box.classList.add("is-on");
+      return;
+    }
     box.textContent = "";
     const row = document.createElement("div");
     row.innerHTML = '<span class="nv-ram-n"></span><span class="nv-ram-u">gün kaldı</span>';
@@ -1478,22 +1184,8 @@
     box.classList.add("is-on");
   }
 
-  /* ══ Veri sağlayıcı adaptörleri ═══════════════════════════════════
-     Sözleşme:
-       financeProvider() → null  (kaynak yok)
-                         | [{ key, label, value, change }]
-                           value: gösterilecek METİN (biçimlendirilmiş)
-                           change: sayı (yüzde) | null
-       weatherProvider(city, dist) → null
-                         | { temp:Number, desc:String, updated:String }
-     financeProvider hâlâ BİLİNÇLİ olarak null döner: bağlı bir finans veri
-     kaynağı yok ve uydurma değer gösterilmeyecek — bant o zaman hiç
-     çizilmez. weatherProvider ise Open-Meteo'ya (anahtarsız, ücretsiz)
-     bağlıdır; kaynağa ulaşılamazsa yine null döner, sahte değer basılmaz. */
-  async function financeProvider() {
-    return null;
-  }
 
+  /* ── Hava durumu (menüde küçük gösterge) ── */
   /* Open-Meteo: anahtar gerektirmeyen, ücretsiz, CORS destekli geocoding +
      hava durumu servisi. Seçili il/ilçe ADINA göre konum bulunur (cihaz
      konumu değil — kullanıcı Ankara sayfasındayken fizik olarak başka
@@ -1591,289 +1283,19 @@
     } catch { return null; }
   }
 
-  const FIN_ORDER = [
-    { key: "EUR", label: "EURO" },
-    { key: "USD", label: "DOLAR" },
-    { key: "GBP", label: "STERLİN" },
-    { key: "XAU", label: "GRAM ALTIN" },
-  ];
 
-  function nvBandEl(id, kind, label) {
-    let b = document.getElementById(id);
-    if (b) return b;
-    b = document.createElement("aside");
-    b.id = id;
-    b.className = "nv-band nv-band--" + kind;
-    b.hidden = true;
-    b.innerHTML = '<div class="nv-band-in"><span class="nv-band-lbl"></span>' +
-      '<div class="nv-band-c"></div><span class="nv-band-src"></span></div>';
-    b.querySelector(".nv-band-lbl").textContent = label;
-    return b;
-  }
-
-  function nvNum(n) {
-    return (n > 0 ? "+" : "") + n.toLocaleString("tr-TR", { maximumFractionDigits: 2 }) + "%";
-  }
-
-  async function renderFinanceBand() {
-    const b = document.getElementById("nvFinance");
-    if (!b) return;
-    let data = null;
-    try { data = await financeProvider(); } catch { data = null; }
-    if (!Array.isArray(data) || !data.length) { b.hidden = true; return; }
-    const by = {};
-    data.forEach((d) => { if (d && d.key) by[d.key] = d; });
-    const c = b.querySelector(".nv-band-c");
-    c.textContent = "";
-    /* Sıra sabittir: EURO → DOLAR → STERLİN → GRAM ALTIN.
-       Kaynakta olmayan kalem hiç basılmaz (yer tutucu değer yok). */
-    FIN_ORDER.forEach((f) => {
-      const d = by[f.key];
-      if (!d || d.value == null || d.value === "") return;
-      const it = document.createElement("span");
-      it.className = "nv-bi";
-      const k = document.createElement("span"); k.className = "nv-bi-k"; k.textContent = f.label;
-      const v = document.createElement("span"); v.className = "nv-bi-v"; v.textContent = d.value;
-      it.append(k, v);
-      if (typeof d.change === "number" && isFinite(d.change)) {
-        const ch = document.createElement("span");
-        ch.className = "nv-bi-c " + (d.change < 0 ? "is-dn" : "is-up");
-        ch.textContent = nvNum(d.change);
-        it.appendChild(ch);
-      }
-      c.appendChild(it);
-    });
-    const src = b.querySelector(".nv-band-src");
-    src.textContent = data.updated ? "Güncelleme · " + data.updated : "";
-    b.hidden = !c.childElementCount;
-  }
-
-  /* Hava durumu artık body-pad'de yatay bir bant değil, hero/header'daki
-     küçük KARE bir rozet — konum/giriş butonlarıyla aynı boyut/dil
-     (bkz. .nv-wx-tile). İkon WMO koduna göre seçilir (wxIconSvg). */
   async function renderWeatherTile() {
     const b = document.getElementById("nvWxTile");
     if (!b) return;
     let d = null;
     try { d = await weatherProvider(state.cityName, state.distName); } catch { d = null; }
     if (!d || typeof d.temp !== "number" || !isFinite(d.temp)) { b.hidden = true; return; }
-    b.innerHTML = wxIconSvg(d.code) + '<span class="nv-wx-tile-t">' + Math.round(d.temp) + "°</span>";
-    const locTxt = [state.cityName, state.distName].filter(Boolean).join(" · ");
-    b.title = locTxt + (d.desc ? " · " + d.desc : "") + (d.updated ? " · Güncelleme " + d.updated : "");
-    b.setAttribute("aria-label", "Hava durumu: " + b.title);
+    const html = wxIconSvg(d.code) + "<span>" + Math.round(d.temp) + "°</span>";
+    if (b.innerHTML !== html) b.innerHTML = html;
+    const t = placeLabel().long + (d.desc ? " · " + d.desc : "") + (d.updated ? " · güncelleme " + d.updated : "");
+    b.title = t;
+    b.setAttribute("aria-label", "Hava durumu: " + t);
     b.hidden = false;
-  }
-
-  /* Üstte finans bandı (şu an kaynaksız, hep gizli). Hava durumu ise
-     header'daki top-actions'a küçük kare bir rozet olarak eklenir. */
-  let nvBandsBuilt = false;
-  function nvBands() {
-    if (nvBandsBuilt) return;
-    const pad = document.querySelector(".body-pad");
-    const actions = document.querySelector(".nv-header .top-actions");
-    if (!pad || !actions) return;
-    nvBandsBuilt = true;
-    pad.prepend(nvBandEl("nvFinance", "fin", "Piyasa"));
-    renderFinanceBand();
-
-    const tile = document.createElement("div");
-    tile.id = "nvWxTile"; tile.className = "nv-wx-tile"; tile.hidden = true;
-    actions.insertBefore(tile, actions.firstChild);
-    renderWeatherTile();
-  }
-
-  let nvDashBuilt = false;
-  function nvPanel(kind, title, nodes, link) {
-    const p = document.createElement("section");
-    p.className = "nv-panel nv-panel--" + kind;
-    if (title) {
-      const h = document.createElement("div");
-      h.className = "nv-panel-h";
-      h.innerHTML = '<span class="nv-panel-t">' + escapeHtml(title) + "</span>";
-      if (link) h.appendChild(link);
-      p.appendChild(h);
-    }
-    const b = document.createElement("div");
-    b.className = "nv-panel-b";
-    nodes.filter(Boolean).forEach((n) => b.appendChild(n));
-    p.appendChild(b);
-    return p;
-  }
-  /* Bir .sec-head + ardından gelen içerik düğümlerini bulur */
-  function nvSection(contentSel) {
-    const c = document.querySelector(contentSel);
-    if (!c) return null;
-    const head = c.previousElementSibling && c.previousElementSibling.classList.contains("sec-head")
-      ? c.previousElementSibling : null;
-    const title = head ? (head.querySelector(".sec-title") || {}).textContent : "";
-    const link = head ? head.querySelector(".sec-link") : null;
-    if (head) head.remove();
-    return { node: c, title: (title || "").trim(), link };
-  }
-
-  function nvDash() {
-    if (nvDashBuilt) return;
-    const pad = document.querySelector(".body-pad");
-    if (!pad) return;
-    nvDashBuilt = true;
-
-    const dash = document.createElement("div"); dash.className = "nv-dash";
-    const sub = document.createElement("div"); sub.className = "nv-sub";
-
-    /* 1) KIBLE — araç paneli. Widget artık baştan görünür (referanstaki
-          gibi pusula + derece + "Kıbleyi Bul"). openQiblaWidget() hâlâ
-          çalışır; sadece gizli başlamıyor. */
-    const qHead = els.qiblaSecHead, qw = els.qiblaWidget;
-    if (qHead) qHead.remove();
-    if (qw) { qw.style.display = "flex"; dash.appendChild(nvPanel("tool", "Kıble Yönü", [qw])); }
-
-    /* 2) HİCRİ — mevcut stat-card'lar taşınır (JS onları güncellemeye
-          devam eder). Kıble stat-card'ı artık gereksiz: gizlenir. */
-    const statRow = document.querySelector(".stat-row");
-    if (statRow) {
-      const hicri = statRow.querySelector(".stat-card:not(.stat-clickable):not([id])");
-      if (els.qiblaCard) els.qiblaCard.style.display = "none";
-      const calLink = document.createElement("button");
-      calLink.type = "button"; calLink.className = "nv-plink"; calLink.textContent = "Tüm Takvimi Gör";
-      calLink.addEventListener("click", () => {
-        const t = document.getElementById("calBody");
-        if (t) t.scrollIntoView({ behavior: tkrReduce.matches ? "auto" : "smooth", block: "center" });
-      });
-      dash.appendChild(nvPanel("info", "Hicri Takvim", [hicri, els.fridayCard], calLink));
-      statRow.remove();
-    }
-
-    /* 3) CAMİLER — liste */
-    const mos = nvSection("#mosqueList");
-    if (mos) dash.appendChild(nvPanel("list", mos.title || "Yakın Camiler", [mos.node], mos.link));
-
-    /* 4) DUA — editoryal */
-    const dua = nvSection(".dua-grid");
-    if (dua) dash.appendChild(nvPanel("editorial", dua.title || "Dua Vakitleri", [dua.node]));
-
-    /* 5) RAMAZAN — mevcut banner + hicri tarihten türetilen gün sayısı */
-    const ram = document.createElement("div");
-    ram.className = "nv-ram"; ram.id = "nvRamadan";
-    if (els.ramadanBanner) { els.ramadanBanner.classList.add("nv-ram-banner"); }
-    const ramPanel = nvPanel("info", "Ramazan", [ram, els.ramadanBanner]);
-
-    /* ── ikinci sıra ── */
-    sub.appendChild(ramPanel);
-    const fav = nvSection(".fav-list");
-    if (fav) sub.appendChild(nvPanel("list", fav.title || "Favori Konumlarım", [fav.node]));
-
-    const calHead = document.querySelector(".cal-head");
-    const calBody = document.getElementById("calBody");
-    if (calBody) {
-      const h = calHead && calHead.previousElementSibling && calHead.previousElementSibling.classList.contains("sec-head")
-        ? calHead.previousElementSibling : null;
-      const t = h ? (h.querySelector(".sec-title") || {}).textContent : "Aylık Vakitler";
-      const meta = h ? h.querySelector(".sec-meta") : null;
-      if (h) h.remove();
-      const calPanel = nvPanel("data", (t || "Aylık Vakitler").trim(), [calHead, calBody], meta);
-      calPanel.classList.add("nv-panel--calendar");
-      const printTitle = document.createElement("div");
-      printTitle.className = "nv-print-title";
-      calPanel.querySelector(".nv-panel-b").prepend(printTitle);
-      const printBtn = document.createElement("button");
-      printBtn.type = "button"; printBtn.className = "nv-plink"; printBtn.textContent = "Yazdır";
-      printBtn.addEventListener("click", () => {
-        printTitle.textContent = [state.cityName, state.distName].filter(Boolean).join(" · ") + " — İmsakiye";
-        calExpanded = true;
-        renderCalendar();
-        window.print();
-      });
-      calPanel.querySelector(".nv-panel-h").appendChild(printBtn);
-      sub.appendChild(calPanel);
-    }
-
-    /* Mevsimsel trend — zaten çekilmiş olan aylık veriden türetilir,
-       ek bir istek atılmaz. renderTrendChart() veriyi loadTimes() sonrası
-       doldurur; burada sadece boş kap oluşturulur. */
-    const trendHost = document.createElement("div");
-    trendHost.id = "nvTrend";
-    const trendPanel = nvPanel("data", "İmsak–Yatsı Aralığı", [trendHost]);
-    trendPanel.classList.add("nv-panel--trend");
-    sub.appendChild(trendPanel);
-
-    /* Günün Ayeti — Diyanet meali, api.alquran.cloud üzerinden canlı çekilir
-       (metin ezbere/uydurma değil). renderDailyVerse() dolduruyor. */
-    const verseHost = document.createElement("div");
-    verseHost.id = "nvVerse";
-    verseHost.innerHTML = '<p style="color:var(--muted2);font-size:13px;">Yükleniyor…</p>';
-    sub.appendChild(nvPanel("editorial", "Günün Ayeti", [verseHost]));
-
-    const cities = nvSection(".city-links");
-    if (cities) sub.appendChild(nvPanel("editorial", cities.title || "Popüler Şehirler", [cities.node], cities.link));
-
-    const faq = nvSection(".faq-wrap");
-    if (faq) sub.appendChild(nvPanel("editorial", faq.title || "Sık Sorulan Sorular", [faq.node]));
-
-    /* two-col boşaldıysa kaldırılır. İçinde metinsiz sarmalayıcı div'ler
-       kalabildiği için varlık değil GERÇEK İÇERİK kontrolü yapılır. */
-    const tc = document.querySelector(".two-col");
-    if (tc && !tc.textContent.trim() && !tc.querySelector("img,svg,input,select,button,a")) tc.remove();
-
-    pad.append(dash, sub);
-    renderTrendChart(); // #nvTrend artık gerçek DOM'a eklendi — burada çalışmalı
-    renderDailyVerse(); // #nvVerse artık gerçek DOM'a eklendi — burada çalışmalı
-  }
-
-  let nvShellBuilt = false;
-  function nvShell() {
-    if (nvShellBuilt) return;
-    const wrap = document.querySelector(".wrap");
-    const foot = wrap && wrap.querySelector(":scope > footer");
-    const tkrEl = document.getElementById("tickerBar");
-    if (!wrap || !foot || !tkrEl) return;
-    nvShellBuilt = true;
-
-    const shell = document.createElement("div");
-    shell.className = "nv-shell";
-    const main = document.createElement("div");
-    main.className = "nv-main";
-    shell.append(nvAdSlot("side", "160 × 600"), main, nvAdSlot("side", "160 × 600"));
-
-    /* Masthead (şerit + header + hero) ile footer arasındaki her şeyi orta
-       sütuna taşı. Şerit artık hero'nun ÖNÜNDE olduğu için sınır hero'nun
-       kendisinden hesaplanır — tkrEl'in DOM'daki yeri artık önemli değil. */
-    const moved = [];
-    for (let n = els.hero.nextElementSibling; n && n !== foot; n = n.nextElementSibling) moved.push(n);
-    wrap.insertBefore(shell, foot);
-    moved.forEach((n) => main.appendChild(n));
-
-    /* Alt yatay reklam — ana içerikten sonra, footer'dan önce */
-    const bar = nvAdSlot("bar", "728 × 90");
-    wrap.insertBefore(bar, foot);
-  }
-
-  function tkrSync(current, cdText) {
-    if (!tkr.built) tkrBuild();
-    if (!tkr.root) return;
-    const rec = getDayRecord(state.dayOffset);
-    if (!rec || !state.cityName || !state.distName) {
-      tkr.root.hidden = true;
-      tkr.sticky.classList.remove("is-on");
-      tkr.sig = "";
-      return;
-    }
-    tkr.root.hidden = false;
-    /* Gece yarısı ile imsak arasında bugünün hiçbir vakti henüz girmemiştir;
-       fiilen devam eden vakit yatsıdır. */
-    const liveKey = current ? current.key : "Yatsi";
-    // Dün/yarın görüntülenirken "şu an" vurgusu yanıltıcı olur → kullanılmaz.
-    const activeKey = state.dayOffset === 0 ? liveKey : null;
-    const sig = [state.distId, state.cityName, state.distName, state.dayOffset,
-      rec.MiladiTarihKisa, activeKey, tkrReduce.matches ? 1 : 0].join("|");
-    if (sig !== tkr.sig) {
-      tkr.sig = sig;
-      const place = state.distName + " / " + state.cityName;
-      tkr.sLoc.textContent = place;
-      tkrRender(rec, activeKey, place, dayLabelFor(state.dayOffset, rec));
-    }
-    const nowLbl = PRAYER_NAMES[liveKey] || "";
-    if (tkr.sNow.textContent !== nowLbl) tkr.sNow.textContent = nowLbl;
-    if (tkr.sCd.textContent !== cdText) tkr.sCd.textContent = cdText;
   }
 
   // Service worker
