@@ -17,7 +17,7 @@ const ROOT = path.join(__dirname, "..");
 const dataset = require("./data/turkey-il-ilce.json");
 
 const BASE = "https://namazvakiti.net";
-const STATIC_PAGES = ["gizlilik.html", "hakkimizda.html", "iletisim.html", "kullanim.html", "namaz-vakitleri-nasil-hesaplanir.html", "sehirler.html"];
+const STATIC_PAGES = ["gizlilik.html", "hakkimizda.html", "hicri-takvim.html", "iletisim.html", "kaza-namazi-hesaplama.html", "kible-yonu-bulma.html", "kullanim.html", "namaz-vakitleri-nasil-hesaplanir.html", "sehirler.html"];
 
 const entries = []; // {slug, url}
 entries.push({ sortKey: "", url: `${BASE}/` });

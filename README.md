@@ -25,7 +25,7 @@ NamazVakti.net, Diyanet İşleri Başkanlığı kaynaklı namaz vakti verisini i
 - **PWA desteği** — service worker ile temel çevrimdışı kabuk önbellekleme.
 - **Google Analytics 4** entegrasyonu.
 - **Güvenlik header'ları** — Content-Security-Policy, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, Strict-Transport-Security (bkz. [`_headers`](_headers)).
-- **Cloudflare Pages deployment'a hazır** statik site mimarisi.
+- **Cloudflare Workers üzerinde** yayınlanan statik site mimarisi.
 
 ## Tech Stack
 
@@ -33,7 +33,7 @@ NamazVakti.net, Diyanet İşleri Başkanlığı kaynaklı namaz vakti verisini i
 - **Build/otomasyon tooling:** Node.js (sadece `tools/` altındaki geliştirme script'leri için — sitenin kendisi build gerektirmez, doğrudan statik dosyalardır).
 - **Veri kaynağı:** [Diyanet İşleri Başkanlığı vakit API'si](https://ezanvakti.emushaf.net) (gayriresmî halka açık wrapper), il/ilçe idari referans verisi için [api.turkiyeapi.dev](https://api.turkiyeapi.dev).
 - **Konum/harita servisleri:** OpenStreetMap Nominatim (ters coğrafi kodlama) ve Overpass API (yakındaki camiler).
-- **Hosting:** Cloudflare Pages (migration devam ediyor — mevcut durum için bkz. [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)).
+- **Hosting:** Cloudflare Workers (statik dosya), GitHub push'u ile otomatik yayın — bkz. [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
 - **Analytics:** Google Analytics 4.
 
 ## Architecture
@@ -121,7 +121,7 @@ node tools/quality-gate.js
 
 ## Deployment
 
-Bkz. [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) — Cloudflare Pages'e geçiş süreci ve mevcut durum orada detaylandırılmıştır.
+Bkz. [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) — yayın akışı, Cloudflare ayarları ve dikkat edilecek noktalar.
 
 ## Project Structure
 

@@ -1,48 +1,48 @@
 # Deployment
 
-Bu doküman, projenin dağıtım (deployment) akışını ve mevcut migration durumunu açıklar. Hiçbir kimlik bilgisi/secret bu dosyada bulunmaz.
+Bu doküman sitenin nasıl yayınlandığını anlatır. Hiçbir kimlik bilgisi/secret bu dosyada bulunmaz.
 
-## Hedef Mimari
+## Mimari
 
 ```
-Local geliştirme
+Yerel geliştirme (Windows veya macOS)
+      ↓  git push origin main
+GitHub — yclpixels/namazvakiti (public)
+      ↓  Cloudflare Workers Builds (otomatik, ~1 dk)
+Cloudflare Worker "namazvakiti" (yalnızca statik dosya / assets-only)
       ↓
-GitHub (kaynak kontrol + sürüm geçmişi)
-      ↓
-Cloudflare Pages (build/hosting)
-      ↓
-Cloudflare DNS (namazvakiti.net)
+namazvakiti.net + www.namazvakiti.net (Worker Custom Domain)
 ```
 
-## Mevcut Durum
+Netlify artık kullanılmıyor. DNS ve nameserver'lar Cloudflare'de.
 
-> Bu bölüm, migration ilerledikçe güncellenmelidir.
+## Yayınlama
 
-- **Kaynak kontrol:** Proje bu depoda Git ile takip ediliyor.
-- **Hosting (mevcut/geçiş öncesi):** Netlify (`namazvakiti.net` şu an Netlify üzerinden servis ediliyor).
-- **Hosting (hedef):** Cloudflare Pages.
-- **DNS (mevcut):** Nameserver bilgisi için domain registrar panelini kontrol edin.
-- **DNS (hedef):** Cloudflare DNS.
+`main` dalına yapılan her push otomatik yayınlanır. Build adımı yoktur — repo kökü olduğu gibi statik dosya olarak sunulur. Repoda `wrangler.jsonc` yok; Cloudflare projeyi otomatik algılıyor. Bir Worker script'i eklemek gerekirse config'deki `name` mutlaka `namazvakiti` olmalı, yoksa yeni bir Worker oluşur.
 
-Netlify, Cloudflare Pages tam olarak doğrulanana ve DNS kesintisiz şekilde geçirilene kadar **kesintiye uğratılmaz** — bu, kasıtlı bir güvenlik önlemidir (site kesintisi riski minimize edilir).
+Yayını doğrulamak için canlıda önbelleği atlayan bir sorgu ekleyin, ör. `curl -sI "https://namazvakiti.net/?nc=123"`.
 
-## Build
+## Hosting-seviyesi dosyalar
 
-Bu proje bir **statik site**'dir — build adımı gerekmez. Cloudflare Pages yapılandırmasında:
+- **`_headers`** — güvenlik header'ları (CSP dahil) ve cache kuralları. Yeni bir dış API'ye `fetch` eklerseniz domain'ini CSP `connect-src` listesine eklemeyi unutmayın; yoksa istek canlıda sessizce engellenir (yerel dev sunucusu `_headers` uygulamadığı için yerelde fark edilmez).
+- **`_redirects`** — 301 yönlendirmeleri. `wrangler dev` ile yerelde test edilebilir. Türkçe karakter içeren kaynak yollar (ör. `/samsun/tekkeköy/`) yerelde çalışır ama canlıda eşleşmez.
+- **`.assetsignore`** — `.git`, `tools/`, `docs/`, `.claude/`, README gibi dosyaların herkese açık sunulmasını engeller. Kökte yayınlanmaması gereken yeni bir klasör/dosya eklerseniz buraya ekleyin.
 
-- **Build command:** (boş bırakılabilir — statik dosyalar doğrudan servis edilir)
-- **Output directory:** proje kök dizini (`/`)
-- **Node.js sürümü:** `tools/` altındaki geliştirme script'leri Node.js gerektirir (site çalışması için değil, sadece bakım/üretim script'leri için).
+## Cloudflare panel ayarları (zone seviyesi)
 
-## Hosting-seviyesi Yapılandırma
+Bunlar kodda değil, Cloudflare panelinde tanımlı:
 
-- **`_headers`** — HTTP güvenlik header'ları (CSP, X-Frame-Options, vb.) ve cache-control kuralları. Cloudflare Pages, Netlify ile aynı `_headers` dosya formatını destekler.
-- **`_redirects`** — 301 yönlendirmeleri ve 404 catch-all kuralı. **Önemli:** Bu dosyadaki `!` (force) söz dizimi Netlify'a özgüdür; Cloudflare Pages'e geçişte bu kuralların davranışı yeniden doğrulanmalıdır.
+- **SSL/TLS → Edge Certificates → Always Use HTTPS: On** (http → https, 301)
+- **Rules → Redirect Rules:** `https://www.*` → `https://${1}`, 301, query string korunur (www → apex)
 
-## Ortam Değişkenleri / Secrets
+`www`, normal bir DNS kaydı değil, Worker Custom Domain olarak bağlı. Panel redirect kuralı oluştururken "www proxied değil" uyarısı verir — bu yanlış alarm, "Ignore and deploy" seçilmeli. `www` için ayrıca DNS kaydı **oluşturmayın**; Custom Domain ile çakışır.
 
-Bu projede **hiçbir API anahtarı veya secret bulunmaz** — kullanılan tüm dış servisler (Diyanet API, OpenStreetMap Nominatim/Overpass) anahtarsız, herkese açık API'lerdir. Google Analytics ölçüm ID'si (`G-...`) ve Google OAuth Client ID zaten tanım gereği herkese açık, istemci tarafında görünür değerlerdir — bunlar secret değildir ve kaynak kodda görünmeleri normaldir.
+Host/şema yönlendirmelerini Worker koduyla yapmayın: her isteği Worker'dan geçirmek ücretsiz plandaki günlük 100 bin çağrı limitine sayılır. Statik dosya istekleri ücretsiz ve sınırsızdır.
 
-## DNS Migration
+## Google Search Console
 
-DNS geçişi bu projenin en kritik aşamasıdır. Mevcut DNS kayıtları (A/AAAA/CNAME/MX/TXT/CAA/NS) değiştirilmeden önce yedeklenmeli, özellikle e-posta (MX, SPF, DKIM, DMARC) ve doğrulama (Google Search Console vb.) kayıtları korunmalıdır. Nameserver değişikliği **sadece domain registrar panelinden, proje sahibi tarafından** yapılabilir — bu depodaki hiçbir araç registrar erişimi gerektirmez veya bunu otomatikleştirmez.
+Mülk sahipliği DNS TXT kaydıyla (`google-site-verification=...`) doğrulanmış; kökteki `google*.html` dosyaları yedek doğrulama içindir. Sitemap: `https://namazvakiti.net/sitemap.xml`.
+
+## Ortam değişkenleri / secrets
+
+Projede API anahtarı veya secret yoktur. Kullanılan dış servisler (Diyanet API, OpenStreetMap Nominatim/Overpass, Open-Meteo, alquran.cloud) anahtarsızdır. Google Analytics ölçüm ID'si, AdSense yayıncı ID'si ve Google OAuth Client ID tanım gereği herkese açık değerlerdir.
