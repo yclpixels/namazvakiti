@@ -1,6 +1,6 @@
 # namazvakiti.net
 
-Türkiye'nin 81 il + 973 ilçesi için namaz vakitleri sunan statik site (build adımı yok). Genel bilgi: `README.md`. Yayın ve Cloudflare kurulumu: `docs/DEPLOYMENT.md` — Cloudflare/Search Console/yönlendirme konularında önce onu okuyun.
+Türkiye'nin 81 il + 973 ilçesi için namaz vakitleri sunan statik site (build adımı yok). İl/ilçe sayfalarına günün vakitlerini Cloudflare Worker (`worker/index.mjs`) yazar; ayrıntı `docs/DEPLOYMENT.md`. Genel bilgi: `README.md`. Yayın ve Cloudflare kurulumu: `docs/DEPLOYMENT.md` — Cloudflare/Search Console/yönlendirme konularında önce onu okuyun.
 
 Kullanıcıyla Türkçe konuşun.
 
@@ -15,7 +15,8 @@ Bağımlılık yok, sadece Node.js gerekir. Yerel dev sunucusu `_headers` (CSP) 
 ## Push'tan önce (CI ile aynı kontroller)
 
 ```bash
-for f in app.js sw.js tools/*.js tools/migrations/*.js; do node --check "$f"; done
+for f in app.js sw.js worker/index.mjs tools/*.js tools/migrations/*.js; do node --check "$f"; done
+node tools/build-worker-data.js && git status --porcelain # değişiklik çıkmamalı
 node tools/generate-pages.js && git status --porcelain   # değişiklik çıkmamalı
 node tools/build-sitemap.js && git status --porcelain    # değişiklik çıkmamalı
 node tools/quality-gate.js                               # 973/973 geçmeli
@@ -25,7 +26,7 @@ node tools/quality-gate.js                               # 973/973 geçmeli
 
 ## Dikkat edilecekler
 
-- **Önbellek kırma:** `app.js` veya `assets/style.css` değişince tüm HTML'lerdeki `?v=N` numarasını bir artırın (şu an `app.js?v=16`, `style.css?v=15`). Toplu değişiklikleri script ile yapın — 1000+ HTML dosyası ortak şablon kullanmıyor, her sayfa kendi kopyasını taşıyor.
+- **Önbellek kırma:** `app.js` veya `assets/style.css` değişince tüm HTML'lerdeki `?v=N` numarasını bir artırın (şu an `app.js?v=16`, `style.css?v=16`). Toplu değişiklikleri script ile yapın — 1000+ HTML dosyası ortak şablon kullanmıyor, her sayfa kendi kopyasını taşıyor.
 - **Sitemap elle düzenlenmez:** yeni statik sayfa eklerken `tools/build-sitemap.js` içindeki `STATIC_PAGES` listesine ekleyip script'i çalıştırın. Ayrıca `.assetsignore` ve tüm sayfalardaki footer link bloğunu kontrol edin.
 - **Yeni dış API:** domain'ini `_headers` içindeki CSP `connect-src`'ye ekleyin, yoksa canlıda sessizce engellenir.
 - **JSON-LD:** yeni şema yazınca tüm `application/ld+json` bloklarını `JSON.parse` ile doğrulayın (FAQPage'de eksik `}` hatası daha önce 3 kez yapıldı).

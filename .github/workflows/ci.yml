@@ -18,12 +18,21 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Syntax check (app.js + tools/)
+      - name: Syntax check (app.js + worker + tools/)
         run: |
-          for f in app.js sw.js tools/*.js tools/migrations/*.js; do
+          for f in app.js sw.js worker/index.mjs tools/*.js tools/migrations/*.js; do
             echo "Checking $f"
             node --check "$f"
           done
+
+      - name: Worker location map consistency
+        run: |
+          node tools/build-worker-data.js
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "::error::worker/locations.json is out of date. Run 'node tools/build-worker-data.js' locally and commit the result."
+            git status --porcelain
+            exit 1
+          fi
 
       - name: Route generation consistency
         run: |
@@ -59,3 +68,32 @@ jobs:
 # 80+ ardışık istek attığı için CI'da her push'ta çalıştırılması hem yavaş hem de
 # dış servis kesintisine bağımlı, yanıltıcı CI başarısızlıklarına yol açabilir.
 # Bu script periyodik/manuel bakım için ayrı çalıştırılmalıdır.
+
+  indexnow:
+    # Değişen sayfaları Bing/Yandex'e bildirir; yalnızca main'e push'ta,
+    # doğrulama geçtikten ve Workers Builds yayını bitmiş olacak kadar bekledikten sonra.
+    needs: validate
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Notify IndexNow
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          sleep 90
+          if git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+            FILES=$(git diff --name-only "$BEFORE" HEAD -- '*.html')
+          else
+            FILES=$(git diff --name-only HEAD~1 HEAD -- '*.html')
+          fi
+          node tools/indexnow.js $FILES || echo "::warning::IndexNow bildirimi başarısız"

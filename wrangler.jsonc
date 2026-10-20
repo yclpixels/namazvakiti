@@ -1,0 +1,30 @@
+// Cloudflare Worker "namazvakiti" — statik site + il/ilçe sayfalarına günün vakitleri.
+// name DEĞİŞMEMELİ: Workers Builds bu ada yayınlar; farklı ad yeni bir Worker oluşturur.
+{
+  "name": "namazvakiti",
+  "main": "worker/index.mjs",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": ".",
+    "binding": "ASSETS",
+    "html_handling": "auto-trailing-slash",
+    // Bilinmeyen URL'de 404 durum koduyla 404.html (önceden boş gövde dönüyordu)
+    "not_found_handling": "404-page",
+    // Worker yalnızca sayfa isteklerinde çalışır; dosya istekleri ücretsiz/sınırsız
+    // statik katmandan sunulur (günlük Worker çağrı limitine sayılmaz).
+    "run_worker_first": [
+      "/*",
+      "!/assets/*",
+      "!/*.js",
+      "!/*.json",
+      "!/*.xml",
+      "!/*.txt",
+      "!/*.png",
+      "!/*.ico",
+      "!/*.webmanifest",
+      "!/*.html",
+      "!/"
+    ]
+  },
+  "observability": { "enabled": true }
+}

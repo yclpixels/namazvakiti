@@ -391,7 +391,7 @@ svg{flex-shrink:0;}
 
 /* ── Footer ───────────────────────────────────────────────────────── */
 .lx-foot{border-top:1px solid var(--line);padding:64px 0 40px;color:var(--text-3);font-size:13.5px;}
-.lx-foot-grid{display:grid;grid-template-columns:minmax(0,2fr) repeat(2,minmax(0,1fr));gap:40px;}
+.lx-foot-grid{display:grid;grid-template-columns:minmax(0,1.6fr) repeat(3,minmax(0,1fr));gap:40px;}
 .lx-foot-brand p{margin-top:16px;max-width:36ch;color:var(--text-4);line-height:1.6;}
 .lx-foot h4{margin-bottom:16px;color:var(--text);font-size:13.5px;font-weight:550;}
 .lx-foot ul{list-style:none;display:flex;flex-direction:column;gap:10px;}
