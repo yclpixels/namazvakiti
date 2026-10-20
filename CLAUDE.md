@@ -25,7 +25,7 @@ node tools/quality-gate.js                               # 973/973 geçmeli
 
 ## Dikkat edilecekler
 
-- **Önbellek kırma:** `app.js` veya `assets/style.css` değişince tüm HTML'lerdeki `?v=N` numarasını bir artırın (şu an `app.js?v=15`, `style.css?v=14`). Toplu değişiklikleri script ile yapın — 1000+ HTML dosyası ortak şablon kullanmıyor, her sayfa kendi kopyasını taşıyor.
+- **Önbellek kırma:** `app.js` veya `assets/style.css` değişince tüm HTML'lerdeki `?v=N` numarasını bir artırın (şu an `app.js?v=16`, `style.css?v=15`). Toplu değişiklikleri script ile yapın — 1000+ HTML dosyası ortak şablon kullanmıyor, her sayfa kendi kopyasını taşıyor.
 - **Sitemap elle düzenlenmez:** yeni statik sayfa eklerken `tools/build-sitemap.js` içindeki `STATIC_PAGES` listesine ekleyip script'i çalıştırın. Ayrıca `.assetsignore` ve tüm sayfalardaki footer link bloğunu kontrol edin.
 - **Yeni dış API:** domain'ini `_headers` içindeki CSP `connect-src`'ye ekleyin, yoksa canlıda sessizce engellenir.
 - **JSON-LD:** yeni şema yazınca tüm `application/ld+json` bloklarını `JSON.parse` ile doğrulayın (FAQPage'de eksik `}` hatası daha önce 3 kez yapıldı).

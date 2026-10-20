@@ -11,14 +11,15 @@
   const API = "https://ezanvakti.emushaf.net";
   const TURKEY_ID = "2";
 
-  const SVG = (d) => `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+  /* Vakit ikonları: assets/icons/nv/ altındaki renkli set, krem karo içinde. */
+  const ICO = (name) => `<span class="nv-ico"><img src="/assets/icons/nv/${name}.webp" width="22" height="22" alt="" decoding="async"/></span>`;
   const PRAYERS = [
-    { key: "Imsak",  label: "İmsak",  ico: SVG('<path d="M16 3.5A8.5 8.5 0 1 0 20.5 18 7 7 0 0 1 16 3.5Z"/>') },
-    { key: "Gunes",  label: "Güneş",  ico: SVG('<path d="M6 15a6 6 0 0 1 12 0"/><path d="M2 15h20M12 2v4M8.5 6.5 12 3l3.5 3.5"/>') },
-    { key: "Ogle",   label: "Öğle",   ico: SVG('<circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>') },
-    { key: "Ikindi", label: "İkindi", ico: SVG('<circle cx="9" cy="9" r="3.2"/><path d="M9 3.5v1.3M4.5 9H3M13.5 9H12M5.7 5.7l.9.9M12.3 5.7l-.9.9"/><path d="M6 20h11a3.2 3.2 0 0 0 .5-6.36A5 5 0 0 0 8 12.2 3.5 3.5 0 0 0 6 20Z"/>') },
-    { key: "Aksam",  label: "Akşam",  ico: SVG('<path d="M6 15a6 6 0 0 1 12 0"/><path d="M2 15h20M12 2v4M8.5 3.5 12 7l3.5-3.5"/>') },
-    { key: "Yatsi",  label: "Yatsı",  ico: SVG('<path d="M15 3.5A8 8 0 1 0 19.5 17 6.5 6.5 0 0 1 15 3.5Z"/><path d="M19.5 3.5l.6 1.6 1.6.6-1.6.6-.6 1.6-.6-1.6-1.6-.6 1.6-.6.6-1.6Z"/>') },
+    { key: "Imsak",  label: "İmsak",  ico: ICO("imsak") },
+    { key: "Gunes",  label: "Güneş",  ico: ICO("gunes") },
+    { key: "Ogle",   label: "Öğle",   ico: ICO("ogle") },
+    { key: "Ikindi", label: "İkindi", ico: ICO("ikindi") },
+    { key: "Aksam",  label: "Akşam",  ico: ICO("aksam") },
+    { key: "Yatsi",  label: "Yatsı",  ico: ICO("yatsi") },
   ];
 
   const HIJRI_MONTHS = [

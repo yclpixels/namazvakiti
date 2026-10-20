@@ -74,7 +74,8 @@ for (const province of dataset.provinces) {
   const linksHtml = sortedDistricts.map((d) => `<a href="/${provDir}/${d.slug}/">${d.name}</a>`).join("\n");
 
   let provinceHtml = read(`${provDir}.html`);
-  const blockRe = /(<div class="city-links" style="margin-bottom:26px;">\n)([\s\S]*?)(\n {4}<\/div>)/;
+  // Eski şablonda style="margin-bottom:26px;" + 4 boşluk, yeni tasarımda niteliksiz + 6 boşluk
+  const blockRe = /(<div class="city-links"(?: style="margin-bottom:26px;")?>\n)([\s\S]*?)(\n {4,6}<\/div>)/;
   if (blockRe.test(provinceHtml)) {
     provinceHtml = provinceHtml.replace(blockRe, `$1${linksHtml}$3`);
     write(`${provDir}.html`, provinceHtml);

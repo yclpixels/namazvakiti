@@ -104,7 +104,8 @@ svg{flex-shrink:0;}
 .lx-logo svg{display:block;}
 .lx-links{display:flex;align-items:center;gap:4px;}
 .lx-links a{padding:6px 10px;border-radius:8px;color:var(--text-3);font-size:13.5px;font-weight:500;text-decoration:none;
-  transition:color .16s,background .16s;}
+  white-space:nowrap;transition:color .16s,background .16s;}
+@media(max-width:1180px){.lx-navcd{display:none;}}
 .lx-links a:hover{color:var(--text);background:rgba(255,255,255,.04);}
 .lx-links a[aria-current="page"]{color:var(--text);}
 .lx-nav-r{margin-left:auto;display:flex;align-items:center;gap:10px;}
@@ -183,8 +184,9 @@ svg{flex-shrink:0;}
 .lx-t.is-now .lx-t-dot{background:var(--indigo-2);border-color:transparent;}
 .lx-t-now{position:absolute;top:-5px;left:calc(var(--seg,0) * 100%);width:12px;height:12px;margin-left:-6px;border-radius:50%;
   background:var(--text);box-shadow:0 0 0 3px var(--panel);}
-.lx-t-name{display:flex;align-items:center;gap:8px;color:var(--text-3);font-size:13.5px;font-weight:500;}
-.lx-t-name svg{width:15px;height:15px;color:var(--text-4);}
+.lx-t-name{display:flex;align-items:center;gap:10px;color:var(--text-3);font-size:13.5px;font-weight:500;}
+.lx-t.is-past .nv-ico{opacity:.5;filter:saturate(.5);}
+.lx-t.is-now .nv-ico{box-shadow:0 0 0 2px var(--panel),0 0 0 3.5px var(--indigo-2);}
 .lx-t-time{margin-top:14px;font-size:clamp(26px,2.8vw,34px);font-weight:540;letter-spacing:-.03em;line-height:1;
   font-variant-numeric:tabular-nums;font-feature-settings:"tnum","cv01","ss03";color:var(--text);}
 .lx-t-sub{margin-top:10px;min-height:18px;font-size:12.5px;color:var(--text-4);}
@@ -319,6 +321,26 @@ svg{flex-shrink:0;}
 #nvTrend svg{display:block;}
 .lx-trend-meta{display:flex;justify-content:space-between;gap:10px;margin-top:12px;color:var(--text-4);font-size:13px;}
 .lx-trend-meta b{color:var(--text-2);font-weight:550;font-variant-numeric:tabular-nums;}
+
+/* Renkli ikon seti (assets/icons/nv): koyu zeminde konturlar kaybolmasın diye krem karo içinde */
+.nv-ico{--s:30px;flex:none;display:inline-grid;place-items:center;width:var(--s);height:var(--s);border-radius:calc(var(--s) * .3);
+  background:#f3eee3;box-shadow:inset 0 0 0 1px rgba(2,61,46,.10),0 1px 2px rgba(0,0,0,.4);}
+.nv-ico img{display:block;width:78%;height:78%;object-fit:contain;}
+.nv-ico--sm{--s:28px;}
+.nv-ico--lg{--s:44px;}
+.nv-ico--xl{--s:clamp(48px,6vw,64px);}
+.nv-h{display:flex;align-items:center;gap:12px;}
+.kb-h1.nv-h{gap:18px;}
+.lx-menu ul a .nv-ico{margin-right:12px;}
+
+/* Araçlar kartları (il/ilçe/ana sayfa) */
+.nv-tools{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;}
+.nv-tool{display:flex;align-items:center;gap:16px;padding:18px 20px;border:1px solid var(--line);border-radius:14px;
+  background:var(--bg-2);color:var(--text);text-decoration:none;transition:background .16s,border-color .16s;}
+.nv-tool:hover{background:var(--panel-2);border-color:var(--line-3);}
+.nv-tool > span:last-child{display:flex;flex-direction:column;gap:3px;min-width:0;}
+.nv-tool b{font-size:15px;font-weight:590;letter-spacing:-.012em;}
+.nv-tool b + span{color:var(--text-3);font-size:13.5px;line-height:1.45;}
 
 /* Dua vakitleri */
 .dua-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:40px 32px;}
@@ -461,6 +483,7 @@ body:has(.lx-menu[open]){overflow:hidden;}
   .lx-cell,.lx-cell:first-child,.lx-cell:last-child{padding:32px 0;border-left:0;border-top:1px solid var(--line);}
   .lx-cell:first-child{border-top:0;}
   .dua-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .nv-tools{grid-template-columns:repeat(2,minmax(0,1fr));}
   .lx-faq-grid{grid-template-columns:1fr;gap:32px;}
   .lx-links{display:none;}
   .lx-menu{display:block;}
@@ -510,6 +533,7 @@ body:has(.lx-menu[open]){overflow:hidden;}
   .qibla-widget{flex-direction:column;align-items:flex-start;gap:24px;}
   .qibla-deg{font-size:44px;}
   .dua-grid{grid-template-columns:1fr;gap:28px;}
+  .nv-tools{grid-template-columns:1fr;}
   .lx-foot-grid{grid-template-columns:1fr 1fr;}
   .lx-foot-brand{grid-column:1 / -1;}
   .kb-wrap{padding-top:44px;}

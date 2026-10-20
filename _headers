@@ -29,6 +29,10 @@
 /assets/fonts/*
   Cache-Control: public, max-age=31536000, immutable
 
+# Renkli ikon seti: dosya adları sürümsüz, immutable değil
+/assets/icons/nv/*
+  Cache-Control: public, max-age=2592000
+
 /assets/*.json
   Cache-Control: public, max-age=31536000, immutable
 
