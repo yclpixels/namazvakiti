@@ -69,6 +69,12 @@ function gridHtml(rec) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    // İlçe sayfası sonda "/" olmadan istendiyse kalıcı (301) yönlendir;
+    // asset katmanının auto-trailing-slash'ı geçici 307 döndürüyor.
+    if (!url.pathname.endsWith("/") && LOCATIONS[url.pathname + "/"]) {
+      url.pathname += "/";
+      return Response.redirect(url.toString(), 301);
+    }
     const loc = request.method === "GET" ? LOCATIONS[url.pathname] : null;
     if (!loc) return env.ASSETS.fetch(request);
 
