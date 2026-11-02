@@ -66,6 +66,23 @@ function gridHtml(rec) {
       </div>`).join("");
 }
 
+/* Eski site sürümlerinden kalan ve Search Console'da 404 görünen adresler.
+   _redirects Türkçe karakterli yolları canlıda eşleştiremediği için
+   (docs/DEPLOYMENT.md) bunlar burada çözülür. */
+const LEGACY = { "/kible-yonu": "/kible-yonu-bulma", "/vakitler": "/", "/yarin-namaz-vakitleri": "/" };
+const TR_ASCII = { ç: "c", ğ: "g", ı: "i", ö: "o", ş: "s", ü: "u" };
+
+function legacyTarget(pathname) {
+  let p;
+  try { p = decodeURIComponent(pathname); } catch { return null; }
+  p = p.toLocaleLowerCase("tr").replace(/[çğıöşü]/g, (c) => TR_ASCII[c]);
+  const ilce = p.match(/^\/ilce\/([a-z]+)-([a-z0-9-]+)\/?$/); // /ilce/izmir-kiraz
+  if (ilce) p = `/${ilce[1]}/${ilce[2]}/`;
+  const bare = p.length > 1 ? p.replace(/\/$/, "") : p;
+  const target = LEGACY[bare] || (LOCATIONS[bare + "/"] ? bare + "/" : LOCATIONS[bare] ? bare : null);
+  return target && target !== pathname ? target : null;
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -73,6 +90,11 @@ export default {
     // asset katmanının auto-trailing-slash'ı geçici 307 döndürüyor.
     if (!url.pathname.endsWith("/") && LOCATIONS[url.pathname + "/"]) {
       url.pathname += "/";
+      return Response.redirect(url.toString(), 301);
+    }
+    const moved = legacyTarget(url.pathname);
+    if (moved) {
+      url.pathname = moved;
       return Response.redirect(url.toString(), 301);
     }
     const loc = request.method === "GET" ? LOCATIONS[url.pathname] : null;
