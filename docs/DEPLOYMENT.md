@@ -27,7 +27,7 @@ Netlify artık kullanılmıyor. DNS ve nameserver'lar Cloudflare'de.
 - Hangi isteklerin Worker'dan geçtiği `wrangler.jsonc` → `assets.run_worker_first` ile sınırlı: yalnızca uzantısız sayfa yolları. JS/CSS/görsel/sitemap gibi dosyalar ücretsiz statik katmandan sunulur ve günlük 100 bin Worker çağrısı limitine sayılmaz. Ana sayfa (`/`) ve `.html` istekleri de hariç.
 - URL → Diyanet ilçe ID eşlemesi `worker/locations.json`; `node tools/build-worker-data.js` ile üretilir (CI tutarlılığı kontrol eder). Yeni il/ilçe sayfası eklenirse script'i çalıştırın.
 - `not_found_handling: "404-page"` — bilinmeyen URL'ler 404 durum koduyla `404.html` döner.
-- Yerel test: repo kopyasında `npx wrangler dev` (bkz. CLAUDE.md).
+- Yerel test: repo kopyasında `npx wrangler dev`.
 - Günlük çağrı sayısı Cloudflare panelinde Workers → namazvakiti → Metrics'te görünür. 100 bine yaklaşırsa Workers Paid (5$/ay) planına geçilmeli; aksi halde limit aşımında sayfalar hata verir.
 
 ### IndexNow
@@ -40,7 +40,7 @@ Yayını doğrulamak için canlıda önbelleği atlayan bir sorgu ekleyin, ör. 
 
 - **`_headers`** — güvenlik header'ları (CSP dahil) ve cache kuralları. Yeni bir dış API'ye `fetch` eklerseniz domain'ini CSP `connect-src` listesine eklemeyi unutmayın; yoksa istek canlıda sessizce engellenir (yerel dev sunucusu `_headers` uygulamadığı için yerelde fark edilmez).
 - **`_redirects`** — 301 yönlendirmeleri. `wrangler dev` ile yerelde test edilebilir. Türkçe karakter içeren kaynak yollar (ör. `/samsun/tekkeköy/`) yerelde çalışır ama canlıda eşleşmez.
-- **`.assetsignore`** — `.git`, `tools/`, `docs/`, `.claude/`, README gibi dosyaların herkese açık sunulmasını engeller. Kökte yayınlanmaması gereken yeni bir klasör/dosya eklerseniz buraya ekleyin.
+- **`.assetsignore`** — `.git`, `tools/`, `docs/`, README gibi dosyaların herkese açık sunulmasını engeller. Kökte yayınlanmaması gereken yeni bir klasör/dosya eklerseniz buraya ekleyin.
 
 ## Cloudflare panel ayarları (zone seviyesi)
 
