@@ -27,6 +27,11 @@ const memo = new Map();
 
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
+/* Türkiye saatine göre yıl — başlıklardaki "2026" yılbaşında kendiliğinden güncellensin */
+function yearTR() {
+  return new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Istanbul", year: "numeric" }).format(new Date());
+}
+
 function todayTR() {
   // "20.10.2026" — API'nin MiladiTarihKisa biçimi, Türkiye saatine göre
   const p = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Istanbul", day: "2-digit", month: "2-digit", year: "numeric" })
@@ -83,9 +88,27 @@ function legacyTarget(pathname) {
   return target && target !== pathname ? target : null;
 }
 
+/* Eski ".html" / "index.html" adresleri: statik katman bunları geçici 307 ile
+   yönlendiriyordu; Google bu yüzden /ankara.html gibi adresleri dizinde
+   tutuyordu. Hedef gerçekten varsa kalıcı 301 döner. */
+async function htmlTarget(url, env) {
+  if (!url.pathname.endsWith(".html")) return null;
+  let p = url.pathname.slice(0, -5);
+  if (p === "/index" || p.endsWith("/index")) p = p.slice(0, -5) || "/";
+  if (/^\/(404|offline|google[0-9a-f]+)$/.test(p)) return null;
+  if (LOCATIONS[p]) return p;
+  const probe = await env.ASSETS.fetch(new Request(new URL(p, url), { method: "HEAD" }));
+  return probe.status === 200 ? p : null;
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    const clean = await htmlTarget(url, env);
+    if (clean) {
+      url.pathname = clean;
+      return Response.redirect(url.toString(), 301);
+    }
     // İlçe sayfası sonda "/" olmadan istendiyse kalıcı (301) yönlendir;
     // asset katmanının auto-trailing-slash'ı geçici 307 döndürüyor.
     if (!url.pathname.endsWith("/") && LOCATIONS[url.pathname + "/"]) {
@@ -115,8 +138,15 @@ export default {
     const sentence = `${rec.MiladiTarihUzun} — ${place} namaz vakitleri: ${times}. Kaynak: Diyanet İşleri Başkanlığı.`;
     const desc = `${place} namaz vakitleri bugün (${rec.MiladiTarihUzun}): İmsak ${rec.Imsak}, Öğle ${rec.Ogle}, İkindi ${rec.Ikindi}, Akşam ${rec.Aksam}, Yatsı ${rec.Yatsi}. Aylık imsakiye ve kıble yönü.`;
 
+    const year = yearTR();
+    const fixYear = (t) => t.replace(/\b20\d{2}\b/g, year);
     const out = new HTMLRewriter()
       .on('meta[name="description"]', { element(el) { el.setAttribute("content", desc); } })
+      .on('meta[property="og:description"], meta[name="twitter:description"]', { element(el) { el.setAttribute("content", desc); } })
+      .on('meta[property="og:title"], meta[name="twitter:title"]', {
+        element(el) { const c = el.getAttribute("content"); if (c) el.setAttribute("content", fixYear(c)); },
+      })
+      .on("title", { text(t) { if (/20\d{2}/.test(t.text)) t.replace(fixYear(t.text)); } })
       .on("#prayerGrid", { element(el) { el.setInnerContent(gridHtml(rec), { html: true }); } })
       .on("#cdSub", { element(el) { el.setInnerContent(sentence); } })
       .on("#heroHijri", { element(el) { if (rec.HicriTarihUzun) el.setInnerContent(rec.HicriTarihUzun); } })

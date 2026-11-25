@@ -22,7 +22,8 @@
       "!/*.png",
       "!/*.ico",
       "!/*.webmanifest",
-      "!/*.html",
+      // .html istekleri Worker'dan geçer: eski /il.html adresleri 301 ile
+      // temiz adrese yönlenir (yalnızca eski bağlantılardan gelen az sayıda istek)
       "!/"
     ]
   },

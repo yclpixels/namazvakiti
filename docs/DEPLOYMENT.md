@@ -24,7 +24,7 @@ Netlify artık kullanılmıyor. DNS ve nameserver'lar Cloudflare'de.
 
 İl ve ilçe sayfası istendiğinde Diyanet API'sinden o günün vakitlerini alıp HTML'e yazar (vakit kartları, `#cdSub` cümlesi, hicri tarih, meta description). Böylece arama motorları ve JS'siz tarayıcılar vakitleri görür. API 1,5 sn içinde cevap vermezse sayfa statik haliyle döner.
 
-- Hangi isteklerin Worker'dan geçtiği `wrangler.jsonc` → `assets.run_worker_first` ile sınırlı: yalnızca uzantısız sayfa yolları. JS/CSS/görsel/sitemap gibi dosyalar ücretsiz statik katmandan sunulur ve günlük 100 bin Worker çağrısı limitine sayılmaz. Ana sayfa (`/`) ve `.html` istekleri de hariç.
+- Hangi isteklerin Worker'dan geçtiği `wrangler.jsonc` → `assets.run_worker_first` ile sınırlı: yalnızca uzantısız sayfa yolları. JS/CSS/görsel/sitemap gibi dosyalar ücretsiz statik katmandan sunulur ve günlük 100 bin Worker çağrısı limitine sayılmaz. Ana sayfa (`/`) hariç. `.html` istekleri Worker'dan geçer: eski `/il.html` ve `.../index.html` adresleri hedef sayfa varsa kalıcı 301 ile temiz adrese yönlenir (statik katman geçici 307 döndürdüğü için Google eski adresleri dizinde tutuyordu). Worker ayrıca il/ilçe başlıklarındaki yılı Türkiye saatine göre günceller.
 - URL → Diyanet ilçe ID eşlemesi `worker/locations.json`; `node tools/build-worker-data.js` ile üretilir (CI tutarlılığı kontrol eder). Yeni il/ilçe sayfası eklenirse script'i çalıştırın.
 - `not_found_handling: "404-page"` — bilinmeyen URL'ler 404 durum koduyla `404.html` döner.
 - Yerel test: repo kopyasında `npx wrangler dev`.
